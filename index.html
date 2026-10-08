@@ -14,21 +14,18 @@
   --radius:16px;
 }
 [data-theme="light"]{
-  --bg:#e9edf4; --bg2:#ffffff; --card:#ffffff; --card2:#eef2f9;
-  --text:#122036; --muted:#4e6280; --line:#d2dbe8;
-  --accent:#bd1120; --accent2:#cf6a1c; --gold:#8a6a00; --green:#13803c;
+  --bg:#e9edf4; --bg2:#ffffff; --card:#ffffff; --card2:#edf1f8;
+  --text:#101c31; --muted:#42566e; --line:#c4d0e2;
+  --accent:#b30f1e; --accent2:#b25a12; --gold:#7d5f00; --green:#127a39;
 }
 [data-theme="light"] .card,[data-theme="light"] .game,[data-theme="light"] .team-card,[data-theme="light"] .lead-card{box-shadow:0 2px 12px rgba(18,32,54,.08);}
 [data-theme="light"] .hero{background:linear-gradient(135deg,#ffffff,#dbe4f1);}
 [data-theme="light"] .hero .num{background:rgba(18,32,54,.05);}
-[data-theme="light"] nav.bottom{background:rgba(255,255,255,.96); box-shadow:0 -2px 14px rgba(18,32,54,.08);}
-[data-theme="light"] nav.bottom button{color:#7b8da6;}
-[data-theme="light"] nav.bottom button.active{color:var(--accent);}
 [data-theme="light"] .toast{background:#1c2a45;}
 [data-theme="light"] .badge{box-shadow:inset 0 -3px 6px rgba(0,0,0,.15);}
 [data-theme="light"] .vs .vsc{color:var(--text); text-shadow:none;}
-[data-theme="light"] .status.final{background:rgba(19,128,60,.12); color:#13803c; border-color:rgba(19,128,60,.35);}
-[data-theme="light"] .status.prog{background:rgba(138,106,0,.12); color:#8a6a00; border-color:rgba(138,106,0,.35);}
+[data-theme="light"] .status.final{background:rgba(18,122,57,.12); color:#127a39; border-color:rgba(18,122,57,.4);}
+[data-theme="light"] .status.prog{background:rgba(125,95,0,.12); color:#7d5f00; border-color:rgba(125,95,0,.4);}
 [data-theme="light"] .moremenu{box-shadow:0 10px 30px rgba(18,32,54,.18);}
 [data-theme="light"] .moremenu .mi{color:var(--accent);}
 [data-theme="light"] header.topbar{box-shadow:0 2px 12px rgba(120,10,20,.35);}
@@ -60,7 +57,7 @@
 .ytbtn b{font-size:16px;}
 .ytbtn small{font-size:12px; opacity:.85;}
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
-body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); padding-bottom:76px;}
+body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); padding-bottom:24px;}
 header.topbar{position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:12px; padding:12px 16px; background:linear-gradient(135deg,#a4161a,#64100f); box-shadow:0 2px 12px rgba(0,0,0,.4);}
 header.topbar .ball{width:38px; height:38px; border-radius:50%; background:radial-gradient(circle at 35% 35%,#fff,#d7dee8); position:relative; flex:none; box-shadow:0 2px 6px rgba(0,0,0,.4);}
 header.topbar .ball::before, header.topbar .ball::after{content:""; position:absolute; top:4px; bottom:4px; width:10px; border:2px dashed #c0392b; border-radius:50%;}
@@ -157,10 +154,7 @@ table.st tr.lead td{background:rgba(241,196,15,.06);}
 .btn.ghost{background:var(--card2); color:var(--text); border:1px solid var(--line);}
 .btn:disabled{opacity:.5;}
 .empty{text-align:center; color:var(--muted); padding:26px 16px; font-size:14px; line-height:1.6;}
-nav.bottom{position:fixed; left:0; right:0; bottom:0; z-index:50; display:flex; background:rgba(22,28,38,.97); border-top:1px solid var(--line); padding:6px 4px calc(8px + env(safe-area-inset-bottom)); backdrop-filter:blur(8px);}
-nav.bottom button{flex:1; background:none; border:none; color:var(--muted); font-size:10px; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px; cursor:pointer;}
-nav.bottom button.active{color:#fff;}
-.toast{position:fixed; left:50%; bottom:90px; transform:translateX(-50%) translateY(20px); background:#222d42; color:#fff; padding:12px 18px; border-radius:12px; font-size:14px; opacity:0; transition:all .3s; z-index:200; max-width:88vw; text-align:center; border:1px solid var(--line);}
+.toast{position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px); background:#222d42; color:#fff; padding:12px 18px; border-radius:12px; font-size:14px; opacity:0; transition:all .3s; z-index:200; max-width:88vw; text-align:center; border:1px solid var(--line);}
 .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 .chip{display:inline-block; font-size:11px; padding:4px 10px; border-radius:20px; background:var(--card2); border:1px solid var(--line); color:var(--muted); margin:2px 4px 2px 0;}
 
@@ -201,11 +195,6 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
 .btn:active,.tabs button:active,.bstabs button:active,.team-card:active,.lead-card:active{transform:scale(.96);}
 .tabs button{min-height:44px;}
 .bstabs button{min-height:44px;}
-nav.bottom{padding:6px 6px calc(8px + env(safe-area-inset-bottom));gap:2px;}
-nav.bottom button{min-height:58px;border-radius:14px;transition:background .25s ease,transform .12s ease,box-shadow .25s ease;}
-nav.bottom button span{font-size:9px;}
-nav.bottom button.active{background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(230,57,70,.45);}
-nav.bottom button:active{transform:scale(.93);}
 .ncard{overflow:hidden;padding:0;}
 .ncard .nbody{padding:12px 14px 14px;}
 .ncard .nbody h4{margin:0 0 6px;font-size:15px;line-height:1.35;}
@@ -299,7 +288,6 @@ nav.bottom button:active{transform:scale(.93);}
   </section>
 </main>
 
-<nav class="bottom" id="bottomNav"></nav>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -815,17 +803,11 @@ const PAGES = [
   {id:"noticias", label:"Noticias", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v12H4zM4 17l-1 4 4-4M20 9h3v9l-3-2"/></svg>'},
   {id:"envivo", label:"En Vivo", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M8.5 8.5a5 5 0 000 7M15.5 8.5a5 5 0 010 7M5.6 5.6a9 9 0 000 12.8M18.4 5.6a9 9 0 010 12.8"/></svg>'}
 ];
-const drawerNav = document.getElementById("drawerNav"), bottomNav = document.getElementById("bottomNav");
-const BOTTOM = ["inicio","jornada","posiciones","lideres","equipos","noticias","envivo"];
+const drawerNav = document.getElementById("drawerNav");
 PAGES.forEach(p=>{
   const b = document.createElement("button");
   b.innerHTML = p.icon+"<span>"+p.label+"</span>"; b.dataset.pg = p.id; b.onclick = ()=>go(p.id);
   drawerNav.appendChild(b);
-  if(BOTTOM.includes(p.id)){
-    const m = document.createElement("button");
-    m.innerHTML = p.icon+"<span>"+p.label+"</span>"; m.dataset.pg = p.id; m.onclick = ()=>go(p.id);
-    bottomNav.appendChild(m);
-  }
 });
 const menuBtn = document.getElementById("menuBtn"), drawer = document.getElementById("drawer"), scrim = document.getElementById("scrim");
 menuBtn.onclick = ()=>{drawer.classList.add("open"); scrim.classList.add("show");};
