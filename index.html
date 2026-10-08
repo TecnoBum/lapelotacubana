@@ -130,6 +130,12 @@
 .medal svg{width:46px; height:46px;}
 .medal b{display:block; font-size:11px; margin-top:6px;}
 .medal small{display:block; font-size:10px; color:var(--muted); margin-top:2px; line-height:1.3;}
+.medal .mp{color:var(--gold); font-weight:800; font-size:10px; margin-top:4px;}
+.ladder{display:flex; gap:6px; overflow-x:auto; margin-top:10px; scrollbar-width:none;}
+.ladder::-webkit-scrollbar{display:none;}
+.ladder span{flex:none; font-size:10px; font-weight:800; padding:5px 10px; border-radius:16px; border:1px solid var(--line); color:var(--muted); text-transform:uppercase; letter-spacing:.5px;}
+.ladder span.done{color:var(--text); border-color:var(--green);}
+.ladder span.on{background:var(--gold); border-color:var(--gold); color:#1a1a1a;}
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
 body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); padding-bottom:24px;}
 header.topbar{position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:12px; padding:12px 16px; background:linear-gradient(135deg,#a4161a,#64100f); box-shadow:0 2px 12px rgba(0,0,0,.4);}
@@ -373,9 +379,9 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
         <div class="num"><b id="pHits">0/0</b><span>Aciertos</span></div>
         <div class="num"><b id="pEff">–</b><span>Efectividad</span></div>
       </div>
-      <div class="lvl"><div class="lvl-top"><span id="pLevel">Novato</span><span id="pNext"></span></div><div class="lvlbar"><div id="pBar"></div></div></div>
+      <div class="lvl"><div class="lvl-top"><span id="pLevel">Novato</span><span id="pNext"></span></div><div class="lvlbar"><div id="pBar"></div></div><div class="ladder" id="ladder"></div></div>
     </div>
-    <div class="card"><h3>Medallas</h3><div class="medals" id="medalGrid"></div></div>
+    <div class="card"><h3 id="medalTitle">Medallas</h3><div class="medals" id="medalGrid"></div></div>
     <div class="card"><h3>Pronostica los ganadores</h3><div id="pickList"></div>
       <div class="gmeta" style="margin-top:8px">Acierta el ganador y suma 3 puntos. Puedes cambiar tu pronóstico hasta que el juego finalice. Tus pronósticos se guardan en este teléfono.</div>
     </div>
@@ -926,15 +932,23 @@ const LEVELS = [
   {name:"Aficionado", min:10},
   {name:"Experto", min:30},
   {name:"Estrella", min:60},
-  {name:"Leyenda", min:100}
+  {name:"Leyenda", min:100},
+  {name:"Mito", min:160},
+  {name:"Inmortal", min:250}
 ];
 const MEDALS = [
-  {id:"first", name:"Primera victoria", desc:"Tu primer acierto", color:"#cd7f32"},
-  {id:"streak3", name:"Racha x3", desc:"3 aciertos seguidos", color:"#c0c0c0"},
-  {id:"streak5", name:"Racha x5", desc:"5 aciertos seguidos", color:"#ffd700"},
-  {id:"hits10", name:"Enrachado", desc:"10 aciertos totales", color:"#cd7f32"},
-  {id:"hits25", name:"Imparable", desc:"25 aciertos totales", color:"#c0c0c0"},
-  {id:"perfect", name:"Jornada perfecta", desc:"Acertar todo un día (2+ juegos)", color:"#ffd700"}
+  {id:"first", name:"Primera victoria", desc:"Tu primer acierto", color:"#cd7f32", cur:s=>[Math.min(s.hits,1),1]},
+  {id:"streak3", name:"Racha x3", desc:"3 aciertos seguidos", color:"#c0c0c0", cur:s=>[Math.min(s.maxStreak,3),3]},
+  {id:"streak5", name:"Racha x5", desc:"5 aciertos seguidos", color:"#ffd700", cur:s=>[Math.min(s.maxStreak,5),5]},
+  {id:"streak7", name:"Racha x7", desc:"7 aciertos seguidos", color:"#ffd700", cur:s=>[Math.min(s.maxStreak,7),7]},
+  {id:"streak10", name:"Racha x10", desc:"10 aciertos seguidos", color:"#7dd3fc", cur:s=>[Math.min(s.maxStreak,10),10]},
+  {id:"hits10", name:"Enrachado", desc:"10 aciertos totales", color:"#cd7f32", cur:s=>[Math.min(s.hits,10),10]},
+  {id:"hits25", name:"Imparable", desc:"25 aciertos totales", color:"#c0c0c0", cur:s=>[Math.min(s.hits,25),25]},
+  {id:"hits50", name:"Leyenda viviente", desc:"50 aciertos totales", color:"#ffd700", cur:s=>[Math.min(s.hits,50),50]},
+  {id:"hits100", name:"Salón de la fama", desc:"100 aciertos totales", color:"#7dd3fc", cur:s=>[Math.min(s.hits,100),100]},
+  {id:"perfect", name:"Jornada perfecta", desc:"Acertar todo un día (2+ juegos)", color:"#ffd700", cur:s=>[Math.min(s.perfectDays,1),1]},
+  {id:"pleno", name:"Pleno total", desc:"Acertar 6+ juegos en un día", color:"#7dd3fc", cur:s=>[Math.min(s.bestFull,6),6]},
+  {id:"remontada", name:"Remontada", desc:"Acertar tras 3 fallos seguidos", color:"#c0c0c0", cur:s=>[s.comeback?1:0,1]}
 ];
 function medalSVG(color, locked){
   const c = locked ? "#8a93a3" : color;
@@ -1004,19 +1018,31 @@ function renderPredicciones(){
     document.getElementById("pNext").textContent = "Nivel máximo";
     document.getElementById("pBar").style.width = "100%";
   }
-  // Medallas
+  // Medallas y logros
   scoredList.sort((a,b)=>a.num-b.num);
-  let maxStreak=0, cur=0;
-  scoredList.forEach(x=>{ if(x.s>0){ cur++; maxStreak=Math.max(maxStreak,cur); } else cur=0; });
+  let maxStreak=0, cur=0, comeback=false, missRun=0;
+  scoredList.forEach(x=>{
+    if(x.s>0){ cur++; maxStreak=Math.max(maxStreak,cur); if(missRun>=3) comeback=true; missRun=0; }
+    else { cur=0; missRun++; }
+  });
   const byDate={};
   scoredList.forEach(x=>{ (byDate[x.date]=byDate[x.date]||[]).push(x); });
-  const perfectDay = Object.keys(byDate).some(d=>byDate[d].length>=2 && byDate[d].every(x=>x.s>0));
-  const earned = {first:hits>=1, streak3:maxStreak>=3, streak5:maxStreak>=5,
-                  hits10:hits>=10, hits25:hits>=25, perfect:perfectDay};
+  let perfectDays=0, bestFull=0;
+  Object.keys(byDate).forEach(d=>{
+    const arr=byDate[d];
+    if(arr.length>=2 && arr.every(x=>x.s>0)){ perfectDays++; bestFull=Math.max(bestFull,arr.length); }
+  });
+  const stats={hits:hits, maxStreak:maxStreak, perfectDays:perfectDays, bestFull:bestFull, comeback:comeback};
+  const earned={first:hits>=1, streak3:maxStreak>=3, streak5:maxStreak>=5, streak7:maxStreak>=7, streak10:maxStreak>=10,
+    hits10:hits>=10, hits25:hits>=25, hits50:hits>=50, hits100:hits>=100,
+    perfect:perfectDays>=1, pleno:bestFull>=6, remontada:comeback};
+  const nEarned=Object.keys(earned).filter(k=>earned[k]).length;
+  document.getElementById("medalTitle").textContent="Logros y medallas ("+nEarned+"/"+MEDALS.length+")";
   document.getElementById("medalGrid").innerHTML = MEDALS.map(m=>{
-    const e = !!earned[m.id];
-    return '<div class="medal'+(e?" earned":"")+'">'+medalSVG(m.color,!e)+'<b>'+m.name+'</b><small>'+m.desc+'</small></div>';
+    const e=!!earned[m.id], p=m.cur(stats);
+    return '<div class="medal'+(e?" earned":"")+'">'+medalSVG(m.color,!e)+'<b>'+m.name+'</b><small>'+m.desc+'</small><small class="mp">'+(e?"¡Conseguida!":p[0]+"/"+p[1])+'</small></div>';
   }).join("");
+  document.getElementById("ladder").innerHTML = LEVELS.map((L,i)=>'<span class="'+(i===li?"on":(i<li?"done":""))+'">'+L.name+'</span>').join("");
 }
 /* ============ CUENTA DE USUARIO (local) ============ */
 let _uphoto = null, _uteam = null;
