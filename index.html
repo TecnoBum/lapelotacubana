@@ -73,14 +73,14 @@ header.topbar small{display:block; font-size:11px; color:#f3c1c1; font-weight:40
 .livedot.on .p{animation:blink 1.4s infinite;}
 @keyframes blink{50%{opacity:.25;}}
 /* Pelota de beisbol animada */
-.baseball{width:64px; height:64px; border-radius:50%; background:radial-gradient(circle at 35% 30%,#ffffff,#dbe2ec 65%,#b9c3d4); position:relative; box-shadow:0 6px 18px rgba(0,0,0,.5), inset -4px -6px 12px rgba(0,0,0,.12); animation:ballspin 1s linear infinite;}
-.baseball::before,.baseball::after{content:""; position:absolute; top:7px; bottom:7px; width:20px; border:3px solid #c0392b; border-radius:50%; opacity:.9;}
-.baseball::before{left:8px; border-right-color:transparent; border-top-color:transparent; border-bottom-color:transparent; transform:rotate(16deg);}
-.baseball::after{right:8px; border-left-color:transparent; border-top-color:transparent; border-bottom-color:transparent; transform:rotate(-16deg);}
-@keyframes ballspin{to{transform:rotate(360deg);}}
-.baseball-sm{width:18px; height:18px; display:inline-block; vertical-align:-3px; margin-right:8px;}
-.baseball-sm::before,.baseball-sm::after{top:2px; bottom:2px; width:7px; border-width:2px;}
-.baseball-sm::before{left:2px;} .baseball-sm::after{right:2px;}
+.dots{display:flex; gap:10px; align-items:center; justify-content:center; padding:10px;}
+.dots span{width:12px; height:12px; border-radius:50%; background:var(--accent); animation:dotjump 1s ease-in-out infinite;}
+.dots span:nth-child(2){animation-delay:.15s;}
+.dots span:nth-child(3){animation-delay:.3s;}
+@keyframes dotjump{0%,60%,100%{transform:translateY(0); opacity:.4;}30%{transform:translateY(-12px); opacity:1;}}
+.dots.light span{background:#fff;}
+.dots.mini{display:inline-flex; gap:5px; padding:0; vertical-align:-1px; margin-right:8px;}
+.dots.mini span{width:7px; height:7px; background:currentColor;}
 #loader{position:fixed; inset:0; background:var(--bg); z-index:300; display:flex; align-items:center; justify-content:center; padding:20px;}
 #loader .lbox{text-align:center;}
 #loader .lbox p{color:var(--muted); margin-top:16px; font-size:14px;}
@@ -209,7 +209,7 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
 </style>
 </head>
 <body>
-<div id="splash"><div class="baseball" style="width:96px;height:96px"></div><h1>La Pelota Cubana</h1><p>65 Serie Nacional &middot; 2026</p></div>
+<div id="splash"><div class="dots light"><span></span><span></span><span></span></div><h1>La Pelota Cubana</h1><p>65 Serie Nacional &middot; 2026</p></div>
 <header class="topbar">
   <button class="iconbtn" id="menuBtn" aria-label="Menú"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 5h16M2 10h16M2 15h16"/></svg></button>
   <div style="flex:1"><h1>La Pelota Cubana<small>65 Serie Nacional &bull; 2026 &middot; <span id="hdrDate"></span></small></h1></div>
@@ -372,7 +372,7 @@ function newsImg(n){
 }
 function newsInner(x){
   const img = newsImg(x);
-  return '<div class="nmedia"><div class="nimg-fb"><div class="baseball" style="width:56px;height:56px"></div></div>'
+  return '<div class="nmedia"><div class="nimg-fb"><div class="dots"><span></span><span></span><span></span></div></div>'
     + (img?'<img class="nimg" src="'+img+'" alt="" loading="lazy" decoding="async" onerror="this.remove()">':'')
     + '</div><div class="nbody"><h4>'+x.title+'</h4>'+(x.text?'<p>'+x.text+'</p>':'')+'</div>';
 }
@@ -663,7 +663,7 @@ function detailHTML(g){
   let body;
     const data = num!=null ? ((S.box && S.box[num]) || boxCache[num]) : {error:true};
     if(!data){
-      body = '<div class="bsload"><div class="baseball" style="width:44px;height:44px"></div></div>';
+      body = '<div class="bsload"><div class="dots"><span></span><span></span><span></span></div></div>';
       if(num!=null && !boxLoading[num]) loadBox(g.id, num);
     } else if(data.error){
       body = '<div class="empty">No se pudo cargar el boxscore.<br><button class="btn ghost" style="max-width:240px;margin:10px auto 0" onclick="event.stopPropagation();retryBox(\''+g.id+'\')">Reintentar</button></div>';
@@ -953,7 +953,7 @@ let refreshing = false;
 async function refreshLive(silent){
   if(refreshing) return false; refreshing = true;
   const btn = document.getElementById("refreshBtn");
-  if(btn && !silent){ btn.disabled = true; btn.innerHTML = '<span class="baseball baseball-sm"></span>Buscando datos en vivo…'; }
+  if(btn && !silent){ btn.disabled = true; btn.innerHTML = '<span class="dots mini"><span></span><span></span><span></span></span>Buscando datos en vivo…'; }
   let ok = false;
   try{
     const html = await fetchLiveHTML();
