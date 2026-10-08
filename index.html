@@ -66,6 +66,36 @@
 #apkModal .clog{text-align:left; font-size:13px; line-height:1.5; color:var(--muted); background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:12px; max-height:170px; overflow-y:auto; margin:14px 0; white-space:pre-line;}
 #apkModal .dlg .btn{margin-top:8px;}
 [data-theme="light"] #apkModal .dlg{box-shadow:0 16px 40px rgba(18,32,54,.25);}
+/* Predicciones */
+.pickrow{display:flex; gap:8px; margin-top:8px;}
+.pickbtn{flex:1; display:flex; align-items:center; justify-content:center; gap:8px; padding:11px 8px; border-radius:12px; border:2px solid var(--line); background:var(--card2); color:var(--text); cursor:pointer; font-size:13px; font-weight:700; min-height:52px;}
+.pickbtn .badge{width:30px; height:30px; font-size:10px;}
+.pickbtn:active{transform:scale(.97);}
+.pickbtn.sel{border-color:var(--green); background:rgba(46,204,113,.12);}
+[data-theme="light"] .pickbtn.sel{background:rgba(18,122,57,.1);}
+.prow{display:flex; align-items:center; gap:10px; padding:10px 2px; border-bottom:1px solid rgba(42,53,71,.4); font-size:13px;}
+.prow:last-child{border-bottom:none;}
+.prow .teams{flex:1; min-width:0;}
+.prow .teams small{display:block; color:var(--muted); font-size:11px;}
+.prow .pts{font-weight:800; font-size:14px; flex:none;}
+.prow .pts.hit{color:var(--green);}
+.prow .pts.miss{color:var(--muted);}
+.prow .tag{flex:none; font-size:10px; font-weight:800; padding:4px 10px; border-radius:20px; letter-spacing:.5px;}
+.prow .tag.hit{background:rgba(46,204,113,.15); color:var(--green); border:1px solid rgba(46,204,113,.4);}
+.prow .tag.miss{background:rgba(230,57,70,.12); color:var(--accent); border:1px solid rgba(230,57,70,.35);}
+/* Niveles y medallas */
+.lvl{margin-top:14px;}
+.lvl-top{display:flex; justify-content:space-between; align-items:baseline; font-size:12px; color:var(--muted); margin-bottom:6px;}
+.lvl-top span:first-child{font-weight:800; color:var(--gold); font-size:13px; text-transform:uppercase; letter-spacing:1px;}
+.lvlbar{height:8px; border-radius:6px; background:rgba(255,255,255,.1); overflow:hidden;}
+[data-theme="light"] .lvlbar{background:rgba(18,32,54,.12);}
+.lvlbar div{height:100%; border-radius:6px; background:linear-gradient(90deg,var(--gold),var(--accent2)); width:0; transition:width .5s ease;}
+.medals{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
+.medal{text-align:center; padding:12px 6px; border-radius:12px; background:var(--card2); border:1px solid var(--line); opacity:.45;}
+.medal.earned{opacity:1; border-color:var(--gold);}
+.medal svg{width:46px; height:46px;}
+.medal b{display:block; font-size:11px; margin-top:6px;}
+.medal small{display:block; font-size:10px; color:var(--muted); margin-top:2px; line-height:1.3;}
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
 body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); padding-bottom:24px;}
 header.topbar{position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:12px; padding:12px 16px; background:linear-gradient(135deg,#a4161a,#64100f); box-shadow:0 2px 12px rgba(0,0,0,.4);}
@@ -295,6 +325,22 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
       <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.8-.5-5.6c-.3-1-1.1-1.8-2.1-2C18.6 4 12 4 12 4s-6.6 0-8.4.4c-1 .3-1.8 1-2.1 2C1 8.2 1 12 1 12s0 3.8.5 5.6c.3 1 1.1 1.8 2.1 2 1.8.4 8.4.4 8.4.4s6.6 0 8.4-.4c1-.3 1.8-1 2.1-2 .5-1.8.5-5.6.5-5.6zM9.8 15.5v-7l6 3.5-6 3.5z"/></svg>
       <span><b>Ver en YouTube</b><small>@PlayCubanoDeportes</small></span>
     </a>
+  </section>
+  <section class="page" id="pg-predicciones">
+    <div class="hero">
+      <div class="big">Mis puntos</div>
+      <div class="nums">
+        <div class="num"><b id="pPoints">0</b><span>Puntos</span></div>
+        <div class="num"><b id="pHits">0/0</b><span>Aciertos</span></div>
+        <div class="num"><b id="pEff">–</b><span>Efectividad</span></div>
+      </div>
+      <div class="lvl"><div class="lvl-top"><span id="pLevel">Novato</span><span id="pNext"></span></div><div class="lvlbar"><div id="pBar"></div></div></div>
+    </div>
+    <div class="card"><h3>Medallas</h3><div class="medals" id="medalGrid"></div></div>
+    <div class="card"><h3>Pronostica los ganadores</h3><div id="pickList"></div>
+      <div class="gmeta" style="margin-top:8px">Acierta el ganador y suma 3 puntos. Puedes cambiar tu pronóstico hasta que el juego finalice. Tus pronósticos se guardan en este teléfono.</div>
+    </div>
+    <div class="card"><h3>Mis resultados</h3><div id="pickResults"></div></div>
   </section>
 </main>
 
@@ -816,6 +862,105 @@ function initEnvivo(){
   renderStations();
   if(!tvLoaded){ tvLoaded = true; document.getElementById("tvFrame").src = TV_EMBED; }
 }
+/* ============ PREDICCIONES (solo en este teléfono) ============ */
+const PICK_POINTS = 3;
+const LEVELS = [
+  {name:"Novato", min:0},
+  {name:"Aficionado", min:10},
+  {name:"Experto", min:30},
+  {name:"Estrella", min:60},
+  {name:"Leyenda", min:100}
+];
+const MEDALS = [
+  {id:"first", name:"Primera victoria", desc:"Tu primer acierto", color:"#cd7f32"},
+  {id:"streak3", name:"Racha x3", desc:"3 aciertos seguidos", color:"#c0c0c0"},
+  {id:"streak5", name:"Racha x5", desc:"5 aciertos seguidos", color:"#ffd700"},
+  {id:"hits10", name:"Enrachado", desc:"10 aciertos totales", color:"#cd7f32"},
+  {id:"hits25", name:"Imparable", desc:"25 aciertos totales", color:"#c0c0c0"},
+  {id:"perfect", name:"Jornada perfecta", desc:"Acertar todo un día (2+ juegos)", color:"#ffd700"}
+];
+function medalSVG(color, locked){
+  const c = locked ? "#8a93a3" : color;
+  return '<svg viewBox="0 0 48 48"><path d="M17 2h14l4 14H13z" fill="'+(locked?"#8a93a3":"#c0392b")+'"/>'
+    +'<circle cx="24" cy="30" r="12" fill="'+c+'" stroke="rgba(255,255,255,.75)" stroke-width="2"/>'
+    +'<text x="24" y="36" text-anchor="middle" font-size="15" fill="#fff" font-weight="bold">★</text></svg>';
+}
+const GAMES_BY_NUM = {};
+function getPicks(){ try{ return JSON.parse(localStorage.getItem("lpc-picks")||"{}"); }catch(e){ return {}; } }
+function savePicks(p){ try{ localStorage.setItem("lpc-picks", JSON.stringify(p)); }catch(e){} }
+function setPick(num, side){
+  const g = GAMES_BY_NUM[num]; if(!g || g.status==="final") return;
+  const p = getPicks();
+  p[num] = {side:side, away:g.away, home:g.home, date:g.date};
+  savePicks(p);
+  renderPredicciones();
+}
+function pickScore(g, side){
+  if(!g || g.status!=="final" || g.ar==null || g.hr==null || g.ar===g.hr) return null;
+  const win = g.ar>g.hr ? "away" : "home";
+  return side===win ? PICK_POINTS : 0;
+}
+function renderPredicciones(){
+  const picks = getPicks();
+  const all = (S.games||[]).concat(S.prev||[], S.upcoming||[]);
+  all.forEach(g=>{ const n = gameNumId(g.id); if(n!=null) GAMES_BY_NUM[n]=g; });
+  // Juegos pronosticables: próximos + no finalizados de hoy
+  const open = (S.upcoming||[]).concat((S.games||[]).filter(g=>g.status!=="final"));
+  const seen = {};
+  const uniq = open.filter(g=>{ const n=gameNumId(g.id); if(n==null||seen[n]) return false; seen[n]=true; return true; });
+  document.getElementById("pickList").innerHTML = uniq.length ? uniq.map(g=>{
+    const n = gameNumId(g.id), pk = picks[n];
+    const ta = TEAMS[g.away]||{name:g.away,mote:""}, th = TEAMS[g.home]||{name:g.home,mote:""};
+    const meta = "Juego "+n+" · "+fmtDate(g.date)+(g.time?" · "+g.time:"")+(g.stadium?" · "+g.stadium:"");
+    const btn = (side, t)=>'<button class="pickbtn'+(pk&&pk.side===side?" sel":"")+'" onclick="setPick('+n+',\''+side+'\')">'+logoBadge(side==="away"?g.away:g.home)+'<span>'+t.name+'</span></button>';
+    return '<div class="game"><div class="ghead"><span class="gmeta">'+meta+'</span></div><div class="pickrow">'+btn("away",ta)+btn("home",th)+'</div></div>';
+  }).join("") : '<div class="empty">No hay juegos próximos para pronosticar.</div>';
+  // Resultados: pronósticos de juegos ya finalizados
+  let pts=0, hits=0, scored=0, rows="";
+  const scoredList=[];
+  Object.keys(picks).forEach(k=>{
+    const pk = picks[k], g = GAMES_BY_NUM[k];
+    const s = pickScore(g, pk.side);
+    if(s==null) return;
+    scored++; pts+=s; if(s>0) hits++;
+    scoredList.push({num:+k, s:s, date:pk.date||""});
+    const ta = TEAMS[pk.away]||{name:pk.away}, th = TEAMS[pk.home]||{name:pk.home};
+    const winner = g.ar>g.hr ? ta.name : th.name;
+    rows = '<div class="prow"><div class="teams"><b>'+ta.name+' vs '+th.name+'</b>'
+      +'<small>Juego '+k+' · Tu pick: '+((pk.side==="away"?ta:th).name)+' · Ganó '+winner+' '+g.ar+'-'+g.hr+'</small></div>'
+      +'<span class="tag '+(s>0?"hit":"miss")+'">'+(s>0?"ACIERTO":"FALLO")+'</span>'
+      +'<span class="pts '+(s>0?"hit":"miss")+'">+'+s+'</span></div>' + rows;
+  });
+  document.getElementById("pickResults").innerHTML = rows || '<div class="empty">Aún no tienes resultados. Pronostica y vuelve cuando finalicen los juegos.</div>';
+  document.getElementById("pPoints").textContent = pts;
+  document.getElementById("pHits").textContent = hits+"/"+scored;
+  document.getElementById("pEff").textContent = scored ? Math.round(hits/scored*100)+"%" : "–";
+  // Nivel
+  let li=0;
+  LEVELS.forEach((L,i)=>{ if(pts>=L.min) li=i; });
+  const curL = LEVELS[li], nxtL = LEVELS[li+1];
+  document.getElementById("pLevel").textContent = curL.name;
+  if(nxtL){
+    document.getElementById("pNext").textContent = (nxtL.min-pts)+" pts para "+nxtL.name;
+    document.getElementById("pBar").style.width = Math.min(100, Math.round((pts-curL.min)/(nxtL.min-curL.min)*100))+"%";
+  } else {
+    document.getElementById("pNext").textContent = "Nivel máximo";
+    document.getElementById("pBar").style.width = "100%";
+  }
+  // Medallas
+  scoredList.sort((a,b)=>a.num-b.num);
+  let maxStreak=0, cur=0;
+  scoredList.forEach(x=>{ if(x.s>0){ cur++; maxStreak=Math.max(maxStreak,cur); } else cur=0; });
+  const byDate={};
+  scoredList.forEach(x=>{ (byDate[x.date]=byDate[x.date]||[]).push(x); });
+  const perfectDay = Object.keys(byDate).some(d=>byDate[d].length>=2 && byDate[d].every(x=>x.s>0));
+  const earned = {first:hits>=1, streak3:maxStreak>=3, streak5:maxStreak>=5,
+                  hits10:hits>=10, hits25:hits>=25, perfect:perfectDay};
+  document.getElementById("medalGrid").innerHTML = MEDALS.map(m=>{
+    const e = !!earned[m.id];
+    return '<div class="medal'+(e?" earned":"")+'">'+medalSVG(m.color,!e)+'<b>'+m.name+'</b><small>'+m.desc+'</small></div>';
+  }).join("");
+}
 /* ============ NAVEGACIÓN ============ */
 const PAGES = [
   {id:"inicio", label:"Inicio", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10l9-7 9 7v10a1 1 0 01-1 1h-5v-6h-6v6H4a1 1 0 01-1-1z"/></svg>'},
@@ -824,7 +969,8 @@ const PAGES = [
   {id:"lideres", label:"Líderes", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M8.5 13L7 22l5-3 5 3-1.5-9"/></svg>'},
   {id:"equipos", label:"Equipos", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="10" r="2.5"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6M15.5 14.5c2.8.4 5 2.3 5 5.5"/></svg>'},
   {id:"noticias", label:"Noticias", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v12H4zM4 17l-1 4 4-4M20 9h3v9l-3-2"/></svg>'},
-  {id:"envivo", label:"En Vivo", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M8.5 8.5a5 5 0 000 7M15.5 8.5a5 5 0 010 7M5.6 5.6a9 9 0 000 12.8M18.4 5.6a9 9 0 010 12.8"/></svg>'}
+  {id:"envivo", label:"En Vivo", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M8.5 8.5a5 5 0 000 7M15.5 8.5a5 5 0 010 7M5.6 5.6a9 9 0 000 12.8M18.4 5.6a9 9 0 010 12.8"/></svg>'},
+  {id:"predicciones", label:"Predicciones", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0V4z"/><path d="M7 6H4a1 1 0 00-1 1c0 2.5 2 4 4 4M17 6h3a1 1 0 011 1c0 2.5-2 4-4 4"/></svg>'}
 ];
 const drawerNav = document.getElementById("drawerNav");
 PAGES.forEach(p=>{
@@ -841,6 +987,7 @@ function go(id){
   document.querySelectorAll("[data-pg]").forEach(b=>b.classList.toggle("active", b.dataset.pg===id));
   drawer.classList.remove("open"); scrim.classList.remove("show");
   if(id==="envivo") initEnvivo();
+  if(id==="predicciones") renderPredicciones();
   window.scrollTo({top:0, behavior:"smooth"});
 }
 /* ============ SCRAPER EN VIVO (segundo plano, no bloquea) ============ */
