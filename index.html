@@ -1682,5 +1682,16 @@ setTimeout(()=>{
   if(!getUser() && !skipped) openUserModal();
 }, 1100);
 </script>
+<script>
+/* Contador de visitas: sin cookies, una vez por sesión. Total y por día (hora de Cuba). */
+(function(){try{
+  if(sessionStorage.getItem('lpcVisita'))return;
+  sessionStorage.setItem('lpcVisita','1');
+  var ns='tecnobum-lapelotacubana';
+  var hoy=new Date().toLocaleDateString('en-CA',{timeZone:'America/Havana'});
+  fetch('https://abacus.jasoncameron.dev/hit/'+ns+'/visitas-total',{mode:'no-cors',keepalive:true}).catch(function(){});
+  fetch('https://abacus.jasoncameron.dev/hit/'+ns+'/visitas-'+hoy,{mode:'no-cors',keepalive:true}).catch(function(){});
+}catch(e){}})();
+</script>
 </body>
 </html>
