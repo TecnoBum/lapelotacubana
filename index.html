@@ -1693,5 +1693,39 @@ setTimeout(()=>{
   fetch('https://abacus.jasoncameron.dev/hit/'+ns+'/visitas-'+hoy,{mode:'no-cors',keepalive:true}).catch(function(){});
 }catch(e){}})();
 </script>
+<script>
+/* Seguimiento de secciones (sin cookies): entradas por seccion y tiempo
+   aproximado en bloques de 30 segundos. Acceso oculto al panel de visitas. */
+(function(){
+  var NS='tecnobum-lapelotacubana';
+  function hit(k){ try{ fetch('https://abacus.jasoncameron.dev/hit/'+NS+'/'+k,{mode:'no-cors',keepalive:true}).catch(function(){}); }catch(e){} }
+  var actual=null, desde=0;
+  function activar(id){
+    if(!id) return;
+    if(id!==actual){ hit('sec-v-'+id); actual=id; desde=Date.now(); }
+  }
+  if(typeof go==='function'){
+    var goOriginal=go;
+    go=function(id){ goOriginal(id); activar(id); };
+  }
+  var activa=document.querySelector('section.page.active');
+  if(activa) activar(activa.id.replace('pg-',''));
+  setInterval(function(){
+    if(!actual || document.hidden) return;
+    var bloques=Math.floor((Date.now()-desde)/30000);
+    if(bloques>0){
+      desde+=bloques*30000;
+      for(var i=0;i<Math.min(bloques,20);i++) hit('sec-t-'+actual);
+    }
+  },5000);
+  /* Acceso oculto: 5 toques seguidos en el nombre de la app del encabezado */
+  var titulo=document.querySelector('header.topbar h1'), toques=0, ultimoToque=0;
+  if(titulo) titulo.addEventListener('click',function(){
+    var ahora=Date.now();
+    toques=(ahora-ultimoToque<2500)?toques+1:1; ultimoToque=ahora;
+    if(toques>=5){ toques=0; location.href='admin.html'; }
+  });
+})();
+</script>
 </body>
 </html>
