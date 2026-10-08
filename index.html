@@ -117,13 +117,19 @@
 .wabtn small{display:block; font-size:11px; opacity:.85; font-weight:400;}
 .wabtn:active{transform:scale(.98);}
 /* Tarjetas de canales */
-.canal{display:flex; align-items:center; gap:12px; padding:14px; border-radius:14px; background:var(--card2); border:1px solid var(--line); text-decoration:none; color:var(--text); margin-bottom:10px;}
+.canal{position:relative; display:flex; align-items:center; gap:12px; padding:14px; border-radius:14px; background:var(--card2); border:1px solid var(--line); text-decoration:none; color:var(--text); margin-bottom:12px;}
 .canal:active{transform:scale(.98);}
-.canal .cicon{width:46px; height:46px; border-radius:50%; background:rgba(37,211,102,.12); border:1px solid rgba(37,211,102,.4); display:flex; align-items:center; justify-content:center; flex:none;}
+.canal.feat{border:2px solid var(--gold); background:linear-gradient(135deg, rgba(212,175,55,.12), transparent);}
+.ffeat{position:absolute; top:-10px; left:12px; font-size:9px; font-weight:800; letter-spacing:1px; background:var(--gold); color:#1a1a1a; padding:3px 10px; border-radius:10px;}
+.canal .cicon{width:46px; height:46px; border-radius:50%; background:rgba(37,211,102,.12); border:1px solid rgba(37,211,102,.4); display:flex; align-items:center; justify-content:center; flex:none; position:relative; overflow:hidden;}
+.canal .cphoto{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border:0;}
 .canal .ctxt{flex:1; min-width:0;}
 .canal .ctxt b{display:block; font-size:14px;}
 .canal .ctxt small{display:block; font-size:11px; color:var(--muted); margin-top:2px; line-height:1.4;}
-.canal .cjoin{flex:none; font-size:12px; font-weight:800; color:#fff; background:#1fa855; padding:8px 14px; border-radius:20px;}
+.canal .cjoin{flex:none; font-size:12px; font-weight:800; color:#1fa855; border:2px solid #1fa855; background:transparent; padding:7px 14px; border-radius:20px;}
+.canal .cjoin.big{color:#fff; background:#1fa855; border-color:#1fa855; box-shadow:0 4px 14px rgba(31,168,85,.45); font-size:13px; padding:9px 18px;}
+.addbtn{display:flex; align-items:center; justify-content:center; gap:8px; margin-top:4px; padding:13px; border-radius:12px; border:2px dashed var(--line); color:var(--text); text-decoration:none; font-weight:700; font-size:14px;}
+.addbtn:active{transform:scale(.98);}
 /* Predicciones */
 .pickrow{display:flex; gap:8px; margin-top:8px;}
 .pickbtn{flex:1; display:flex; align-items:center; justify-content:center; gap:8px; padding:11px 8px; border-radius:12px; border:2px solid var(--line); background:var(--card2); color:var(--text); cursor:pointer; font-size:13px; font-weight:700; min-height:52px;}
@@ -1217,19 +1223,37 @@ function mountWaButtons(){
   });
 }
 /* ============ GRUPOS Y CANALES ============ */
-const CANALES = [];
+const WA_GREEN_SVG = '<svg width="24" height="24" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>';
+const CANALES = [
+  {name:"La Pelota Cubana", url:"https://whatsapp.com/channel/0029VbC5vO635fM2sACqKt2g",
+   img:"https://mmg.whatsapp.net/m1/v/t24/An-bWgdTQAT39H8ST4kb85XzByJYz_g0EQYPcIe4KKKJt66MJhIzx2JVTDRB5T2-9lxxduGDVaIDlTgUjQJW72bjDgfBpZne1udjaY6Tfay3W9utA1eiJqTAPbkoJIQvwD_QNo6BdqBRk-Kb6tmx?_nc_gid=FowlHyb8npe0f4K3gDsbkA&_nc_oc=AdrKvKjc1CDnaUwbOtAVP0OeQsrCWW7LI-EMOuU_bFsM9tyu_LzRWLOcVRp69EWUKEc&ccb=10-5&oh=01_Q5Aa5wFlBDlO9NWxQKjwywL2szNWELCJvKc4IRw2bWQMqCHaFQ&oe=6AEE7C50&_nc_sid=471a72",
+   desc:"El canal oficial de la app", featured:true},
+  {name:"Datos al día con Wilber Rodríguez Vera", url:"https://whatsapp.com/channel/0029VbCbv9s0QeanMX98z60A",
+   img:"https://mmg.whatsapp.net/m1/v/t24/An-Aa64fIrALXf3ENVgye5ukQFZWYVqXkhkm91vZ2RixnLzvusuuGwrutQNrm6aSOQ9Qx0s3o3PXrA2FIfoW7i7p9crUOm94vEsz-8jXJCf9z3kOlJV2cy_YSkGUHSiJSIfmAnLWgQmNPjhX_bC9?_nc_gid=NsVqSVWr6HN7tRs_dYSzzw&_nc_oc=AdqHAMDe4AYaQ02OKQ0qys3mF6RFvXrcpJBpYyFdfSUfJ8hfXvYrPpNMUEMbcNG7EH4&ccb=10-5&oh=01_Q5Aa5wE7cLD8BOvM0ayMLSioPMxt1MWzMQTBhA2kjzUYAZDMTQ&oe=6AEE68FF&_nc_sid=471a72",
+   desc:"Estadísticas de béisbol, fútbol y mucho más"},
+  {name:"PinarEnVivo", url:"https://whatsapp.com/channel/0029VaQOjh24NViecALKns26",
+   img:"https://mmg.whatsapp.net/m1/v/t24/An_LWtFws9JeQ7KsZrnBiWEDsYTLC582Ff---Qw2B1sQI6C_bFW3GmUqpZf-skH_CIIAEOs2cgOlw6tuuiLt6XTmJEXprnVbFL82joTF06U-z2urMNyZCzl8jIKjrcLp1CI_Yg56qnpzvCW5c9Gk?_nc_gid=w_bTfd8Qk4nVKF4nB9PQSQ&_nc_oc=AdqYOZSYj3Ez5wW1Lj6Udt69ho56m_YjKdAJP-5GRDzuTUL9Jfj04E3A_VMnyt6XMYw&ccb=10-5&oh=01_Q5Aa5wGGsESuwyNdN6ldFXGrXf-KaD-ZzvBtTPs_7tMMw_93gw&oe=6AEE74FE&_nc_sid=471a72",
+   desc:"Canal de béisbol"}
+];
 function renderCanales(){
   const el = document.getElementById("canalList"); if(!el) return;
-  if(!CANALES.length){
-    el.innerHTML = '<div class="empty">Muy pronto encontrarás aquí los grupos y canales de béisbol.</div>';
-    return;
+  let html = "";
+  if(CANALES.length){
+    html = CANALES.map(c=>{
+      const photo = c.img ? '<img class="cphoto" src="'+c.img.replace(/&/g,"&amp;")+'" alt="" loading="lazy" onerror="this.remove()">' : "";
+      return '<a class="canal'+(c.featured?" feat":"")+'" href="'+c.url+'" target="_blank" rel="noopener">'
+        +(c.featured?'<span class="ffeat">NUESTRO CANAL</span>':'')
+        +'<span class="cicon">'+WA_GREEN_SVG+photo+'</span>'
+        +'<span class="ctxt"><b>'+esc(c.name)+'</b>'+(c.desc?'<small>'+esc(c.desc)+'</small>':'')+'</span>'
+        +'<span class="cjoin'+(c.featured?" big":"")+'">Unirse</span></a>';
+    }).join("");
+  } else {
+    html = '<div class="empty">Muy pronto encontrarás aquí los grupos y canales de béisbol.</div>';
   }
-  el.innerHTML = CANALES.map(c=>
-    '<a class="canal" href="'+c.url+'" target="_blank" rel="noopener">'
-    +'<span class="cicon">'+WA_SVG.replace('fill="#fff"','fill="#25d366"').replace('width="26" height="26"','width="24" height="24"')+'</span>'
-    +'<span class="ctxt"><b>'+esc(c.name)+'</b>'+(c.desc?'<small>'+esc(c.desc)+'</small>':'')+'</span>'
-    +'<span class="cjoin">Unirse</span></a>'
-  ).join("");
+  html += '<a class="addbtn" href="https://wa.me/5359785623?text='+encodeURIComponent("Hola, quiero añadir mi grupo o canal a La Pelota Cubana")+'" target="_blank" rel="noopener">'
+    +'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'
+    +'<span>Añadir grupo o canal</span></a>';
+  el.innerHTML = html;
 }
 /* ============ NAVEGACIÓN ============ */
 const PAGES = [
