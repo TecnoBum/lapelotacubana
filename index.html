@@ -927,12 +927,12 @@ function renderAll(){
   document.getElementById("hGames").textContent = today.length;
   document.getElementById("hFinal").textContent = fin.length;
   document.getElementById("hRuns").textContent = runs;
-  document.getElementById("homeGames").innerHTML = today.map(gameCard).join("") || '<div class="empty">Sin juegos hoy.</div>';
+  document.getElementById("homeGames").innerHTML = today.map(gameCard).join("") || restDayCard();
   const n = S.news[0];
   document.getElementById("homeNews").innerHTML = n ? newsInner(n) : '<div class="empty">Sin titulares.</div>';
   document.getElementById("dataStamp").textContent = "Datos: " + S.dateLabel;
   document.getElementById("jornadaTitle").textContent = "Jornada de hoy · " + S.dateLabel.split("·")[0].trim();
-  document.getElementById("gamesToday").innerHTML = today.map(gameCard).join("") || '<div class="empty">Sin juegos.</div>';
+  document.getElementById("gamesToday").innerHTML = today.map(gameCard).join("") || restDayCard();
   document.getElementById("gamesNext").innerHTML = S.upcoming.map(gameCard).join("") || '<div class="empty">Sin próximos juegos publicados.</div>';
   document.getElementById("gamesPrev").innerHTML = S.prev.map(gameCard).join("") || '<div class="empty">Sin datos.</div>';
   const _up0 = S.upcoming[0], _pv0 = S.prev[0];
@@ -1589,12 +1589,12 @@ function closeApkModal(){
 }
 /* ============ ARRANQUE ============ */
 document.querySelector('[data-pg="inicio"]').classList.add("active");
-/* Normalizar estado inicial */
-const _dates = [...new Set(GAMES.map(g=>g.date))].sort();
-const _today = _dates[_dates.length-1] || "";
+/* Normalizar estado inicial: "hoy" es la fecha real de Cuba, no la última fecha con datos */
+const _todayStr = habanaParts().dstr;
 S = {
-  today: GAMES.filter(g=>g.date===_today),
-  prev: GAMES.filter(g=>g.date!==_today),
+  _todayStr: _todayStr,
+  today: GAMES.filter(g=>g.date===_todayStr),
+  prev: GAMES.filter(g=>g.date!==_todayStr),
   upcoming: UPCOMING,
   standings: STANDINGS,
   leadersBat: LEADERS_BAT,
@@ -1613,6 +1613,18 @@ setLive(false);
 renderUserChip();
 loadCarousel();
 mountWaButtons();
+/* Cambio de día automático: si la fecha de Cuba avanza con la página abierta, recomponer "hoy" */
+setInterval(()=>{
+  const t = habanaParts().dstr;
+  if(t !== S._todayStr){
+    S._todayStr = t;
+    S.today = GAMES.filter(g=>g.date===t);
+    S.prev = GAMES.filter(g=>g.date!==t);
+    S.live = false; setLive(false);
+    renderAll();
+    refreshLive(true);
+  }
+}, 60000);
 renderCanales();
 /* Calendario */
 document.getElementById("calPrev").onclick = ()=>calMove(-1);
