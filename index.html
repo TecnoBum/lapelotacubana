@@ -320,10 +320,11 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
 .decision b{color:var(--text);}
 
 /* ===== Diseño APK ===== */
-#splash{position:fixed;inset:0;z-index:500;background:linear-gradient(135deg,#a4161a,#4d0c0d);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .45s ease;}
+#splash{position:fixed;inset:0;z-index:500;background:linear-gradient(135deg,#a4161a,#4d0c0d);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:52vh 20px 0;box-sizing:border-box;gap:18px;transition:opacity .45s ease;}
 #splash.gone{opacity:0;pointer-events:none;}
-#splash h1{margin:0;font-size:28px;letter-spacing:.5px;color:#fff;}
-#splash p{margin:0;color:#f3c1c1;font-size:13px;letter-spacing:2px;text-transform:uppercase;}
+#splash .dots{animation:fade .5s ease both;}
+#splash h1{margin:0;font-size:28px;letter-spacing:.5px;color:#fff;animation:fade .5s .08s ease both;}
+#splash p{margin:0;color:#f3c1c1;font-size:13px;letter-spacing:2px;text-transform:uppercase;animation:fade .5s .16s ease both;}
 .game{transition:transform .12s ease, box-shadow .2s ease; box-shadow:0 2px 10px rgba(0,0,0,.25);}
 .game:active{transform:scale(.97);}
 .vs{display:flex;align-items:center;gap:6px;margin:8px 0 4px;}
