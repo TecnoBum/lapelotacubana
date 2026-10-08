@@ -43,9 +43,11 @@
   .col .d { font-size:9px; color:#7c8496; margin-top:6px; white-space:nowrap; }
   .hrow { display:flex; align-items:center; gap:10px; padding:7px 0; }
   .hrow .nm { width:118px; font-size:13px; color:#c8cdd8; flex-shrink:0; }
+  .hrow .nm.s { width:52px; }
   .hrow .track { flex:1; background:#20242f; border-radius:6px; height:16px; overflow:hidden; }
   .hrow .fill { height:100%; background:#e63329; border-radius:6px; min-width:2px; }
   .hrow .fill.t { background:#d9a441; }
+  .hrow .fill.star { background:#d9a441; }
   .hrow .vl { width:86px; text-align:right; font-size:12px; font-weight:700; flex-shrink:0; }
   .hrow .vl small { display:block; font-weight:400; color:#7c8496; font-size:10px; }
   .row { display:flex; justify-content:space-between; padding:9px 2px; border-bottom:1px solid #20242f; font-size:14px; }
@@ -53,6 +55,11 @@
   .row .f { color:#c8cdd8; text-transform:capitalize; }
   .row .n { font-weight:700; }
   .row.today .f, .row.today .n { color:#ff6f66; }
+  .ver { padding:10px 2px; border-bottom:1px solid #20242f; font-size:14px; }
+  .ver:last-child { border-bottom:none; }
+  .ver .a { display:flex; justify-content:space-between; }
+  .ver .a b { color:#fff; }
+  .ver small { color:#7c8496; font-size:12px; display:block; margin-top:2px; }
   .aviso { background:#12151d; border:1px solid #232836; border-left:4px solid #d9a441; border-radius:10px; padding:11px 12px; margin-bottom:9px; font-size:14px; line-height:1.45; }
   .aviso small { display:block; color:#7c8496; font-size:11px; margin-top:3px; }
   .aviso.bueno { border-left-color:#4ade80; }
@@ -89,11 +96,43 @@
 
 <div class="top" id="app" style="display:none">
   <h1>Panel de <span>Administración</span></h1>
-  <p class="sub">La Pelota Cubana · visitas, secciones, avisos y ajustes.</p>
+  <p class="sub">La Pelota Cubana · visitas, aplicación, avisos y ajustes.</p>
 
   <div class="panel" style="margin-top:0">
     <h2>Estado de la web</h2>
     <div class="estado" id="estado">Comprobando…</div>
+  </div>
+
+  <div class="panel">
+    <h2>Aplicación en Apklis</h2>
+    <div id="apklis">Cargando…</div>
+  </div>
+
+  <div class="panel">
+    <h2>Publicar en la web (hoy)</h2>
+    <div class="fld">
+      <label>Cintillo superior</label>
+      <select id="pubCint">
+        <option value="1">Jornada de hoy (automático según los juegos)</option>
+        <option value="2">Actualiza la aplicación</option>
+        <option value="3">Canal de WhatsApp</option>
+      </select>
+    </div>
+    <p class="estado" id="estCint" style="font-size:13px">Estado: …</p>
+    <button id="btnCintOn">Publicar cintillo</button>
+    <button class="ghost" id="btnCintOff">Quitar cintillo</button>
+    <div class="fld" style="margin-top:16px">
+      <label>Aviso en ventana (al abrir la web, una vez por sesión)</label>
+      <select id="pubAviso">
+        <option value="1">Canal de WhatsApp</option>
+        <option value="2">Actualiza la aplicación</option>
+        <option value="3">Haz tus predicciones</option>
+      </select>
+    </div>
+    <p class="estado" id="estAviso" style="font-size:13px">Estado: …</p>
+    <button id="btnAvisoOn">Publicar aviso</button>
+    <button class="ghost" id="btnAvisoOff">Quitar aviso</button>
+    <p class="foot" style="text-align:left">Vale para hoy (hora de Cuba): mañana amanece desactivado y lo publicas otra vez si quieres. El cintillo se puede cerrar con la ✕. Los textos se rellenan solos con los datos del día (juegos, versión).</p>
   </div>
 
   <div class="cards" style="margin-top:12px">
@@ -185,7 +224,7 @@
     <h2>Herramientas</h2>
     <button class="ghost" id="csvBtn">Descargar datos (CSV, 30 días y secciones)</button>
     <button class="ghost" id="copiarBtn">Copiar resumen de hoy</button>
-    <a class="btnlink ghost" href="./" >Abrir la web pública</a>
+    <a class="btnlink ghost" href="./">Abrir la web pública</a>
     <a class="btnlink ghost" href="https://apklis.cu/application/la.pelota.cubana.hoy" target="_blank" rel="noopener">Ficha de la aplicación en Apklis</a>
     <a class="btnlink ghost" href="https://github.com/TecnoBum/lapelotacubana" target="_blank" rel="noopener">Repositorio en GitHub</a>
     <div class="fld" style="margin-top:14px">
@@ -212,6 +251,7 @@
 var HASH = '2a156f006008b253c6763b5624e98b9cc12b65f51cf571ffa466b67f23c54765';
 var NS = 'tecnobum-lapelotacubana';
 var API = 'https://abacus.jasoncameron.dev/get/' + NS + '/';
+var HIT = 'https://abacus.jasoncameron.dev/hit/' + NS + '/';
 var WA_TEL = '5359785623';
 var SECCIONES = [
   ['inicio','Inicio'], ['jornada','Jornada'], ['posiciones','Posiciones'],
@@ -219,6 +259,8 @@ var SECCIONES = [
   ['envivo','En Vivo'], ['predicciones','Predicciones'], ['grupos','Grupos y canales'],
   ['calendario','Calendario']
 ];
+var NOMBRES_CINT = { 0: 'desactivado', 1: 'Jornada de hoy', 2: 'Actualiza la aplicación', 3: 'Canal de WhatsApp' };
+var NOMBRES_AVISO = { 0: 'desactivado', 1: 'Canal de WhatsApp', 2: 'Actualiza la aplicación', 3: 'Haz tus predicciones' };
 var RESUMEN = { texto: '', listo: false };
 var timerAuto = null;
 
@@ -236,7 +278,7 @@ function desbloqueado() { try { return sessionStorage.getItem('lpcAdmin') === '1
 function mostrarPanel() {
   document.getElementById('lock').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  cargar(); aplicarAuto();
+  cargar(); aplicarAuto(); estadoPublicar();
 }
 function intentarClave() {
   var inp = document.getElementById('lockInput');
@@ -293,16 +335,29 @@ function aplicarAuto() {
   if (s > 0) timerAuto = setInterval(cargar, s * 1000);
 }
 
-/* ---------- lecturas ---------- */
+/* ---------- utilidades ---------- */
 function claveDia(offset) {
   var d = new Date(Date.now() - offset * 864e5);
   return d.toLocaleDateString('en-CA', { timeZone: 'America/Havana' });
 }
+function hoyStr() { return claveDia(0); }
 function etiquetaDia(offset, conSemana) {
   var d = new Date(Date.now() - offset * 864e5);
   var o = { timeZone: 'America/Havana', day: 'numeric', month: 'short' };
   if (conSemana) o.weekday = 'short';
   return d.toLocaleDateString('es', o);
+}
+function fechaBonita(iso) {
+  var p = (iso || '').split('-');
+  if (p.length !== 3) return iso || '—';
+  var d = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2]));
+  return d.toLocaleDateString('es', { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric' });
+}
+function diasDesde(iso) {
+  var p = (iso || '').split('-'), h = hoyStr().split('-');
+  if (p.length !== 3 || h.length !== 3) return null;
+  var a = Date.UTC(+p[0], +p[1] - 1, +p[2]), b = Date.UTC(+h[0], +h[1] - 1, +h[2]);
+  return Math.round((b - a) / 864e5);
 }
 function leer(clave) {
   return fetch(API + clave)
@@ -310,6 +365,7 @@ function leer(clave) {
     .then(function (j) { return (j && typeof j.value === 'number') ? j.value : 0; })
     .catch(function () { return -1; });
 }
+function leerNum(clave) { return leer(clave).then(function (v) { return v < 0 ? 0 : v; }); }
 function fmt(n) { return n < 0 ? '—' : n.toLocaleString('es'); }
 function fmtTiempo(bloques) {
   var min = Math.round(bloques * 0.5);
@@ -325,18 +381,141 @@ function chip(actual, base) {
   if (d < 0) return '<span class="chip down">▼ ' + p + '%</span>';
   return '<span class="chip flat">= 0%</span>';
 }
+function extraerAPK(html) {
+  var i = html.indexOf('APK =');
+  if (i < 0) return null;
+  i = html.indexOf('{', i);
+  if (i < 0) return null;
+  var depth = 0, inStr = false, esc = false;
+  for (var j = i; j < html.length; j++) {
+    var ch = html[j];
+    if (inStr) { if (esc) esc = false; else if (ch === '\\') esc = true; else if (ch === '"') inStr = false; }
+    else if (ch === '"') inStr = true;
+    else if (ch === '{') depth++;
+    else if (ch === '}') { depth--; if (depth === 0) { try { return JSON.parse(html.slice(i, j + 1)); } catch (e) { return null; } } }
+  }
+  return null;
+}
 
+/* ---------- estado de la web + Apklis ---------- */
 function estadoWeb() {
   var el = document.getElementById('estado');
   fetch('./', { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (t) {
     var etiqueta = (t.match(/DATA_LABEL\s*=\s*"([^"]+)"/) || [])[1] || '—';
-    var apk = (t.match(/APK\s*=\s*\{[^}]*"version":\s*"([^"]+)"/) || [])[1] || '—';
-    el.innerHTML = '<span class="dot"></span><b>En línea</b><br>Datos actualizados: <b>' + etiqueta + '</b><br>Versión de la aplicación: <b>' + apk + '</b>';
+    var apk = extraerAPK(t);
+    el.innerHTML = '<span class="dot"></span><b>En línea</b><br>Datos actualizados: <b>' + etiqueta + '</b>' +
+      (apk && apk.version ? '<br>Versión de la aplicación: <b>' + apk.version + '</b>' : '');
+    pintarApklis(apk);
   }).catch(function () {
     el.innerHTML = '<span class="dot bad"></span><b>Sin conexión para comprobar</b>';
+    document.getElementById('apklis').textContent = 'Sin conexión para leer los datos.';
   });
 }
+function pintarApklis(apk) {
+  var box = document.getElementById('apklis');
+  if (!apk) { box.innerHTML = '<p class="estado">No se encontraron los datos de la aplicación en la web.</p>'; return; }
+  var html = '';
+  var dias = apk.date ? diasDesde(apk.date) : null;
+  html += '<div class="cards" style="margin-bottom:4px">' +
+    '<div class="card"><div class="lbl">Descargas</div><div class="num" style="font-size:28px">' + fmt(apk.downloads != null ? apk.downloads : -1) + '</div></div>' +
+    '<div class="card"><div class="lbl">Valoración</div><div class="num" style="font-size:28px">' + (apk.rating != null ? Number(apk.rating).toLocaleString('es', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ★' : '—') + '</div></div>' +
+    '<div class="card"><div class="lbl">Opiniones</div><div class="num" style="font-size:28px">' + fmt(apk.reviews != null ? apk.reviews : -1) + '</div></div>' +
+    '<div class="card"><div class="lbl">Última versión</div><div class="num" style="font-size:28px">' + (apk.version || '—') + '</div></div>' +
+    '</div>';
+  html += '<p class="estado" style="font-size:13px">Publicada el ' + fechaBonita(apk.date) +
+    (dias === 0 ? ' (hoy)' : dias === 1 ? ' (ayer)' : dias > 1 ? ' (hace ' + dias + ' días)' : '') + '.</p>';
 
+  if (apk.dist) {
+    var tot = 0, k;
+    for (k in apk.dist) tot += apk.dist[k] || 0;
+    var maxD = 1;
+    for (k in apk.dist) maxD = Math.max(maxD, apk.dist[k] || 0);
+    html += '<h2 style="margin-top:16px">Valoraciones por estrellas</h2>';
+    [5, 4, 3, 2, 1].forEach(function (e) {
+      var v = apk.dist[String(e)] || 0;
+      var pct = tot > 0 ? Math.round(v / tot * 100) : 0;
+      html += '<div class="hrow"><div class="nm s">' + e + ' ★</div>' +
+        '<div class="track"><div class="fill star" style="width:' + Math.round(v / maxD * 100) + '%"></div></div>' +
+        '<div class="vl">' + v + '<small>' + pct + '%</small></div></div>';
+    });
+  }
+
+  var hist = Array.isArray(apk.historial) ? apk.historial.slice() : [];
+  html += '<h2 style="margin-top:16px">Comparativa entre versiones</h2>';
+  if (hist.length >= 2) {
+    var act = hist[hist.length - 1], prev = hist[hist.length - 2];
+    var ganadas = (act.downloads != null && prev.downloads != null) ? act.downloads - prev.downloads : null;
+    html += '<p class="estado" style="font-size:13px;margin-bottom:8px">Desde la v' + prev.version + ': <b>' +
+      (ganadas != null ? '+' + ganadas.toLocaleString('es') + ' descargas' : '—') + '</b>.</p>';
+  } else {
+    html += '<p class="estado" style="font-size:13px;margin-bottom:8px">El historial empieza hoy; la comparativa se completa cuando salga la próxima versión.</p>';
+  }
+  if (hist.length) {
+    html += hist.slice().reverse().map(function (e2, ix, arr) {
+      var sig = arr[ix + 1];
+      var extra = '';
+      if (sig) {
+        var dd = diasEntre(e2.date, sig.date);
+        var gan = (e2.downloads != null && sig.downloads != null) ? e2.downloads - sig.downloads : null;
+        extra = (dd != null ? dd + ' días tras la anterior · ' : '') + (gan != null ? '+' + gan.toLocaleString('es') + ' descargas en su etapa' : '');
+      }
+      return '<div class="ver"><div class="a"><b>v' + e2.version + '</b><span>' + fmt(e2.downloads != null ? e2.downloads : -1) + ' descargas</span></div>' +
+        '<small>' + fechaBonita(e2.date) + (extra ? ' · ' + extra : '') + '</small></div>';
+    }).join('');
+  }
+  html += '<a class="btnlink ghost" href="' + (apk.url || 'https://apklis.cu/application/la.pelota.cubana.hoy') + '" target="_blank" rel="noopener">Ver la ficha en Apklis</a>';
+  box.innerHTML = html;
+}
+function diasEntre(a, b) {
+  var pa = (a || '').split('-'), pb = (b || '').split('-');
+  if (pa.length !== 3 || pb.length !== 3) return null;
+  return Math.round((Date.UTC(+pa[0], +pa[1] - 1, +pa[2]) - Date.UTC(+pb[0], +pb[1] - 1, +pb[2])) / 864e5);
+}
+
+/* ---------- publicar en la web (contadores del día) ---------- */
+function clavesDe(pref) { return [0, 1, 2, 3].map(function (v) { return pref + '-' + hoyStr() + '-v' + v; }); }
+function elegidoDe(vals) {
+  var max = 0, e = 0;
+  vals.forEach(function (v, i) { if (v > max) { max = v; e = i; } });
+  return e;
+}
+function estadoPublicar() {
+  [['cint', NOMBRES_CINT, 'estCint'], ['aviso', NOMBRES_AVISO, 'estAviso']].forEach(function (cfgF) {
+    Promise.all(clavesDe(cfgF[0]).map(leerNum)).then(function (vals) {
+      var e = elegidoDe(vals);
+      document.getElementById(cfgF[2]).innerHTML = 'Estado de hoy: <b>' +
+        (e === 0 ? 'desactivado' : 'activado · «' + cfgF[1][e] + '»') + '</b>';
+    });
+  });
+}
+function publicar(pref, v, nombres) {
+  var claves = clavesDe(pref);
+  Promise.all(claves.map(leerNum)).then(function (vals) {
+    var max = Math.max.apply(null, vals.concat([0]));
+    var golpes = Math.max(1, (max + 1) - vals[v]);
+    var hechos = 0;
+    function paso() {
+      if (hechos >= golpes) {
+        estadoPublicar();
+        alert(v === 0 ? 'Quitado. La web lo dejará de mostrar al recargar.' : 'Publicado: «' + nombres[v] + '». Se ve al abrir o recargar la web.');
+        return;
+      }
+      hechos++;
+      fetch(HIT + claves[v], { mode: 'no-cors' }).catch(function () {}).then(paso);
+    }
+    paso();
+  });
+}
+document.getElementById('btnCintOn').addEventListener('click', function () {
+  publicar('cint', parseInt(document.getElementById('pubCint').value, 10), NOMBRES_CINT);
+});
+document.getElementById('btnCintOff').addEventListener('click', function () { publicar('cint', 0, NOMBRES_CINT); });
+document.getElementById('btnAvisoOn').addEventListener('click', function () {
+  publicar('aviso', parseInt(document.getElementById('pubAviso').value, 10), NOMBRES_AVISO);
+});
+document.getElementById('btnAvisoOff').addEventListener('click', function () { publicar('aviso', 0, NOMBRES_AVISO); });
+
+/* ---------- visitas y secciones ---------- */
 function cargar() {
   var c = cfg();
   var DIAS = 30;
@@ -380,7 +559,6 @@ function cargar() {
       '<div class="cmp"><div class="t">Últimos 7 días frente a los 7 anteriores<small>' + fmt(suma7) + ' frente a ' + fmt(sumaPrev7) + ' visitas</small></div>' + chip(suma7, sumaPrev7) + '</div>' +
       '<div class="cmp"><div class="t">Mejor día (últimos 30)<small>' + etiquetaDia(mejorOff, true) + '</small></div><span class="chip flat">' + fmt(mejorV) + ' visitas</span></div>';
 
-    // Gráfico (días según configuración)
     var N = Math.min(c.dias, DIAS);
     var trozo = porDia.slice(-N), maxV = Math.max.apply(null, trozo.concat([1]));
     document.getElementById('titGrafico').textContent = 'Visitas · últimos ' + N + ' días';
@@ -404,12 +582,12 @@ function cargar() {
       if (!lista2.length) { el.innerHTML = '<p class="estado">Aún no hay datos.</p>'; return; }
       lista2.forEach(function (p) {
         var v = Math.max(p.v, 0);
-        var pct = tot > 0 ? Math.round(v / tot * 100) : 0;
+        var pct2 = tot > 0 ? Math.round(v / tot * 100) : 0;
         var row = document.createElement('div');
         row.className = 'hrow';
         row.innerHTML = '<div class="nm">' + p.n + '</div>' +
           '<div class="track"><div class="fill ' + (clase || '') + '" style="width:' + Math.round(v / max * 100) + '%"></div></div>' +
-          '<div class="vl">' + formatear(v) + '<small>' + pct + '% del total</small></div>';
+          '<div class="vl">' + formatear(v) + '<small>' + pct2 + '% del total</small></div>';
         el.appendChild(row);
       });
     }
@@ -418,7 +596,6 @@ function cargar() {
     barras('secTiempo', SECCIONES.map(function (s, i) { return { n: s[1], v: secT[i] }; }),
       function (v) { return fmtTiempo(v); }, 't');
 
-    // Avisos generados desde los datos
     var topSec = null, topV = -1;
     SECCIONES.forEach(function (s, i) { if (secV[i] > topV) { topV = secV[i]; topSec = s[1]; } });
     var avisos = [];
@@ -449,13 +626,11 @@ function cargar() {
     });
     try { localStorage.setItem('lpcAvisosVistos', JSON.stringify(vistos)); } catch (e) {}
 
-    // Resumen reutilizable (WhatsApp / copiar)
     RESUMEN.texto = 'La Pelota Cubana · ' + hoyClave + '\nVisitas hoy: ' + fmt(hoyV) + ' · Total: ' + fmt(total) +
       '\nÚltimos 7 días: ' + fmt(suma7) + (topSec ? '\nSección top: ' + topSec : '');
     RESUMEN.listo = true;
     document.getElementById('waBtn').href = 'https://wa.me/' + WA_TEL + '?text=' + encodeURIComponent(RESUMEN.texto);
 
-    // Detalle por día (según configuración)
     var lista = document.getElementById('lista'); lista.innerHTML = '';
     for (i = DIAS - 1; i >= DIAS - N; i--) {
       var off = DIAS - 1 - i;
