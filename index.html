@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#a4161a">
+<title>La Pelota Cubana · En vivo</title>
+<link rel="preconnect" href="https://www.beisbolcubano.cu">
+<style>
+:root{
+  --bg:#0d1117; --bg2:#161c26; --card:#1a2230; --card2:#202a3c;
+  --text:#f2f5f9; --muted:#9aa7bd; --line:#2a3547;
+  --accent:#e63946; --accent2:#f4a261; --gold:#f1c40f; --green:#2ecc71;
+  --radius:14px;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); padding-bottom:76px;}
+header.topbar{position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:12px; padding:12px 16px; background:linear-gradient(135deg,#a4161a,#64100f); box-shadow:0 2px 12px rgba(0,0,0,.4);}
+header.topbar .ball{width:38px; height:38px; border-radius:50%; background:radial-gradient(circle at 35% 35%,#fff,#d7dee8); position:relative; flex:none; box-shadow:0 2px 6px rgba(0,0,0,.4);}
+header.topbar .ball::before, header.topbar .ball::after{content:""; position:absolute; top:4px; bottom:4px; width:10px; border:2px dashed #c0392b; border-radius:50%;}
+header.topbar .ball::before{left:5px; border-right:none; border-top:none; border-bottom:none;}
+header.topbar .ball::after{right:5px; border-left:none; border-top:none; border-bottom:none;}
+header.topbar h1{font-size:20px; margin:0; letter-spacing:.5px;}
+header.topbar small{display:block; font-size:11px; color:#f3c1c1; font-weight:400; letter-spacing:1px; text-transform:uppercase;}
+.iconbtn{background:rgba(255,255,255,.12); border:none; color:#fff; width:40px; height:40px; border-radius:10px; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex:none;}
+.livedot{display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:700; padding:5px 10px; border-radius:20px; letter-spacing:.5px;}
+.livedot.on{background:rgba(46,204,113,.15); color:var(--green); border:1px solid rgba(46,204,113,.45);}
+.livedot.off{background:rgba(154,167,189,.12); color:var(--muted); border:1px solid var(--line);}
+.livedot .p{width:8px; height:8px; border-radius:50%; background:currentColor;}
+.livedot.on .p{animation:blink 1.4s infinite;}
+@keyframes blink{50%{opacity:.25;}}
+/* Pelota de beisbol animada */
+.baseball{width:64px; height:64px; border-radius:50%; background:radial-gradient(circle at 35% 30%,#ffffff,#dbe2ec 65%,#b9c3d4); position:relative; box-shadow:0 6px 18px rgba(0,0,0,.5), inset -4px -6px 12px rgba(0,0,0,.12); animation:ballspin 1s linear infinite;}
+.baseball::before,.baseball::after{content:""; position:absolute; top:7px; bottom:7px; width:20px; border:3px solid #c0392b; border-radius:50%; opacity:.9;}
+.baseball::before{left:8px; border-right-color:transparent; border-top-color:transparent; border-bottom-color:transparent; transform:rotate(16deg);}
+.baseball::after{right:8px; border-left-color:transparent; border-top-color:transparent; border-bottom-color:transparent; transform:rotate(-16deg);}
+@keyframes ballspin{to{transform:rotate(360deg);}}
+.baseball-sm{width:18px; height:18px; display:inline-block; vertical-align:-3px; margin-right:8px;}
+.baseball-sm::before,.baseball-sm::after{top:2px; bottom:2px; width:7px; border-width:2px;}
+.baseball-sm::before{left:2px;} .baseball-sm::after{right:2px;}
+#loader{position:fixed; inset:0; background:var(--bg); z-index:300; display:flex; align-items:center; justify-content:center; padding:20px;}
+#loader .lbox{text-align:center;}
+#loader .lbox p{color:var(--muted); margin-top:16px; font-size:14px;}
+#drawer{position:fixed; top:0; left:0; bottom:0; width:280px; max-width:84vw; background:var(--bg2); z-index:100; transform:translateX(-105%); transition:transform .28s ease; display:flex; flex-direction:column; border-right:1px solid var(--line);}
+#drawer.open{transform:translateX(0);}
+#drawer .dhead{padding:20px 18px; background:linear-gradient(135deg,#a4161a,#4d0c0d);}
+#drawer .dhead h2{margin:0; font-size:19px;}
+#drawer .dhead p{margin:4px 0 0; font-size:12px; color:#f3c1c1;}
+#drawer nav{padding:10px; overflow-y:auto; flex:1;}
+#drawer nav button{display:flex; align-items:center; gap:12px; width:100%; padding:13px 14px; margin:2px 0; background:none; border:none; color:var(--text); font-size:15px; border-radius:10px; cursor:pointer; text-align:left;}
+#drawer nav button.active{background:var(--card2);}
+#scrim{position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:90; opacity:0; pointer-events:none; transition:opacity .28s;}
+#scrim.show{opacity:1; pointer-events:auto;}
+main{max-width:640px; margin:0 auto; padding:14px 14px 20px;}
+section.page{display:none;}
+section.page.active{display:block; animation:fade .25s ease;}
+@keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+.card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:14px; margin-bottom:12px;}
+.card h3{margin:0 0 10px; font-size:15px; text-transform:uppercase; letter-spacing:1px; color:var(--muted);}
+.stamp{font-size:11px; color:var(--muted); text-align:center; margin:10px 0 16px;}
+.hero{background:linear-gradient(135deg,#1a2230,#232f47); border:1px solid var(--line); border-radius:var(--radius); padding:18px; margin-bottom:12px;}
+.hero .big{font-size:13px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;}
+.hero .nums{display:flex; gap:10px; margin-top:10px;}
+.hero .num{flex:1; background:rgba(255,255,255,.05); border-radius:10px; padding:10px; text-align:center;}
+.hero .num b{display:block; font-size:24px;}
+.hero .num span{font-size:11px; color:var(--muted);}
+.game{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:12px; margin-bottom:10px;}
+.game .ghead{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;}
+.game .gmeta{font-size:11px; color:var(--muted);}
+.game .teams{display:flex; align-items:center; gap:10px;}
+.game .tlist{flex:1; min-width:0;}
+.game .trow{display:flex; align-items:center; gap:8px; padding:3px 0;}
+.game .trow .nm{flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:14px;}
+.game .trow .sc{font-weight:700; font-size:16px; min-width:26px; text-align:right;}
+.game .trow.win .nm{font-weight:700;}
+.game .trow.win .sc{color:var(--gold);}
+.badge{width:34px; height:34px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.5); box-shadow:inset 0 -3px 6px rgba(0,0,0,.3); overflow:hidden; background:#5D6D7E;}
+.badge img{width:100%; height:100%; object-fit:contain; background:#fff;}
+.badge.lg{width:46px; height:46px; font-size:13px;}
+.status{font-size:10px; font-weight:700; padding:4px 8px; border-radius:20px; letter-spacing:.5px; flex:none;}
+.status.final{background:rgba(46,204,113,.15); color:var(--green); border:1px solid rgba(46,204,113,.4);}
+.status.prog{background:rgba(241,196,15,.15); color:var(--gold); border:1px solid rgba(241,196,15,.4);}
+table.st{width:100%; border-collapse:collapse; font-size:13px;}
+table.st th{font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); padding:8px 6px; text-align:center; border-bottom:1px solid var(--line);}
+table.st th:first-child, table.st td:first-child{text-align:left;}
+table.st td{padding:9px 6px; text-align:center; border-bottom:1px solid rgba(42,53,71,.5);}
+table.st tr.lead td{background:rgba(241,196,15,.06);}
+.teamcell{display:flex; align-items:center; gap:8px;}
+.teamcell .badge{width:26px; height:26px; font-size:9px;}
+.lead-card{display:flex; align-items:center; gap:12px; background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:12px; margin-bottom:10px;}
+.lead-card .pos{font-size:22px; font-weight:800; color:var(--gold); width:30px; text-align:center; flex:none;}
+.lead-card .info{flex:1;}
+.lead-card .info b{font-size:15px;}
+.lead-card .info span{display:block; font-size:12px; color:var(--muted);}
+.lead-card .val{font-size:20px; font-weight:800; color:var(--accent2); flex:none;}
+.lead-card .lbl{font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; text-align:right; flex:none;}
+.tabs{display:flex; gap:8px; margin-bottom:12px;}
+.tabs button{flex:1; padding:10px; border-radius:10px; border:1px solid var(--line); background:var(--card); color:var(--muted); font-size:14px; font-weight:700; cursor:pointer;}
+.tabs button.active{background:var(--accent); color:#fff; border-color:var(--accent);}
+.teams-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.team-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:14px; text-align:center;}
+.team-card .mote{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;}
+.team-card b{display:block; margin:8px 0 2px; font-size:14px;}
+.team-card .rec{font-size:12px; color:var(--muted);}
+.news{border-left:4px solid var(--accent);}
+.news .cat{display:inline-block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--accent2); margin-bottom:6px;}
+.news h4{margin:0 0 6px; font-size:15px; line-height:1.35;}
+.news p{margin:0; font-size:13px; color:var(--muted); line-height:1.45;}
+.btn{display:block; width:100%; padding:13px; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; margin-top:10px;}
+.btn.primary{background:var(--accent); color:#fff;}
+.btn.ghost{background:var(--card2); color:var(--text); border:1px solid var(--line);}
+.btn:disabled{opacity:.5;}
+.empty{text-align:center; color:var(--muted); padding:26px 16px; font-size:14px; line-height:1.6;}
+nav.bottom{position:fixed; left:0; right:0; bottom:0; z-index:50; display:flex; background:rgba(22,28,38,.97); border-top:1px solid var(--line); padding:6px 4px calc(8px + env(safe-area-inset-bottom)); backdrop-filter:blur(8px);}
+nav.bottom button{flex:1; background:none; border:none; color:var(--muted); font-size:10px; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px; cursor:pointer;}
+nav.bottom button.active{color:#fff;}
+.toast{position:fixed; left:50%; bottom:90px; transform:translateX(-50%) translateY(20px); background:#222d42; color:#fff; padding:12px 18px; border-radius:12px; font-size:14px; opacity:0; transition:all .3s; z-index:200; max-width:88vw; text-align:center; border:1px solid var(--line);}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+.chip{display:inline-block; font-size:11px; padding:4px 10px; border-radius:20px; background:var(--card2); border:1px solid var(--line); color:var(--muted); margin:2px 4px 2px 0;}
+
+/* Boxscore expandible */
+.game .detail{display:none; margin-top:10px; border-top:1px solid var(--line); padding-top:10px;}
+.game.open .detail{display:block;}
+.chev{display:inline-block; transition:transform .2s; color:var(--muted); font-size:14px;}
+.game.open .chev{transform:rotate(180deg);}
+.bstabs{display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap;}
+.bstabs button{flex:1; min-width:64px; padding:8px 6px; border-radius:8px; border:1px solid var(--line); background:var(--card2); color:var(--muted); font-size:12px; font-weight:700; cursor:pointer;}
+.bstabs button.active{background:var(--accent); color:#fff; border-color:var(--accent);}
+table.bs{width:100%; border-collapse:collapse; font-size:12px;}
+table.bs th{font-size:10px; color:var(--muted); padding:6px 4px; text-align:center; border-bottom:1px solid var(--line); text-transform:uppercase; letter-spacing:.4px;}
+table.bs th:first-child, table.bs td:first-child{text-align:left; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+table.bs td{padding:7px 4px; text-align:center; border-bottom:1px solid rgba(42,53,71,.5);}
+table.bs td.tot{font-weight:800; color:var(--gold);}
+.bsload{display:flex; justify-content:center; padding:24px;}
+.decision{font-size:12px; color:var(--muted); margin:10px 2px 2px; line-height:1.7;}
+.decision b{color:var(--text);}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <button class="iconbtn" id="menuBtn" aria-label="Menú"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 5h16M2 10h16M2 15h16"/></svg></button>
+  <div class="ball"></div>
+  <div style="flex:1"><h1>La Pelota Cubana<small>65 Serie Nacional &bull; 2026</small></h1></div>
+  <span class="livedot off" id="liveDot"><span class="p"></span><span id="liveTxt">SYNC</span></span>
+</header>
+
+<div id="scrim"></div>
+<aside id="drawer">
+  <div class="dhead"><h2>La Pelota Cubana</h2><p>65 Serie Nacional &bull; 2026</p></div>
+  <nav id="drawerNav"></nav>
+</aside>
+
+<main>
+  <section class="page active" id="pg-inicio">
+    <div class="hero">
+      <div class="big">Resumen de la jornada</div>
+      <div class="nums">
+        <div class="num"><b id="hGames">–</b><span>Juegos hoy</span></div>
+        <div class="num"><b id="hFinal">–</b><span>Finalizados</span></div>
+        <div class="num"><b id="hRuns">–</b><span>Carreras</span></div>
+      </div>
+    </div>
+    <div class="card"><h3>Últimos resultados</h3><div id="homeGames"></div></div>
+    <div class="card"><h3>Titular principal</h3><div id="homeNews"></div></div>
+    <div class="stamp" id="dataStamp"></div>
+    <button class="btn ghost" id="refreshBtn">Actualizar en vivo</button>
+  </section>
+
+  <section class="page" id="pg-jornada">
+    <div class="card"><h3 id="jornadaTitle">Jornada de hoy</h3><div id="gamesToday"></div></div>
+    <div class="card"><h3 id="gamesNextTitle">Próximos juegos</h3><div id="gamesNext"></div></div>
+    <div class="card"><h3 id="gamesPrevTitle">Fecha anterior</h3><div id="gamesPrev"></div></div>
+  </section>
+
+  <section class="page" id="pg-posiciones">
+    <div class="card"><h3>Zona Occidental</h3><div style="overflow-x:auto"><table class="st" id="tblOcc"></table></div></div>
+    <div class="card"><h3>Zona Oriental</h3><div style="overflow-x:auto"><table class="st" id="tblOri"></table></div></div>
+  </section>
+
+  <section class="page" id="pg-lideres">
+    <div class="tabs">
+      <button id="tabBat" class="active">Bateo</button>
+      <button id="tabPit">Pitcheo</button>
+    </div>
+    <div class="card"><h3 id="leadersTitle">Líderes de bateo</h3><div id="leadersList"></div></div>
+  </section>
+
+  <section class="page" id="pg-equipos">
+    <div class="teams-grid" id="teamsGrid"></div>
+  </section>
+
+  <section class="page" id="pg-noticias">
+    <div id="newsList"></div>
+  </section>
+</main>
+
+<nav class="bottom" id="bottomNav"></nav>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ DATOS (los genera el actualizador automático; no editar a mano) ============ */
+const TEAMS = {
+  PRI:{name:"Pinar del Río", mote:"Vegueros", color:"#1B7A3D", ini:"PRI"},
+  IJV:{name:"Isla de la Juventud", mote:"Piratas", color:"#8a6d1b", ini:"IJV"},
+  ART:{name:"Artemisa", mote:"Cazadores", color:"#C0392B", ini:"ART"},
+  IND:{name:"Industriales", mote:"Leones", color:"#1E5AA8", ini:"IND"},
+  MAY:{name:"Mayabeque", mote:"Huracanes", color:"#29A3D8", ini:"MAY"},
+  MTZ:{name:"Matanzas", mote:"Cocodrilos", color:"#145A32", ini:"MTZ"},
+  VCL:{name:"Villa Clara", mote:"Azucareros", color:"#D35400", ini:"VCL"},
+  CFG:{name:"Cienfuegos", mote:"Elefantes", color:"#5D6D7E", ini:"CFG"},
+  SSP:{name:"Sancti Spíritus", mote:"Gallos", color:"#B7950B", ini:"SSP"},
+  CAV:{name:"Ciego de Ávila", mote:"Tigres", color:"#C96A1B", ini:"CAV"},
+  LTU:{name:"Las Tunas", mote:"Leñadores", color:"#2E7D32", ini:"LTU"},
+  CMG:{name:"Camagüey", mote:"Toros", color:"#8D6E63", ini:"CMG"},
+  HOL:{name:"Holguín", mote:"Cachorros", color:"#5DADE2", ini:"HOL"},
+  GRA:{name:"Granma", mote:"Alazanes", color:"#A93226", ini:"GRA"},
+  SCU:{name:"Santiago de Cuba", mote:"Avispas", color:"#CA9A00", ini:"SCU"},
+  GTM:{name:"Guantánamo", mote:"Indios", color:"#BA4A00", ini:"GTM"}
+};
+const LOGO_BASE = "https://www.beisbolcubano.cu/images/logos/45%20x%2045/";
+const LOGOS = {};
+Object.keys(TEAMS).forEach(s=>LOGOS[s]=LOGO_BASE+s+".png");
+const BASE = "https://www.beisbolcubano.cu/";
+function abs(u){ if(!u) return ""; if(/^https?:/i.test(u)) return u; return BASE+u.replace(/^\//,""); }
+/*__LPC_DATA_START__*/
+const DATA_LABEL = "7 de octubre de 2026 · 20:45";
+const GAMES = [
+  {id:"j25", date:"2026-10-07", away:"IJV", home:"ART", ar:6, hr:16, status:"final", num:25, stadium:"26 de Julio"},
+  {id:"j26", date:"2026-10-07", away:"PRI", home:"IND", ar:17, hr:12, status:"final", num:26, stadium:"Latinoamericano"},
+  {id:"j27", date:"2026-10-07", away:"VCL", home:"MAY", ar:9, hr:6, status:"final", num:27, stadium:"Nelson Fernández"},
+  {id:"j28", date:"2026-10-07", away:"CFG", home:"MTZ", ar:4, hr:6, status:"final", num:28, stadium:"Victoria de Girón"},
+  {id:"j29", date:"2026-10-07", away:"CMG", home:"SSP", ar:5, hr:4, status:"final", num:29, stadium:"José Antonio Huelga"},
+  {id:"j30", date:"2026-10-07", away:"CAV", home:"LTU", ar:12, hr:19, status:"final", num:30, stadium:"Julio Antonio Mella"},
+  {id:"j31", date:"2026-10-07", away:"GRA", home:"HOL", ar:4, hr:3, status:"final", num:31, stadium:"Calixto García"},
+  {id:"j32", date:"2026-10-07", away:"GTM", home:"SCU", ar:4, hr:14, status:"final", num:32, stadium:"Guillermón Moncada"},
+  {id:"p1", date:"2026-10-06", away:"IJV", home:"ART", ar:8, hr:9, status:"final"},
+  {id:"p2", date:"2026-10-06", away:"PRI", home:"IND", ar:16, hr:15, status:"final"},
+  {id:"p3", date:"2026-10-06", away:"VCL", home:"MAY", ar:6, hr:7, status:"final"},
+  {id:"p4", date:"2026-10-06", away:"CFG", home:"MTZ", ar:10, hr:1, status:"final"},
+  {id:"p5", date:"2026-10-06", away:"CMG", home:"SSP", ar:6, hr:7, status:"final"},
+  {id:"p6", date:"2026-10-06", away:"CAV", home:"LTU", ar:9, hr:4, status:"final"},
+  {id:"p7", date:"2026-10-06", away:"GRA", home:"HOL", ar:5, hr:12, status:"final"},
+  {id:"p8", date:"2026-10-06", away:"GTM", home:"SCU", ar:10, hr:12, status:"final"}
+];
+const UPCOMING = [
+  {id:"u33", date:"2026-10-09", time:"13:30", away:"IJV", home:"PRI", num:33, stadium:"Capitán San Luis"},
+  {id:"u34", date:"2026-10-09", time:"13:30", away:"ART", home:"IND", num:34, stadium:"Latinoamericano"},
+  {id:"u35", date:"2026-10-09", time:"13:30", away:"MAY", home:"MTZ", num:35, stadium:"Victoria de Girón"},
+  {id:"u36", date:"2026-10-09", time:"13:30", away:"VCL", home:"CFG", num:36, stadium:"5 de Septiembre"},
+  {id:"u37", date:"2026-10-09", time:"13:30", away:"CMG", home:"CAV", num:37, stadium:"José Ramón Cepero"},
+  {id:"u38", date:"2026-10-09", time:"13:30", away:"SSP", home:"LTU", num:38, stadium:"Julio Antonio Mella"},
+  {id:"u39", date:"2026-10-09", time:"13:30", away:"GTM", home:"GRA", num:39, stadium:"Mártires de Barbados"},
+  {id:"u40", date:"2026-10-09", time:"13:30", away:"SCU", home:"HOL", num:40, stadium:"Calixto García"}
+];
+const STANDINGS = {
+  occ:[
+    {t:"ART",w:3,l:1,dif:"-",pro:".750",u10:"(3-1)",racha:"G-2"},
+    {t:"MTZ",w:3,l:1,dif:"-",pro:".750",u10:"(3-1)",racha:"G-1"},
+    {t:"PRI",w:3,l:1,dif:"-",pro:".750",u10:"(3-1)",racha:"G-3"},
+    {t:"VCL",w:2,l:2,dif:"1.0",pro:".500",u10:"(2-2)",racha:"G-1"},
+    {t:"MAY",w:2,l:2,dif:"1.0",pro:".500",u10:"(2-2)",racha:"P-1"},
+    {t:"CFG",w:1,l:3,dif:"2.0",pro:".250",u10:"(1-3)",racha:"P-1"},
+    {t:"IND",w:1,l:3,dif:"2.0",pro:".250",u10:"(1-3)",racha:"P-3"},
+    {t:"IJV",w:1,l:3,dif:"2.0",pro:".250",u10:"(1-3)",racha:"P-2"}
+  ],
+  ori:[
+    {t:"SCU",w:4,l:0,dif:"-",pro:"1.000",u10:"(4-0)",racha:"G-4"},
+    {t:"SSP",w:3,l:1,dif:"1.0",pro:".750",u10:"(3-1)",racha:"P-1"},
+    {t:"CAV",w:2,l:2,dif:"2.0",pro:".500",u10:"(2-2)",racha:"P-1"},
+    {t:"GRA",w:2,l:2,dif:"2.0",pro:".500",u10:"(2-2)",racha:"G-1"},
+    {t:"HOL",w:2,l:2,dif:"2.0",pro:".500",u10:"(2-2)",racha:"P-1"},
+    {t:"LTU",w:2,l:2,dif:"2.0",pro:".500",u10:"(2-2)",racha:"G-1"},
+    {t:"CMG",w:1,l:3,dif:"3.0",pro:".250",u10:"(1-3)",racha:"G-1"},
+    {t:"GTM",w:0,l:4,dif:"4.0",pro:".000",u10:"(0-4)",racha:"P-4"}
+  ]
+};
+const LEADERS_BAT = [
+  {cat:"Average de bateo", name:"D. Laza Spencer", team:"MAY", pos:"OF", val:".667"},
+  {cat:"Jonrones", name:"F. González Cuellar", team:"IJV", pos:"OF", val:"4"},
+  {cat:"Carreras impulsadas", name:"Y. Guibert Steven", team:"SCU", pos:"OF", val:"11"},
+  {cat:"Bases robadas", name:"J. Pren Abreu", team:"MTZ", pos:"OF", val:"3"},
+  {cat:"Bases robadas", name:"H. Videt Medina", team:"MTZ", pos:"OF", val:"3"}
+];
+const LEADERS_PIT = [
+  {cat:"Promedio de carreras limpias", name:"L. Vázquez Sánchez", team:"CMG", pos:"P", val:"0.00"},
+  {cat:"Promedio de carreras limpias", name:"C. Cuesta Hondares", team:"IND", pos:"P", val:"0.00"},
+  {cat:"Promedio de carreras limpias", name:"Y. Díaz Agramonte", team:"CAV", pos:"P", val:"0.00"},
+  {cat:"Juegos ganados", name:"D. Reyes Pérez", team:"SSP", pos:"P", val:"2"},
+  {cat:"Juegos salvados", name:"N. Crúz Zaldívar", team:"MTZ", pos:"P", val:"3"},
+  {cat:"Ponches", name:"A. Guerra Garcé", team:"SSP", pos:"P", val:"8"}
+];
+const NEWS = [
+  {title:"Avispas indómitas, único equipo invicto en 65 SNB", text:"Santiago de Cuba marcha con 4-0 y es el único invicto del campeonato."},
+  {title:"Elefantes rompe dominio del monarca Cocodrilos en 65 SNB", text:"Cienfuegos superó a Matanzas y cortó la racha del campeón vigente."},
+  {title:"Cuba con sólidas escuadras a Torneos Panamericanos de Beisbol5", text:"Las selecciones cubanas parten como favoritas a la cita continental."},
+  {title:"Los campeones propinan segunda lechada en 65 SNB", text:"El pitcheo volvió a ser protagonista en la jornada del campeonato."},
+  {title:"El Tanque Tomás ya encauza a los Leones en inicio de 65 SNB", text:"Industriales encuentra su ritmo en el arranque de la temporada."},
+  {title:"65 SNB: el show impactará en ocho estadios", text:"La jornada beisbolera se vivirá en ocho parques del país."},
+  {title:"Logró Cuba primer triunfo en Copa Internacional de Beisbol para Ciegos", text:"La selección cubana consiguió su primera victoria en el certamen."},
+  {title:"Cuba cayó 4x5 ante México en Copa Mundial Sub-15 de Beisbol", text:"El elenco juvenil cedió ante los mexicanos en cerrado duelo."},
+  {title:"Beisbol5 no descansa y anuncia Copa Pan-Olímpica", text:"La disciplina sigue creciendo con nuevos eventos en el continente."}
+];
+let S = {games:GAMES, upcoming:UPCOMING, standings:STANDINGS, leadersBat:LEADERS_BAT, leadersPit:LEADERS_PIT, news:NEWS, dateLabel:DATA_LABEL, live:false};
+/*__LPC_DATA_END__*/
+</script>
+<script>
+/* ============ HELPERS ============ */
+function toast(m){const t=document.getElementById("toast"); t.textContent=m; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),2600);}
+function logoBadge(sig, lg){
+  const t = TEAMS[sig] || {color:"#5D6D7E", ini:sig};
+  const url = LOGOS[sig];
+  if(url) return '<div class="badge'+(lg?' lg':'')+'" style="background:'+t.color+'"><img src="'+url+'" alt="'+t.ini+'" loading="lazy" decoding="async" onerror="this.parentNode.innerHTML=\''+t.ini+'\'"></div>';
+  return '<div class="badge'+(lg?' lg':'')+'" style="background:'+t.color+'">'+t.ini+'</div>';
+}
+function setLive(on){
+  const dot=document.getElementById("liveDot");
+  dot.className="livedot "+(on?"on":"off");
+  document.getElementById("liveTxt").textContent=on?"EN VIVO":"SYNC";
+}
+function fmtDate(iso){ try{ return new Date(iso+"T12:00:00").toLocaleDateString("es-ES",{day:"numeric",month:"long"}); }catch(e){ return iso; } }
+function teamLine(code, runs, win){
+  const t = TEAMS[code] || {name:code, mote:"", ini:code};
+  return '<div class="trow'+(win?' win':'')+'">'+logoBadge(code)+'<span class="nm">'+t.name+(t.mote?' <span style="color:var(--muted); font-size:12px">'+t.mote+'</span>':"")+'</span><span class="sc">'+(runs==null?"–":runs)+'</span></div>';
+}
+/* ============ BOXSCORE EXPANDIBLE ============ */
+const boxCache = {};
+const boxLoading = {};
+const boxTab = {};
+const expanded = new Set();
+function gameNumId(id){
+  const m = /^([a-z]+)(\d+)$/.exec(id||"");
+  if(!m) return null;
+  return (m[1]==="j"||m[1]==="u") ? parseInt(m[2],10) : null;
+}
+function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function findGame(gameId){
+  return [...S.today, ...S.prev, ...S.upcoming].find(x=>x.id===gameId);
+}
+function toggleGame(gameId){
+  const g = findGame(gameId);
+  if(!g) return;
+  if(expanded.has(gameId)){ expanded.delete(gameId); }
+  else{
+    expanded.add(gameId);
+    const num = gameNumId(g.id);
+    if(g.status==="final" && num!=null && !boxCache[num] && !boxLoading[num]) loadBox(gameId, num);
+  }
+  paintGameCard(gameId);
+}
+function paintGameCard(gameId){
+  const g = findGame(gameId);
+  if(!g) return;
+  document.querySelectorAll('[id="gc-'+gameId+'"]').forEach(el=>{
+    const tmp = document.createElement("div");
+    tmp.innerHTML = gameCard(g);
+    el.replaceWith(tmp.firstChild);
+  });
+}
+function setBoxTab(gid, key){ boxTab[gid]=key; paintGameCard(gid); }
+function retryBox(gameId){
+  const g = findGame(gameId);
+  const num = g && gameNumId(g.id);
+  if(num==null) return;
+  delete boxCache[num];
+  loadBox(gameId, num);
+}
+async function loadBox(gameId, num){
+  if(boxLoading[num]) return;
+  boxLoading[num] = true;
+  if(expanded.has(gameId)) paintGameCard(gameId);
+  try{
+    const html = await fetchBoxHTML(num);
+    if(html){
+      const doc = new DOMParser().parseFromString(html, "text/html");
+      const data = parseBoxScore(doc);
+      boxCache[num] = data || {error:true};
+    } else boxCache[num] = {error:true};
+  }catch(e){ boxCache[num] = {error:true}; }
+  boxLoading[num] = false;
+  if(expanded.has(gameId)) paintGameCard(gameId);
+}
+async function fetchBoxHTML(num){
+  const url = "https://www.beisbolcubano.cu/estadisticas/BoxScore?idJuego="+num;
+  const routes = [url,
+    "https://api.allorigins.win/raw?url="+encodeURIComponent(url),
+    "https://corsproxy.io/?url="+encodeURIComponent(url)];
+  for(const u of routes){
+    try{
+      const ctl = new AbortController();
+      const timer = setTimeout(()=>ctl.abort(), 10000);
+      const r = await fetch(u, {signal:ctl.signal});
+      clearTimeout(timer);
+      if(!r.ok) continue;
+      const txt = await r.text();
+      if(txt && txt.length > 20000 && /BoxScore_Bateo|dxgvTable/i.test(txt)) return txt;
+    }catch(e){}
+  }
+  return null;
+}
+function findTable(doc, suffix){
+  const ts = doc.querySelectorAll("table");
+  for(const t of ts){ const id = t.getAttribute("id")||""; if(id.endsWith(suffix)) return t; }
+  return null;
+}
+function parseStatTable(doc, suffix){
+  const t = findTable(doc, suffix);
+  const out = {rows:[], tot:null};
+  if(!t) return out;
+  t.querySelectorAll("tr").forEach(tr=>{
+    if(!/dxgvDataRow/.test(tr.className||"")) return;
+    const tds = [...tr.querySelectorAll("td.dxgv")];
+    if(tds.length < 2) return;
+    const a = tds[0].querySelector("a");
+    let name = ((a?a.textContent:tds[0].textContent)||"").trim().replace(/\s+/g," ");
+    const cells = tds.slice(1).map(td=>td.textContent.trim());
+    if(/^totales/i.test(name)){ out.tot = {c:cells[1]||"0", h:cells[2]||"0", e:cells[9]||"0"}; return; }
+    let pos = "";
+    const pm = name.match(/-\s*([A-ZÁÉÍÓÚ]{1,4})\s*$/);
+    if(pm){ pos = pm[1]; name = name.slice(0, pm.index).trim(); }
+    out.rows.push({name:name, pos:pos, cells:cells});
+  });
+  return out;
+}
+function parseLineScore(doc){
+  const tables = [...doc.querySelectorAll("table")];
+  for(const t of tables){
+    if(!/final/i.test(t.textContent||"")) continue;
+    const rows = [...t.querySelectorAll("tr")];
+    let hi = -1, innings = [];
+    for(let i=0;i<rows.length;i++){
+      const cells = [...rows[i].querySelectorAll("th,td")].map(c=>c.textContent.trim());
+      const nums = cells.filter(c=>/^\d{1,2}$/.test(c)).map(Number);
+      if(nums.length>=5 && cells.some(c=>/final/i.test(c))){ hi = i; innings = nums; break; }
+    }
+    if(hi<0) continue;
+    const teams = [];
+    for(let i=hi+1;i<rows.length;i++){
+      const cells = [...rows[i].querySelectorAll("td")].map(c=>c.textContent.trim());
+      if(cells.length < 3 || !cells[0] || /^totales/i.test(cells[0])) continue;
+      const nums = cells.slice(1).filter(c=>/^\d+$/.test(c)).map(Number);
+      if(nums.length < 3) continue;
+      teams.push({label:cells[0], runs:nums.slice(0,nums.length-3),
+        c:String(nums[nums.length-3]), h:String(nums[nums.length-2]), e:String(nums[nums.length-1])});
+    }
+    if(teams.length>=2) return {innings:innings, away:teams[0], home:teams[1]};
+  }
+  return null;
+}
+function parseDecisions(doc){
+  const dec = {};
+  const links = [...doc.querySelectorAll('a.fw_text_info_BS[href*="Jugador.aspx"]')];
+  links.forEach(a=>{
+    const txt = (a.textContent||"").trim().replace(/\s+/g," ");
+    if(!txt) return;
+    let label = "", sib = a.previousSibling;
+    while(sib){
+      const m = (sib.textContent||"").match(/([GPS])\s*:\s*$/);
+      if(m){ label = m[1]; break; }
+      if((sib.textContent||"").trim()) break;
+      sib = sib.previousSibling;
+    }
+    if(label==="G" && !dec.w) dec.w = txt;
+    else if(label==="P" && !dec.l) dec.l = txt;
+    else if(label==="S" && !dec.s) dec.s = txt;
+  });
+  if(!dec.w && !dec.l && links.length){
+    dec.w = (links[0].textContent||"").trim().replace(/\s+/g," ");
+    if(links[1]) dec.l = (links[1].textContent||"").trim().replace(/\s+/g," ");
+  }
+  return dec;
+}
+function parseBoxScore(doc){
+  const bV = parseStatTable(doc, "BoxScore_Bateo_VS_DXMainTable");
+  const bH = parseStatTable(doc, "BoxScore_Bateo_HC_DXMainTable");
+  const pV = parseStatTable(doc, "BoxScore_Pitch_VS_DXMainTable");
+  const pH = parseStatTable(doc, "BoxScore_Pitch_HC_DXMainTable");
+  let line = parseLineScore(doc);
+  if(!line && (bV.tot || bH.tot)){
+    const mk = t => t ? {runs:[], c:t.c, h:t.h, e:t.e} : {runs:[], c:"0", h:"0", e:"0"};
+    line = {innings:[], away:mk(bV.tot), home:mk(bH.tot)};
+  }
+  const dec = parseDecisions(doc);
+  if(!line && !bV.rows.length && !bH.rows.length) return null;
+  return {line:line, batV:bV.rows, batH:bH.rows, pitV:pV.rows, pitH:pH.rows, dec:dec};
+}
+function batRows(raw){
+  return raw.map(r=>({name:r.name, pos:r.pos, vb:r.cells[0]||"0", c:r.cells[1]||"0", h:r.cells[2]||"0",
+    b2:r.cells[3]||"0", b3:r.cells[4]||"0", hr:r.cells[5]||"0", ci:r.cells[6]||"0"}));
+}
+function pitRows(raw){
+  return raw.map(r=>({name:r.name, pos:r.pos, h:r.cells[1]||"0", c:r.cells[2]||"0", cl:r.cells[3]||"0",
+    so:r.cells[4]||"0", bb:r.cells[5]||"0", inn:r.cells[10]||r.cells[r.cells.length-1]||"0"}));
+}
+function batTable(title, raw){
+  const rows = batRows(raw);
+  let h = '<div class="gmeta" style="margin:10px 0 4px">'+esc(title)+'</div>';
+  if(!rows.length) return h+'<div class="empty" style="padding:10px">Sin datos.</div>';
+  h += '<div style="overflow-x:auto"><table class="bs"><tr><th>Jugador</th><th>VB</th><th>C</th><th>H</th><th>2B</th><th>3B</th><th>HR</th><th>CI</th></tr>';
+  rows.forEach(r=>{
+    h += '<tr><td>'+esc(r.name)+(r.pos?' <span style="color:var(--muted)">'+esc(r.pos)+'</span>':'')+'</td><td>'+r.vb+'</td><td>'+r.c+'</td><td>'+r.h+'</td><td>'+r.b2+'</td><td>'+r.b3+'</td><td>'+r.hr+'</td><td>'+r.ci+'</td></tr>';
+  });
+  return h+'</table></div>';
+}
+function pitTable(title, raw){
+  const rows = pitRows(raw);
+  let h = '<div class="gmeta" style="margin:10px 0 4px">'+esc(title)+'</div>';
+  if(!rows.length) return h+'<div class="empty" style="padding:10px">Sin datos.</div>';
+  h += '<div style="overflow-x:auto"><table class="bs"><tr><th>Lanzador</th><th>INN</th><th>H</th><th>C</th><th>CL</th><th>SO</th><th>BB</th></tr>';
+  rows.forEach(r=>{
+    h += '<tr><td>'+esc(r.name)+'</td><td>'+r.inn+'</td><td>'+r.h+'</td><td>'+r.c+'</td><td>'+r.cl+'</td><td>'+r.so+'</td><td>'+r.bb+'</td></tr>';
+  });
+  return h+'</table></div>';
+}
+function lineTable(g, d){
+  if(!d.line) return '<div class="empty">Línea no disponible.</div>';
+  const L = d.line, n = L.innings.length;
+  const ta = TEAMS[g.away]||{mote:g.away}, th = TEAMS[g.home]||{mote:g.home};
+  let h = '<div style="overflow-x:auto"><table class="bs"><tr><th></th>';
+  L.innings.forEach(i=>{ h += '<th>'+i+'</th>'; });
+  h += '<th>C</th><th>H</th><th>E</th></tr>';
+  [[ta.mote, L.away],[th.mote, L.home]].forEach(pair=>{
+    const nm = pair[0], r = pair[1];
+    h += '<tr><td><b>'+esc(nm)+'</b></td>';
+    for(let i=0;i<n;i++) h += '<td>'+(r.runs[i]==null?"–":r.runs[i])+'</td>';
+    h += '<td class="tot">'+r.c+'</td><td class="tot">'+r.h+'</td><td class="tot">'+r.e+'</td></tr>';
+  });
+  return h+'</table></div>';
+}
+function decisionHTML(d){
+  if(!d.dec || (!d.dec.w && !d.dec.l && !d.dec.s)) return "";
+  return '<div class="decision">'
+    + (d.dec.w?'<div><b>G:</b> '+esc(d.dec.w)+'</div>':'')
+    + (d.dec.l?'<div><b>P:</b> '+esc(d.dec.l)+'</div>':'')
+    + (d.dec.s?'<div><b>S:</b> '+esc(d.dec.s)+'</div>':'')
+    + '</div>';
+}
+function boxTabBody(g, tab, d){
+  if(tab==="plays") return '<div class="empty">La jugada a jugada se incorporará en la próxima actualización automática.</div>';
+  if(tab==="bat"){
+    const ta = TEAMS[g.away]||{mote:g.away}, th = TEAMS[g.home]||{mote:g.home};
+    return batTable(ta.mote+" (visitante)", d.batV) + batTable(th.mote+" (local)", d.batH);
+  }
+  if(tab==="pit"){
+    const ta = TEAMS[g.away]||{mote:g.away}, th = TEAMS[g.home]||{mote:g.home};
+    return pitTable(ta.mote+" (visitante)", d.pitV) + pitTable(th.mote+" (local)", d.pitH);
+  }
+  return lineTable(g, d) + decisionHTML(d);
+}
+function bsTabBtn(gid, key, label, cur){
+  return '<button class="'+(cur===key?'active':'')+'" onclick="event.stopPropagation();setBoxTab(\''+gid+'\',\''+key+'\')">'+label+'</button>';
+}
+function detailHTML(g){
+  const num = gameNumId(g.id);
+  const tab = boxTab[g.id] || "line";
+  let body;
+  if(g.status!=="final"){
+    body = '<div class="empty">El boxscore estará disponible cuando se juegue el partido.</div>';
+  } else {
+    const data = num!=null ? boxCache[num] : {error:true};
+    if(!data){
+      body = '<div class="bsload"><div class="baseball" style="width:44px;height:44px"></div></div>';
+      if(num!=null && !boxLoading[num]) loadBox(g.id, num);
+    } else if(data.error){
+      body = '<div class="empty">No se pudo cargar el boxscore.<br><button class="btn ghost" style="max-width:240px;margin:10px auto 0" onclick="event.stopPropagation();retryBox(\''+g.id+'\')">Reintentar</button></div>';
+    } else {
+      body = boxTabBody(g, tab, data);
+    }
+  }
+  return '<div onclick="event.stopPropagation()"><div class="bstabs">'
+    + bsTabBtn(g.id,"line","Línea",tab)
+    + bsTabBtn(g.id,"bat","Bateo",tab)
+    + bsTabBtn(g.id,"pit","Pitcheo",tab)
+    + bsTabBtn(g.id,"plays","Jugadas",tab)
+    + '</div><div>'+body+'</div></div>';
+}
+function gameCard(g){
+  const st = g.status==="final" ? '<span class="status final">FINAL</span>' : '<span class="status prog">PRÓXIMO</span>';
+  const aw = g.ar!=null && g.hr!=null && g.ar>g.hr, hw = g.ar!=null && g.hr!=null && g.hr>g.ar;
+  const meta = (g.num? "Juego "+g.num+" · ":"") + (g.stadium||"") + (g.time? " · "+g.time:"");
+  const num = gameNumId(g.id);
+  const open = expanded.has(g.id);
+  const click = num!=null ? ' onclick="toggleGame(\''+g.id+'\')" style="cursor:pointer"' : '';
+  return '<div class="game'+(open?' open':'')+'" id="gc-'+g.id+'"'+click+'>'
+    +'<div class="ghead"><span class="gmeta">'+meta+'</span><span style="display:flex;align-items:center;gap:6px">'+st+(num!=null?'<span class="chev">▾</span>':'')+'</span></div>'
+    +'<div class="teams"><div class="tlist">'+teamLine(g.away,g.ar,aw)+teamLine(g.home,g.hr,hw)+'</div></div>'
+    +(open?'<div class="detail">'+detailHTML(g)+'</div>':'')
+    +'</div>';
+}
+/* ============ RENDER ============ */
+let leadersTab = "bat";
+function renderAll(){
+  const today = S.today, fin = today.filter(g=>g.status==="final");
+  const runs = today.reduce((s,g)=>s+(g.ar||0)+(g.hr||0),0);
+  document.getElementById("hGames").textContent = today.length;
+  document.getElementById("hFinal").textContent = fin.length;
+  document.getElementById("hRuns").textContent = runs;
+  document.getElementById("homeGames").innerHTML = today.slice(0,3).map(gameCard).join("") || '<div class="empty">Sin juegos hoy.</div>';
+  const n = S.news[0];
+  document.getElementById("homeNews").innerHTML = n ? '<div class="news card" style="margin:0"><span class="cat">Titular</span><h4>'+n.title+'</h4><p>'+n.text+'</p></div>' : '<div class="empty">Sin titulares.</div>';
+  document.getElementById("dataStamp").textContent = "Datos: " + S.dateLabel;
+  document.getElementById("jornadaTitle").textContent = "Jornada de hoy · " + S.dateLabel.split("·")[0].trim();
+  document.getElementById("gamesToday").innerHTML = today.map(gameCard).join("") || '<div class="empty">Sin juegos.</div>';
+  document.getElementById("gamesNext").innerHTML = S.upcoming.map(gameCard).join("") || '<div class="empty">Sin próximos juegos publicados.</div>';
+  document.getElementById("gamesPrev").innerHTML = S.prev.map(gameCard).join("") || '<div class="empty">Sin datos.</div>';
+  const _up0 = S.upcoming[0], _pv0 = S.prev[0];
+  document.getElementById("gamesNextTitle").textContent = _up0 ? "Próximos juegos · "+fmtDate(_up0.date)+(_up0.time?" · "+_up0.time:"") : "Próximos juegos";
+  document.getElementById("gamesPrevTitle").textContent = _pv0 ? "Fecha anterior · "+fmtDate(_pv0.date) : "Fecha anterior";
+  const table = rows => {
+    if(!rows.length) return '<div class="empty">Sin datos.</div>';
+    let h = '<tr><th>Equipo</th><th>JG</th><th>JP</th><th>PRO</th><th>DIF</th><th>Racha</th></tr>';
+    rows.forEach((r,i)=>{
+      const t = TEAMS[r.t] || {name:r.t, mote:"", ini:r.t};
+      h += '<tr class="'+(i===0?'lead':'')+'"><td><div class="teamcell">'+logoBadge(r.t)+'<span>'+t.name+'<br><small style="color:var(--muted)">'+t.mote+'</small></span></div></td><td>'+r.w+'</td><td>'+r.l+'</td><td>'+(r.pro||"—")+'</td><td>'+(i===0?'—':(r.dif||"—"))+'</td><td>'+(r.racha||"—")+'</td></tr>';
+    });
+    return h;
+  };
+  document.getElementById("tblOcc").innerHTML = table(S.standings.occ);
+  document.getElementById("tblOri").innerHTML = table(S.standings.ori);
+  renderLeaders();
+  const rec = {}; [...S.standings.occ, ...S.standings.ori].forEach(r=>rec[r.t]=r.w+"-"+r.l);
+  document.getElementById("teamsGrid").innerHTML = Object.keys(TEAMS).map(c=>{
+    const t = TEAMS[c];
+    return '<div class="team-card">'+logoBadge(c,true)+'<b>'+t.name+'</b><div class="mote">'+t.mote+'</div><div class="rec">'+(rec[c]||"0-0")+' JG-JP</div></div>';
+  }).join("");
+  document.getElementById("newsList").innerHTML = S.news.map(x=>'<div class="card news"><span class="cat">Titular</span><h4>'+x.title+'</h4><p>'+x.text+'</p></div>').join("");
+}
+function renderLeaders(){
+  const list = leadersTab==="bat" ? S.leadersBat : S.leadersPit;
+  document.getElementById("leadersTitle").textContent = leadersTab==="bat" ? "Líderes de bateo" : "Líderes de pitcheo";
+  document.getElementById("tabBat").classList.toggle("active", leadersTab==="bat");
+  document.getElementById("tabPit").classList.toggle("active", leadersTab==="pit");
+  document.getElementById("leadersList").innerHTML = list.map((l,i)=>{
+    const t = TEAMS[l.team] || {name:l.team};
+    return '<div class="lead-card"><div class="pos">'+(i+1)+'</div><div class="info"><b>'+l.name+'</b><span>'+t.name+(l.pos?" · "+l.pos:"")+'</span></div><div><div class="val">'+l.val+'</div><div class="lbl">'+l.cat+'</div></div></div>';
+  }).join("");
+}
+document.getElementById("tabBat").onclick = ()=>{leadersTab="bat"; renderLeaders();};
+document.getElementById("tabPit").onclick = ()=>{leadersTab="pit"; renderLeaders();};
+/* ============ NAVEGACIÓN ============ */
+const PAGES = [
+  {id:"inicio", label:"Inicio", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10l9-7 9 7v10a1 1 0 01-1 1h-5v-6h-6v6H4a1 1 0 01-1-1z"/></svg>'},
+  {id:"jornada", label:"Jornada", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 9h18"/></svg>'},
+  {id:"posiciones", label:"Posiciones", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg>'},
+  {id:"lideres", label:"Líderes", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M8.5 13L7 22l5-3 5 3-1.5-9"/></svg>'},
+  {id:"equipos", label:"Equipos", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="10" r="2.5"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6M15.5 14.5c2.8.4 5 2.3 5 5.5"/></svg>'},
+  {id:"noticias", label:"Noticias", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v12H4zM4 17l-1 4 4-4M20 9h3v9l-3-2"/></svg>'}
+];
+const drawerNav = document.getElementById("drawerNav"), bottomNav = document.getElementById("bottomNav");
+const BOTTOM = ["inicio","jornada","posiciones","noticias"];
+PAGES.forEach(p=>{
+  const b = document.createElement("button");
+  b.innerHTML = p.icon+"<span>"+p.label+"</span>"; b.dataset.pg = p.id; b.onclick = ()=>go(p.id);
+  drawerNav.appendChild(b);
+  if(BOTTOM.includes(p.id)){
+    const m = document.createElement("button");
+    m.innerHTML = p.icon+"<span>"+p.label+"</span>"; m.dataset.pg = p.id; m.onclick = ()=>go(p.id);
+    bottomNav.appendChild(m);
+  }
+});
+const menuBtn = document.getElementById("menuBtn"), drawer = document.getElementById("drawer"), scrim = document.getElementById("scrim");
+menuBtn.onclick = ()=>{drawer.classList.add("open"); scrim.classList.add("show");};
+scrim.onclick = ()=>{drawer.classList.remove("open"); scrim.classList.remove("show");};
+function go(id){
+  document.querySelectorAll("section.page").forEach(s=>s.classList.remove("active"));
+  document.getElementById("pg-"+id).classList.add("active");
+  document.querySelectorAll("[data-pg]").forEach(b=>b.classList.toggle("active", b.dataset.pg===id));
+  drawer.classList.remove("open"); scrim.classList.remove("show");
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+/* ============ SCRAPER EN VIVO (segundo plano, no bloquea) ============ */
+async function fetchLiveHTML(){
+  const url = BASE;
+  const routes = [
+    url,
+    "https://api.allorigins.win/raw?url="+encodeURIComponent(url),
+    "https://corsproxy.io/?url="+encodeURIComponent(url)
+  ];
+  for(const u of routes){
+    try{
+      const ctl = new AbortController();
+      const timer = setTimeout(()=>ctl.abort(), 8000);
+      const r = await fetch(u, {signal:ctl.signal});
+      clearTimeout(timer);
+      if(!r.ok) continue;
+      const txt = await r.text();
+      if(txt && txt.length > 30000 && /RESULTADOS DEL D[IÍ]A/i.test(txt)) return txt;
+    }catch(e){}
+  }
+  return null;
+}
+function parseGames(doc){
+  const games = [];
+  const h4 = [...doc.querySelectorAll("h4")].find(x=>/RESULTADOS DEL D[IÍ]A/i.test(x.textContent));
+  let anchors = [];
+  if(h4){
+    let el = h4.nextElementSibling, guard = 0;
+    while(el && guard < 12 && !/^H[1-6]$/i.test(el.tagName)){
+      anchors.push(...el.querySelectorAll('a[title="BoxScore"]'));
+      el = el.nextElementSibling; guard++;
+    }
+    if(!anchors.length && h4.parentElement) anchors.push(...h4.parentElement.querySelectorAll('a[title="BoxScore"]'));
+  }
+  anchors = anchors.filter(a=>(a.getAttribute("style")||"").includes("absolute"));
+  if(!anchors.length) anchors = [...doc.querySelectorAll('a[title="BoxScore"]')].filter(a=>(a.getAttribute("style")||"").includes("absolute")).slice(0,8);
+  const fm = (doc.querySelector('a[href*="ScoreBoard.aspx?fecha="]')?.getAttribute("href")||"").match(/fecha=(\d{4}-\d{2}-\d{2})/);
+  const date = fm ? fm[1] : "";
+  anchors.slice(0,8).forEach((a,i)=>{
+    const idm = (a.getAttribute("href")||"").match(/idJuego=(\d+)/);
+    const rows = [...a.querySelectorAll("div.Mini_DayScore_Row_Row")];
+    if(rows.length < 2) return;
+    const teamOf = row => {
+      const img = row.querySelector("img.Mini_DayScore_Logos");
+      const sig = (row.querySelector("span.MDSS")?.textContent||"").trim().toUpperCase();
+      const src = abs(img?.getAttribute("src"));
+      if(sig && !TEAMS[sig]) TEAMS[sig] = {name:(img?.getAttribute("alt")||sig), mote:sig, color:"#5D6D7E", ini:sig};
+      if(sig && src) LOGOS[sig] = src;
+      return sig;
+    };
+    const aw = teamOf(rows[0]), hm = teamOf(rows[1]);
+    if(!aw || !hm) return;
+    let status = "prog", ar = null, hr = null, el = a.parentElement, d = 0;
+    while(el && d < 8){
+      const tx = el.textContent || "";
+      if(/final/i.test(tx)){
+        status = "final";
+        const nums = (tx.match(/\b\d{1,2}\b/g)||[]).map(Number);
+        if(nums.length >= 2){ ar = nums[0]; hr = nums[1]; }
+        break;
+      }
+      el = el.parentElement; d++;
+    }
+    games.push({id:idm?"j"+idm[1]:"lx"+i, date, away:aw, home:hm, ar, hr, status});
+  });
+  return {games, date};
+}
+function parseStandings(doc){
+  const out = {occ:[], ori:[]};
+  [["ZONA OCCIDENTAL","occ"],["ZONA ORIENTAL","ori"]].forEach(([ttl,key])=>{
+    const h = [...doc.querySelectorAll("h3")].find(x=>x.textContent.trim().toUpperCase()===ttl);
+    if(!h) return;
+    let el = h.nextElementSibling, guard = 0;
+    while(el && guard < 10 && !/^H[1-6]$/i.test(el.tagName)){
+      el.querySelectorAll("li.accessories").forEach(li=>{
+        const sig = (li.getAttribute("title")||"").trim().toUpperCase();
+        if(!sig || out[key].find(r=>r.t===sig)) return;
+        const g = s => li.querySelector(s)?.textContent.trim() || "";
+        const img = li.querySelector(".div_equipo img");
+        if(sig && !TEAMS[sig]) TEAMS[sig] = {name:(img?.getAttribute("alt")||sig), mote:sig, color:"#5D6D7E", ini:sig};
+        const src = abs(img?.getAttribute("src"));
+        if(sig && src) LOGOS[sig] = src;
+        out[key].push({t:sig, w:parseInt(g(".h5_JG"))||0, l:parseInt(g(".h5_JP"))||0, dif:g(".h5_DIF"), pro:g(".h5_PRO"), u10:g(".h5_ULT10"), racha:g(".h5_RACHA")});
+      });
+      el = el.nextElementSibling; guard++;
+    }
+  });
+  return out;
+}
+function parseLeaders(doc, want){
+  const out = [];
+  doc.querySelectorAll('a.a_divTop[href*="Jugador.aspx"]').forEach(a=>{
+    const name = a.textContent.trim();
+    if(!name || out.find(o=>o.name===name)) return;
+    let c = a.parentElement, d = 0;
+    while(c && d < 6 && !c.querySelector("img.img_divTop")){ c = c.parentElement; d++; }
+    const txt = ((c||a).textContent||"").replace(/\s+/g," ").trim();
+    const isPit = /(PCL|JG:|JS:|SO:)/i.test(txt);
+    if((want==="pit") !== isPit) return;
+    const cat = (txt.match(/(Average de Bateo|Jonrones|Carreras Impulsadas|Bases Robadas|Promedio de Carreras Limpias|Juegos Ganados|Juegos Salvados|Ponches)/i)||[])[1] || "Destacado";
+    const tm = txt.match(/([A-Z]{3})\s*[•·]\s*([A-Za-z]{1,3})/) || [];
+    const vm = txt.match(/(?:AVE|HR|CI|BR|PCL|JG|JS|SO):\s*([\d.]+)/i);
+    out.push({cat, name, team:tm[1]||"", pos:tm[2]||"", val:vm?vm[1]:""});
+  });
+  return out.slice(0,6);
+}
+function parseNews(doc){
+  const out = [];
+  doc.querySelectorAll('a.card-text-titulares[href*="NewsDetails.aspx"]').forEach(a=>{
+    const t = a.textContent.trim().replace(/\s+/g," ");
+    if(t && !out.find(o=>o.title===t)) out.push({title:t, text:""});
+  });
+  doc.querySelectorAll('h4 > a[href*="NewsDetails.aspx"]').forEach(a=>{
+    const t = a.textContent.trim().replace(/\s+/g," ");
+    if(t && !out.find(o=>o.title===t)) out.unshift({title:t, text:""});
+  });
+  return out.slice(0,10);
+}
+let refreshing = false;
+async function refreshLive(silent){
+  if(refreshing) return false; refreshing = true;
+  const btn = document.getElementById("refreshBtn");
+  if(btn && !silent){ btn.disabled = true; btn.innerHTML = '<span class="baseball baseball-sm"></span>Buscando datos en vivo…'; }
+  let ok = false;
+  try{
+    const html = await fetchLiveHTML();
+    if(html){
+      const doc = new DOMParser().parseFromString(html, "text/html");
+      const pg = parseGames(doc), st = parseStandings(doc);
+      const lb = parseLeaders(doc, "bat"), lp = parseLeaders(doc, "pit"), nw = parseNews(doc);
+      if(pg.games.length && (st.occ.length || st.ori.length)){
+        S.today = pg.games;
+        if(st.occ.length) S.standings.occ = st.occ;
+        if(st.ori.length) S.standings.ori = st.ori;
+        if(lb.length) S.leadersBat = lb;
+        if(lp.length) S.leadersPit = lp;
+        if(nw.length) S.news = nw;
+        if(pg.date){ const d = new Date(pg.date+"T12:00:00"); S.dateLabel = d.toLocaleDateString("es-ES",{day:"numeric",month:"long",year:"numeric"}); }
+        S.live = true; renderAll(); setLive(true); ok = true;
+        if(!silent) toast("Datos actualizados en vivo.");
+      }
+    }
+  }catch(e){}
+  if(btn){ btn.disabled = false; btn.textContent = "Actualizar en vivo"; }
+  refreshing = false;
+  return ok;
+}
+/* ============ ARRANQUE ============ */
+document.querySelector('[data-pg="inicio"]').classList.add("active");
+/* Normalizar estado inicial */
+const _dates = [...new Set(GAMES.map(g=>g.date))].sort();
+const _today = _dates[_dates.length-1] || "";
+S = {
+  today: GAMES.filter(g=>g.date===_today),
+  prev: GAMES.filter(g=>g.date!==_today),
+  upcoming: UPCOMING,
+  standings: STANDINGS,
+  leadersBat: LEADERS_BAT,
+  leadersPit: LEADERS_PIT,
+  news: NEWS,
+  dateLabel: DATA_LABEL,
+  live: false
+};
+renderAll();
+setLive(false);
+document.getElementById("refreshBtn").onclick = ()=>refreshLive(false);
+/* Intento en vivo en segundo plano: nunca bloquea la carga */
+setTimeout(()=>refreshLive(true), 1500);
+setInterval(()=>refreshLive(true), 30*60*1000);
+</script>
+</body>
+</html>
