@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Panel de visitas · La Pelota Cubana</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif; background:#0d0f14; color:#e8eaf0; min-height:100vh; padding:20px 16px 40px; }
+  .top { max-width:560px; margin:0 auto; }
+  h1 { font-size:20px; font-weight:800; letter-spacing:.2px; }
+  h1 span { color:#e63329; }
+  .sub { color:#9aa3b2; font-size:13px; margin:4px 0 18px; }
+  .cards { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .card { background:#161a23; border:1px solid #232836; border-radius:14px; padding:16px 14px; }
+  .card .lbl { font-size:11px; text-transform:uppercase; letter-spacing:.8px; color:#9aa3b2; }
+  .card .num { font-size:32px; font-weight:800; margin-top:6px; line-height:1; }
+  .card.hero { grid-column:1 / -1; background:linear-gradient(135deg,#8f0f0a,#c8101e); border:none; }
+  .card.hero .lbl { color:#ffd9d4; }
+  .card.hero .num { font-size:44px; }
+  .panel { background:#161a23; border:1px solid #232836; border-radius:14px; padding:16px 14px; margin-top:12px; }
+  .panel h2 { font-size:13px; text-transform:uppercase; letter-spacing:.8px; color:#9aa3b2; margin-bottom:14px; }
+  .chart { display:flex; align-items:flex-end; gap:4px; height:150px; }
+  .col { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; min-width:0; }
+  .col .v { font-size:10px; color:#c8cdd8; margin-bottom:4px; }
+  .col .bar { width:100%; max-width:26px; background:#39415a; border-radius:5px 5px 0 0; min-height:3px; }
+  .col.today .bar { background:#e63329; }
+  .col .d { font-size:9px; color:#7c8496; margin-top:6px; white-space:nowrap; }
+  .row { display:flex; justify-content:space-between; padding:9px 2px; border-bottom:1px solid #20242f; font-size:14px; }
+  .row:last-child { border-bottom:none; }
+  .row .f { color:#c8cdd8; text-transform:capitalize; }
+  .row .n { font-weight:700; }
+  .row.today .f, .row.today .n { color:#ff6f66; }
+  button { width:100%; margin-top:14px; background:#e63329; color:#fff; border:none; border-radius:12px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; }
+  button:active { opacity:.85; }
+  .foot { color:#7c8496; font-size:12px; text-align:center; margin-top:14px; line-height:1.5; }
+  .err { color:#ff9d94; font-size:13px; text-align:center; margin-top:10px; display:none; }
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>Panel de visitas · <span>La Pelota Cubana</span></h1>
+  <p class="sub">Página pública de la web. Una visita por sesión, sin cookies.</p>
+
+  <div class="cards">
+    <div class="card hero">
+      <div class="lbl">Visitas totales</div>
+      <div class="num" id="total">…</div>
+    </div>
+    <div class="card">
+      <div class="lbl">Hoy</div>
+      <div class="num" id="hoy">…</div>
+    </div>
+    <div class="card">
+      <div class="lbl">Ayer</div>
+      <div class="num" id="ayer">…</div>
+    </div>
+    <div class="card">
+      <div class="lbl">Promedio diario (7 días)</div>
+      <div class="num" id="prom">…</div>
+    </div>
+    <div class="card">
+      <div class="lbl">Últimos 7 días</div>
+      <div class="num" id="semana">…</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Últimos 14 días</h2>
+    <div class="chart" id="chart"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Detalle por día</h2>
+    <div id="lista"></div>
+  </div>
+
+  <button id="btn">↻ Actualizar</button>
+  <p class="err" id="err">No se pudieron leer los datos. Revisa tu conexión e inténtalo de nuevo.</p>
+  <p class="foot">Contando desde el 8 de octubre de 2026.<br>Actualizado: <span id="hora">—</span></p>
+</div>
+
+<script>
+var NS = 'tecnobum-lapelotacubana';
+var API = 'https://abacus.jasoncameron.dev/get/' + NS + '/';
+
+function claveDia(offset) {
+  var d = new Date(Date.now() - offset * 864e5);
+  return d.toLocaleDateString('en-CA', { timeZone: 'America/Havana' });
+}
+function etiquetaDia(offset) {
+  var d = new Date(Date.now() - offset * 864e5);
+  return d.toLocaleDateString('es', { timeZone: 'America/Havana', weekday: 'short', day: 'numeric', month: 'short' });
+}
+function leer(clave) {
+  return fetch(API + clave)
+    .then(function (r) { return r.ok ? r.json() : { value: 0 }; })
+    .then(function (j) { return (j && typeof j.value === 'number') ? j.value : 0; })
+    .catch(function () { return -1; });
+}
+function fmt(n) { return n < 0 ? '—' : n.toLocaleString('es'); }
+
+function cargar() {
+  var dias = [];
+  for (var i = 13; i >= 0; i--) dias.push(i); // 13 = hace 13 días, 0 = hoy
+  var promesas = [leer('visitas-total')].concat(dias.map(function (off) {
+    return leer('visitas-' + claveDia(off));
+  }));
+  Promise.all(promesas).then(function (res) {
+    var total = res[0];
+    var vals = res.slice(1); // mismo orden que dias: [hace13 ... hoy]
+    var hoyV = vals[vals.length - 1];
+    var ayerV = vals[vals.length - 2];
+    var ult7 = vals.slice(-7);
+    var suma7 = ult7.reduce(function (a, b) { return a + Math.max(b, 0); }, 0);
+    var prom = Math.round((suma7 / 7) * 10) / 10;
+
+    document.getElementById('total').textContent = fmt(total);
+    document.getElementById('hoy').textContent = fmt(hoyV);
+    document.getElementById('ayer').textContent = fmt(ayerV);
+    document.getElementById('prom').textContent = fmt(prom);
+    document.getElementById('semana').textContent = fmt(suma7);
+
+    var max = Math.max.apply(null, vals.concat([1]));
+    var chart = document.getElementById('chart');
+    chart.innerHTML = '';
+    dias.forEach(function (off, idx) {
+      var v = Math.max(vals[idx], 0);
+      var col = document.createElement('div');
+      col.className = 'col' + (off === 0 ? ' today' : '');
+      var f = new Date(Date.now() - off * 864e5);
+      var dl = f.toLocaleDateString('es', { timeZone: 'America/Havana', day: 'numeric', month: 'short' });
+      col.innerHTML = '<div class="v">' + v + '</div>' +
+                      '<div class="bar" style="height:' + Math.round(v / max * 105) + 'px"></div>' +
+                      '<div class="d">' + dl + '</div>';
+      chart.appendChild(col);
+    });
+
+    var lista = document.getElementById('lista');
+    lista.innerHTML = '';
+    for (var i = dias.length - 1; i >= 0; i--) {
+      var off = dias[i];
+      var row = document.createElement('div');
+      row.className = 'row' + (off === 0 ? ' today' : '');
+      row.innerHTML = '<span class="f">' + etiquetaDia(off) + (off === 0 ? ' (hoy)' : '') + '</span>' +
+                      '<span class="n">' + fmt(vals[i]) + '</span>';
+      lista.appendChild(row);
+    }
+
+    document.getElementById('err').style.display = (total < 0 && hoyV < 0) ? 'block' : 'none';
+    document.getElementById('hora').textContent =
+      new Date().toLocaleTimeString('es', { timeZone: 'America/Havana', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  });
+}
+document.getElementById('btn').addEventListener('click', cargar);
+cargar();
+</script>
+</body>
+</html>
