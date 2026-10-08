@@ -421,7 +421,7 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
 
   <section class="page" id="pg-envivo">
     <div class="card"><h3>Televisión en vivo</h3>
-      <div class="tvwrap"><iframe id="tvFrame" title="TV en vivo" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe></div>
+      <div class="tvwrap"><iframe id="tvFrame" title="TV en vivo" allow="encrypted-media; fullscreen" allowfullscreen></iframe><button id="tvPlay" type="button" aria-label="Reproducir televisión en vivo" style="position:absolute;inset:0;width:100%;height:100%;border:0;background:linear-gradient(160deg,#141824,#0b0d13);color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:2"><span style="width:64px;height:64px;border-radius:50%;background:#e63329;display:flex;align-items:center;justify-content:center"><svg width="26" height="26" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span><b style="font-size:15px">Ver televisión en vivo</b><small style="color:#9aa3b2;font-size:12px">Toca para reproducir</small></button></div>
     </div>
     <div class="card"><h3>Radio por provincia</h3>
       <div id="radioPlayer" style="display:none">
@@ -1018,7 +1018,11 @@ function stopRadio(){
 }
 function initEnvivo(){
   renderStations();
-  if(!tvLoaded){ tvLoaded = true; document.getElementById("tvFrame").src = TV_EMBED; }
+  if(!tvLoaded){
+    tvLoaded = true;
+    var bp = document.getElementById("tvPlay");
+    if(bp) bp.addEventListener("click", function(){ document.getElementById("tvFrame").src = TV_EMBED; bp.style.display = "none"; });
+  }
 }
 /* ============ PREDICCIONES (solo en este teléfono) ============ */
 const PICK_POINTS = 3;
