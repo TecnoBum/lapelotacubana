@@ -151,6 +151,12 @@
 .dchip.sel{border-color:var(--accent); background:rgba(164,22,26,.14);}
 .dchip.today b{color:var(--gold);}
 .dchip:active{transform:scale(.95);}
+.dchip.rest{opacity:.55;}
+.dchip.rest b{color:var(--muted);}
+.restday{text-align:center; padding:38px 20px 34px; border:1px solid var(--line); border-radius:16px; background:var(--card2);}
+.rd-icon{width:72px; height:72px; margin:0 auto 14px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:rgba(164,22,26,.12); color:var(--accent);}
+.rd-title{font-weight:800; font-size:17px; margin-bottom:6px;}
+.rd-sub{color:var(--muted); font-size:13px; line-height:1.5;}
 .caldate{font-weight:800; font-size:14px; margin:4px 2px 10px; text-transform:capitalize;}
 /* Predicciones */
 .pickrow{display:flex; gap:8px; margin-top:8px;}
@@ -1301,8 +1307,25 @@ const CAL_BY_ID = {};
 function calMonths(){
   return [...new Set(Object.keys(S.cal||{}).map(d=>d.slice(0,7)))].sort();
 }
+function calAllDates(){
+  const keys = Object.keys(S.cal||{}).sort();
+  if(!keys.length) return [];
+  const out = [], end = keys[keys.length-1];
+  let cur = keys[0];
+  while(cur<=end){
+    out.push(cur);
+    const dt = new Date(cur+"T12:00:00"); dt.setDate(dt.getDate()+1);
+    cur = dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0");
+  }
+  return out;
+}
+function calHasGames(d){ const g=(S.cal||{})[d]; return !!(g&&g.length); }
+const REST_ICON = '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>';
+function restDayCard(){
+  return '<div class="restday"><div class="rd-icon">'+REST_ICON+'</div><div class="rd-title">Traslado y Descanso</div><div class="rd-sub">No hay juegos programados para esta fecha.</div></div>';
+}
 function renderCalendario(){
-  const dates = Object.keys(S.cal||{}).sort();
+  const dates = calAllDates();
   if(!dates.length){
     document.getElementById("calGames").innerHTML = '<div class="empty">Calendario no disponible.</div>';
     return;
@@ -1312,27 +1335,32 @@ function renderCalendario(){
     const tm = todayStr.slice(0,7);
     calMonth = months.indexOf(tm)>=0 ? tm : months[0];
   }
-  if(!calSel || !S.cal[calSel] || calSel.slice(0,7)!==calMonth){
-    calSel = (S.cal[todayStr] && todayStr.slice(0,7)===calMonth) ? todayStr : dates.find(d=>d.slice(0,7)===calMonth);
+  if(!calSel || dates.indexOf(calSel)<0 || calSel.slice(0,7)!==calMonth){
+    calSel = (dates.indexOf(todayStr)>=0 && todayStr.slice(0,7)===calMonth) ? todayStr : dates.find(d=>d.slice(0,7)===calMonth);
   }
   document.getElementById("calMonthLabel").textContent =
     new Date(calMonth+"-01T12:00:00").toLocaleDateString("es-ES",{month:"long", year:"numeric"});
   document.getElementById("calStrip").innerHTML = dates.filter(d=>d.slice(0,7)===calMonth).map(d=>{
     const wd = new Date(d+"T12:00:00").toLocaleDateString("es-ES",{weekday:"short"}).replace(".","");
-    return '<button class="dchip'+(d===calSel?" sel":"")+(d===todayStr?" today":"")+'" onclick="calGo(\''+d+'\')"><b>'+(+d.slice(8))+'</b><small>'+wd+'</small></button>';
+    return '<button class="dchip'+(calHasGames(d)?"":" rest")+(d===calSel?" sel":"")+(d===todayStr?" today":"")+'" onclick="calGo(\''+d+'\')"><b>'+(+d.slice(8))+'</b><small>'+wd+'</small></button>';
   }).join("");
   const games = S.cal[calSel]||[];
-  const list = games.map(g=>{
-    const id = "j"+g.id;
-    const g2 = {id:id, num:g.id, date:calSel, away:g.away, home:g.home, ar:g.ar, hr:g.hr, status:g.status, time:g.time, stadium:g.stadium};
-    CAL_BY_ID[id] = g2;
-    return gameCard(g2);
-  }).join("");
   const h = new Date(calSel+"T12:00:00").toLocaleDateString("es-ES",{weekday:"long", day:"numeric", month:"long"});
-  const nF = games.filter(g=>g.status==="final").length;
-  document.getElementById("calGames").innerHTML =
-    '<div class="caldate">'+h+' · '+games.length+' juegos'+(nF?' · '+nF+' finalizados':'')+'</div>'
-    + (list || '<div class="empty">Sin juegos esta fecha.</div>');
+  let head, body;
+  if(games.length){
+    const nF = games.filter(g=>g.status==="final").length;
+    head = '<div class="caldate">'+h+' · '+games.length+' juegos'+(nF?' · '+nF+' finalizados':'')+'</div>';
+    body = games.map(g=>{
+      const id = "j"+g.id;
+      const g2 = {id:id, num:g.id, date:calSel, away:g.away, home:g.home, ar:g.ar, hr:g.hr, status:g.status, time:g.time, stadium:g.stadium};
+      CAL_BY_ID[id] = g2;
+      return gameCard(g2);
+    }).join("");
+  } else {
+    head = '<div class="caldate">'+h+'</div>';
+    body = restDayCard();
+  }
+  document.getElementById("calGames").innerHTML = head + body;
   const sel = document.querySelector("#calStrip .dchip.sel");
   if(sel) sel.scrollIntoView({inline:"center", block:"nearest"});
 }
@@ -1344,8 +1372,8 @@ function calMove(dir){
   calMonth = months[i]; calSel = null; renderCalendario();
 }
 function calToday(){
-  const months = calMonths(), t = habanaParts().dstr;
-  if(S.cal[t]){ calMonth = t.slice(0,7); calSel = t; }
+  const months = calMonths(), t = habanaParts().dstr, all = calAllDates();
+  if(all.indexOf(t)>=0){ calMonth = t.slice(0,7); calSel = t; }
   else { calMonth = months.indexOf(t.slice(0,7))>=0 ? t.slice(0,7) : months[0]; calSel = null; }
   renderCalendario();
 }
