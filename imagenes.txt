@@ -1,0 +1,11 @@
+# Carrusel de inicio de La Pelota Cubana
+# Una URL de imagen por línea. Las líneas que empiezan con # se ignoran.
+# Si una imagen no carga, se muestra un fondo rojo.
+https://www.cubahora.cu/uploads/resources/images/2017/12/27/xar-beisbol-aniversario-cuba-12.jpg
+https://www.cubaplusmagazine.com/img/articulos/carr/Latinoamericano.jpg
+https://cdn.mediawpaccore.net/wp-content/uploads/2025/06/04235012/Liga-ELite-2025-Final-CA-vs-LTU-Ciego-CAMPEON-02-1536x1304.jpg
+https://www.cvi.icrt.cu/wp-content/uploads/2019/11/BEISBOL-CUBANO-1.jpg
+https://www.periodicovictoria.cu/wp-content/uploads/2022/01/1708-BEISBOL.jpg
+https://www.radioguama.cu/wp-content/uploads/2025/12/1000217025-1024x768.jpg
+https://www.radiosantacruz.icrt.cu/wp-content/uploads/2026/05/26-LE4-IND-Jonathan-Bridon-1.jpg
+https://cdn.mediawpaccore.net/wp-content/uploads/2023/07/28221608/photo_2023-07-28_22-15-09-560x420.jpg
