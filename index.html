@@ -1722,9 +1722,50 @@ setTimeout(()=>{
   var titulo=document.querySelector('header.topbar h1'), toques=0, ultimoToque=0;
   if(titulo) titulo.addEventListener('click',function(){
     var ahora=Date.now();
-    toques=(ahora-ultimoToque<2500)?toques+1:1; ultimoToque=ahora;
-    if(toques>=5){ toques=0; location.href='admin.html'; }
+    toques=(ahora-ultimoToque<4000)?toques+1:1; ultimoToque=ahora;
+    if(toques>=5){ toques=0; if(window.__lpcAcceso) window.__lpcAcceso(); }
   });
+})();
+</script>
+
+<div id="lpcAcceso" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#161a23;border:1px solid #2a3040;border-radius:16px;padding:22px;width:100%;max-width:320px;color:#e8eaf0;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif">
+    <div style="font-weight:800;font-size:17px">Acceso privado</div>
+    <div style="color:#9aa3b2;font-size:13px;margin:5px 0 14px">Escribe la contraseña para abrir el panel.</div>
+    <input id="lpcClave" type="password" placeholder="Contraseña" autocomplete="off" style="width:100%;box-sizing:border-box;background:#0d0f14;border:1px solid #2a3040;border-radius:10px;padding:12px;color:#fff;font-size:16px">
+    <div id="lpcClaveErr" style="display:none;color:#ff8f86;font-size:12px;margin-top:8px">Contraseña incorrecta. Inténtalo de nuevo.</div>
+    <button id="lpcEntrar" style="width:100%;margin-top:14px;background:#e63329;color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer">Entrar al panel</button>
+    <button id="lpcCancelar" style="width:100%;margin-top:8px;background:transparent;color:#9aa3b2;border:1px solid #2a3040;border-radius:10px;padding:11px;font-size:14px;cursor:pointer">Cancelar</button>
+  </div>
+</div>
+<script>
+/* Puerta discreta al panel: 5 toques en el nombre de la app + contrasena (hash). */
+(function(){
+  var HASH='2a156f006008b253c6763b5624e98b9cc12b65f51cf571ffa466b67f23c54765';
+  var modal=document.getElementById('lpcAcceso');
+  var input=document.getElementById('lpcClave');
+  var err=document.getElementById('lpcClaveErr');
+  window.__lpcAcceso=function(){ modal.style.display='flex'; err.style.display='none'; input.value=''; setTimeout(function(){ try{input.focus();}catch(e){} },60); };
+  function cerrar(){ modal.style.display='none'; }
+  function sha(txt){
+    if(window.crypto && crypto.subtle){
+      return crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt)).then(function(b){
+        return Array.prototype.map.call(new Uint8Array(b), function(x){ return x.toString(16).padStart(2,'0'); }).join('');
+      });
+    }
+    var h=5381; for(var i=0;i<txt.length;i++){ h=((h<<5)+h+txt.charCodeAt(i))|0; }
+    return Promise.resolve('djb2:'+(h>>>0).toString(16));
+  }
+  function intentar(){
+    sha(input.value).then(function(h){
+      if(h===HASH){ try{ sessionStorage.setItem('lpcAdmin','1'); }catch(e){} location.href='admin.html'; }
+      else{ err.style.display='block'; input.value=''; }
+    });
+  }
+  document.getElementById('lpcEntrar').addEventListener('click', intentar);
+  document.getElementById('lpcCancelar').addEventListener('click', cerrar);
+  input.addEventListener('keydown', function(e){ if(e.key==='Enter') intentar(); });
+  modal.addEventListener('click', function(e){ if(e.target===modal) cerrar(); });
 })();
 </script>
 </body>

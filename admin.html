@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Panel de visitas · La Pelota Cubana</title>
+<title>Panel de Administración · La Pelota Cubana</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif; background:#0d0f14; color:#e8eaf0; min-height:100vh; padding:20px 16px 40px; }
@@ -18,8 +18,15 @@
   .card.hero { grid-column:1 / -1; background:linear-gradient(135deg,#8f0f0a,#c8101e); border:none; }
   .card.hero .lbl { color:#ffd9d4; }
   .card.hero .num { font-size:44px; }
+  .card.wide { grid-column:1 / -1; }
+  .prog { background:#20242f; border-radius:999px; height:10px; overflow:hidden; margin-top:10px; }
+  .prog div { height:100%; background:#4ade80; border-radius:999px; }
   .panel { background:#161a23; border:1px solid #232836; border-radius:14px; padding:16px 14px; margin-top:12px; }
   .panel h2 { font-size:13px; text-transform:uppercase; letter-spacing:.8px; color:#9aa3b2; margin-bottom:14px; }
+  .estado { font-size:14px; line-height:1.7; color:#c8cdd8; }
+  .estado b { color:#fff; }
+  .dot { display:inline-block; width:9px; height:9px; border-radius:50%; background:#4ade80; margin-right:6px; }
+  .dot.bad { background:#ff8f86; }
   .cmp { display:flex; justify-content:space-between; align-items:center; padding:10px 2px; border-bottom:1px solid #20242f; }
   .cmp:last-child { border-bottom:none; }
   .cmp .t { font-size:14px; color:#c8cdd8; }
@@ -46,18 +53,50 @@
   .row .f { color:#c8cdd8; text-transform:capitalize; }
   .row .n { font-weight:700; }
   .row.today .f, .row.today .n { color:#ff6f66; }
-  button { width:100%; margin-top:14px; background:#e63329; color:#fff; border:none; border-radius:12px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; }
+  .aviso { background:#12151d; border:1px solid #232836; border-left:4px solid #d9a441; border-radius:10px; padding:11px 12px; margin-bottom:9px; font-size:14px; line-height:1.45; }
+  .aviso small { display:block; color:#7c8496; font-size:11px; margin-top:3px; }
+  .aviso.bueno { border-left-color:#4ade80; }
+  .fld { margin-bottom:14px; }
+  .fld label { display:block; font-size:13px; color:#c8cdd8; margin-bottom:6px; }
+  .fld input[type=number], .fld select, .fld textarea { width:100%; background:#0d0f14; border:1px solid #2a3040; border-radius:10px; padding:11px; color:#fff; font-size:15px; font-family:inherit; }
+  .fld textarea { min-height:76px; resize:vertical; }
+  .chk { display:flex; align-items:center; gap:10px; font-size:14px; color:#c8cdd8; padding:6px 0; }
+  .chk input { width:20px; height:20px; accent-color:#e63329; }
+  button, .btnlink { display:block; width:100%; margin-top:10px; background:#e63329; color:#fff; border:none; border-radius:12px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; text-align:center; text-decoration:none; }
   button:active { opacity:.85; }
+  button.ghost, .btnlink.ghost { background:transparent; border:1px solid #2a3040; color:#c8cdd8; font-weight:600; }
+  .btnlink.wa { background:#177a3e; }
   .foot { color:#7c8496; font-size:12px; text-align:center; margin-top:14px; line-height:1.6; }
   .err { color:#ff9d94; font-size:13px; text-align:center; margin-top:10px; display:none; }
+  #lock { position:fixed; inset:0; background:#0d0f14; z-index:50; display:none; align-items:center; justify-content:center; padding:20px; }
+  #lock .box { background:#161a23; border:1px solid #232836; border-radius:16px; padding:24px; width:100%; max-width:330px; }
+  #lock input { width:100%; background:#0d0f14; border:1px solid #2a3040; border-radius:10px; padding:12px; color:#fff; font-size:16px; margin-top:12px; }
+  .vuelve { display:block; text-align:center; color:#9aa3b2; font-size:13px; margin-top:14px; }
 </style>
 </head>
 <body>
-<div class="top">
-  <h1>Panel de visitas · <span>La Pelota Cubana</span></h1>
-  <p class="sub">Página pública de la web. Una visita por sesión, sin cookies.</p>
 
-  <div class="cards">
+<div id="lock">
+  <div class="box">
+    <h1 style="font-size:18px">Panel de <span>Administración</span></h1>
+    <p class="sub" style="margin:6px 0 0">Área privada. Escribe la contraseña para entrar.</p>
+    <input id="lockInput" type="password" placeholder="Contraseña" autocomplete="off">
+    <p class="err" id="lockErr">Contraseña incorrecta.</p>
+    <button id="lockBtn">Entrar</button>
+    <a class="vuelve" href="./">← Volver a la web</a>
+  </div>
+</div>
+
+<div class="top" id="app" style="display:none">
+  <h1>Panel de <span>Administración</span></h1>
+  <p class="sub">La Pelota Cubana · visitas, secciones, avisos y ajustes.</p>
+
+  <div class="panel" style="margin-top:0">
+    <h2>Estado de la web</h2>
+    <div class="estado" id="estado">Comprobando…</div>
+  </div>
+
+  <div class="cards" style="margin-top:12px">
     <div class="card hero">
       <div class="lbl">Visitas totales</div>
       <div class="num" id="total">…</div>
@@ -78,6 +117,11 @@
       <div class="lbl">Últimos 7 días</div>
       <div class="num" id="semana">…</div>
     </div>
+    <div class="card wide" id="metaCard" style="display:none">
+      <div class="lbl">Meta de hoy</div>
+      <div class="prog"><div id="metaBar" style="width:0%"></div></div>
+      <div class="estado" id="metaTxt" style="margin-top:8px;font-size:13px"></div>
+    </div>
   </div>
 
   <div class="panel">
@@ -86,7 +130,7 @@
   </div>
 
   <div class="panel">
-    <h2>Visitas · últimos 14 días</h2>
+    <h2 id="titGrafico">Visitas por día</h2>
     <div class="chart" id="chart"></div>
   </div>
 
@@ -101,27 +145,155 @@
   </div>
 
   <div class="panel">
+    <h2>Notificaciones y avisos</h2>
+    <div id="avisos"></div>
+    <a class="btnlink wa" id="waBtn" target="_blank" rel="noopener">Enviarme el resumen por WhatsApp</a>
+    <button class="ghost" id="notifBtn">Activar avisos en este dispositivo</button>
+  </div>
+
+  <div class="panel">
+    <h2>Configuración</h2>
+    <div class="fld">
+      <label for="cfgMeta">Meta diaria de visitas (0 = sin meta)</label>
+      <input type="number" id="cfgMeta" min="0" step="1">
+    </div>
+    <div class="fld">
+      <label for="cfgDias">Días en el gráfico y el detalle</label>
+      <select id="cfgDias">
+        <option value="7">7 días</option>
+        <option value="14">14 días</option>
+        <option value="30">30 días</option>
+      </select>
+    </div>
+    <div class="fld">
+      <label for="cfgAuto">Actualización automática del panel</label>
+      <select id="cfgAuto">
+        <option value="0">Desactivada</option>
+        <option value="30">Cada 30 segundos</option>
+        <option value="60">Cada minuto</option>
+        <option value="300">Cada 5 minutos</option>
+      </select>
+    </div>
+    <label class="chk"><input type="checkbox" id="cfgSolo"> Mostrar solo secciones con datos</label>
+    <label class="chk"><input type="checkbox" id="cfgAvisosNav"> Avisos del navegador por récord o meta (con el panel abierto)</label>
+    <button id="cfgGuardar">Guardar configuración</button>
+    <button class="ghost" id="cfgReset">Restablecer configuración</button>
+    <p class="foot" style="text-align:left">La configuración se guarda en este dispositivo (este navegador). La web es pública y sin servidor, así que estos ajustes no cambian la página para los demás.</p>
+  </div>
+
+  <div class="panel">
+    <h2>Herramientas</h2>
+    <button class="ghost" id="csvBtn">Descargar datos (CSV, 30 días y secciones)</button>
+    <button class="ghost" id="copiarBtn">Copiar resumen de hoy</button>
+    <a class="btnlink ghost" href="./" >Abrir la web pública</a>
+    <a class="btnlink ghost" href="https://apklis.cu/application/la.pelota.cubana.hoy" target="_blank" rel="noopener">Ficha de la aplicación en Apklis</a>
+    <a class="btnlink ghost" href="https://github.com/TecnoBum/lapelotacubana" target="_blank" rel="noopener">Repositorio en GitHub</a>
+    <div class="fld" style="margin-top:14px">
+      <label for="notas">Notas rápidas (solo en este dispositivo)</label>
+      <textarea id="notas" placeholder="Ej.: revisar las reseñas de instalación el viernes…"></textarea>
+    </div>
+    <button class="ghost" id="notasBtn">Guardar notas</button>
+  </div>
+
+  <div class="panel">
     <h2>Detalle por día</h2>
     <div id="lista"></div>
   </div>
 
-  <button id="btn">↻ Actualizar</button>
+  <button id="btn">↻ Actualizar ahora</button>
+  <button class="ghost" id="bloquearBtn">Bloquear panel</button>
   <p class="err" id="err">No se pudieron leer algunos datos. Revisa tu conexión e inténtalo de nuevo.</p>
-  <p class="foot">Todo se cuenta desde el 8 de octubre de 2026.<br>
-  El tiempo por sección es aproximado: se suma en bloques de 30 segundos con la página visible.<br>
+  <p class="foot">Todo se cuenta desde el 8 de octubre de 2026. Una visita por sesión, sin cookies.<br>
+  El tiempo por sección es aproximado: bloques de 30 segundos con la página visible.<br>
   Actualizado: <span id="hora">—</span></p>
 </div>
 
 <script>
+var HASH = '2a156f006008b253c6763b5624e98b9cc12b65f51cf571ffa466b67f23c54765';
 var NS = 'tecnobum-lapelotacubana';
 var API = 'https://abacus.jasoncameron.dev/get/' + NS + '/';
+var WA_TEL = '5359785623';
 var SECCIONES = [
   ['inicio','Inicio'], ['jornada','Jornada'], ['posiciones','Posiciones'],
   ['lideres','Líderes'], ['equipos','Equipos'], ['noticias','Noticias'],
   ['envivo','En Vivo'], ['predicciones','Predicciones'], ['grupos','Grupos y canales'],
   ['calendario','Calendario']
 ];
+var RESUMEN = { texto: '', listo: false };
+var timerAuto = null;
 
+/* ---------- puerta con contraseña ---------- */
+function sha(txt) {
+  if (window.crypto && crypto.subtle) {
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt)).then(function (b) {
+      return Array.prototype.map.call(new Uint8Array(b), function (x) { return x.toString(16).padStart(2, '0'); }).join('');
+    });
+  }
+  var h = 5381; for (var i = 0; i < txt.length; i++) { h = ((h << 5) + h + txt.charCodeAt(i)) | 0; }
+  return Promise.resolve('djb2:' + (h >>> 0).toString(16));
+}
+function desbloqueado() { try { return sessionStorage.getItem('lpcAdmin') === '1'; } catch (e) { return false; } }
+function mostrarPanel() {
+  document.getElementById('lock').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  cargar(); aplicarAuto();
+}
+function intentarClave() {
+  var inp = document.getElementById('lockInput');
+  sha(inp.value).then(function (h) {
+    if (h === HASH) {
+      try { sessionStorage.setItem('lpcAdmin', '1'); } catch (e) {}
+      mostrarPanel();
+    } else {
+      document.getElementById('lockErr').style.display = 'block';
+      inp.value = '';
+    }
+  });
+}
+document.getElementById('lockBtn').addEventListener('click', intentarClave);
+document.getElementById('lockInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') intentarClave(); });
+document.getElementById('bloquearBtn').addEventListener('click', function () {
+  try { sessionStorage.removeItem('lpcAdmin'); } catch (e) {}
+  location.reload();
+});
+
+/* ---------- configuración (local) ---------- */
+function cfg() {
+  var c = { meta: 0, dias: 14, auto: 0, solo: false, avisosNav: false };
+  try { var j = JSON.parse(localStorage.getItem('lpcAdminCfg') || '{}'); for (var k in c) if (j[k] !== undefined) c[k] = j[k]; } catch (e) {}
+  return c;
+}
+function guardarCfg(c) { try { localStorage.setItem('lpcAdminCfg', JSON.stringify(c)); } catch (e) {} }
+function pintarCfg() {
+  var c = cfg();
+  document.getElementById('cfgMeta').value = c.meta;
+  document.getElementById('cfgDias').value = String(c.dias);
+  document.getElementById('cfgAuto').value = String(c.auto);
+  document.getElementById('cfgSolo').checked = !!c.solo;
+  document.getElementById('cfgAvisosNav').checked = !!c.avisosNav;
+}
+document.getElementById('cfgGuardar').addEventListener('click', function () {
+  guardarCfg({
+    meta: Math.max(0, parseInt(document.getElementById('cfgMeta').value || '0', 10) || 0),
+    dias: parseInt(document.getElementById('cfgDias').value, 10) || 14,
+    auto: parseInt(document.getElementById('cfgAuto').value, 10) || 0,
+    solo: document.getElementById('cfgSolo').checked,
+    avisosNav: document.getElementById('cfgAvisosNav').checked
+  });
+  cargar(); aplicarAuto();
+  alert('Configuración guardada en este dispositivo.');
+});
+document.getElementById('cfgReset').addEventListener('click', function () {
+  try { localStorage.removeItem('lpcAdminCfg'); } catch (e) {}
+  pintarCfg(); cargar(); aplicarAuto();
+});
+function aplicarAuto() {
+  if (timerAuto) { clearInterval(timerAuto); timerAuto = null; }
+  var s = cfg().auto;
+  if (s > 0) timerAuto = setInterval(cargar, s * 1000);
+}
+
+/* ---------- lecturas ---------- */
 function claveDia(offset) {
   var d = new Date(Date.now() - offset * 864e5);
   return d.toLocaleDateString('en-CA', { timeZone: 'America/Havana' });
@@ -154,8 +326,21 @@ function chip(actual, base) {
   return '<span class="chip flat">= 0%</span>';
 }
 
+function estadoWeb() {
+  var el = document.getElementById('estado');
+  fetch('./', { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (t) {
+    var etiqueta = (t.match(/DATA_LABEL\s*=\s*"([^"]+)"/) || [])[1] || '—';
+    var apk = (t.match(/APK\s*=\s*\{[^}]*"version":\s*"([^"]+)"/) || [])[1] || '—';
+    el.innerHTML = '<span class="dot"></span><b>En línea</b><br>Datos actualizados: <b>' + etiqueta + '</b><br>Versión de la aplicación: <b>' + apk + '</b>';
+  }).catch(function () {
+    el.innerHTML = '<span class="dot bad"></span><b>Sin conexión para comprobar</b>';
+  });
+}
+
 function cargar() {
+  var c = cfg();
   var DIAS = 30;
+  estadoWeb();
   var i, promesas = [leer('visitas-total')];
   for (i = DIAS - 1; i >= 0; i--) promesas.push(leer('visitas-' + claveDia(i)));
   SECCIONES.forEach(function (s) { promesas.push(leer('sec-v-' + s[0])); });
@@ -163,17 +348,16 @@ function cargar() {
 
   Promise.all(promesas).then(function (res) {
     var total = res[0];
-    var porDia = res.slice(1, 1 + DIAS);           // [hace29 ... hoy]
+    var porDia = res.slice(1, 1 + DIAS);
     var secV = res.slice(1 + DIAS, 1 + DIAS + 10);
     var secT = res.slice(1 + DIAS + 10);
-    var ok = total >= 0;
+    window.__datosCSV = { porDia: porDia, secV: secV, secT: secT };
 
     var hoyV = porDia[DIAS - 1], ayerV = porDia[DIAS - 2];
     var ult7 = porDia.slice(-7), prev7 = porDia.slice(-14, -7);
     var suma7 = ult7.reduce(function (a, b) { return a + Math.max(b, 0); }, 0);
     var sumaPrev7 = prev7.reduce(function (a, b) { return a + Math.max(b, 0); }, 0);
     var prom = Math.round((suma7 / 7) * 10) / 10;
-
     var mejorV = -1, mejorOff = 0;
     porDia.forEach(function (v, idx) { if (v > mejorV) { mejorV = v; mejorOff = DIAS - 1 - idx; } });
 
@@ -183,30 +367,42 @@ function cargar() {
     document.getElementById('prom').textContent = fmt(prom);
     document.getElementById('semana').textContent = fmt(suma7);
 
+    var metaCard = document.getElementById('metaCard');
+    if (c.meta > 0) {
+      metaCard.style.display = 'block';
+      var pct = Math.min(100, Math.round(Math.max(hoyV, 0) / c.meta * 100));
+      document.getElementById('metaBar').style.width = pct + '%';
+      document.getElementById('metaTxt').textContent = fmt(hoyV) + ' de ' + c.meta.toLocaleString('es') + ' visitas (' + pct + '%)';
+    } else metaCard.style.display = 'none';
+
     document.getElementById('comparativas').innerHTML =
       '<div class="cmp"><div class="t">Hoy frente a ayer<small>' + fmt(hoyV) + ' frente a ' + fmt(ayerV) + ' visitas</small></div>' + chip(hoyV, ayerV) + '</div>' +
       '<div class="cmp"><div class="t">Últimos 7 días frente a los 7 anteriores<small>' + fmt(suma7) + ' frente a ' + fmt(sumaPrev7) + ' visitas</small></div>' + chip(suma7, sumaPrev7) + '</div>' +
       '<div class="cmp"><div class="t">Mejor día (últimos 30)<small>' + etiquetaDia(mejorOff, true) + '</small></div><span class="chip flat">' + fmt(mejorV) + ' visitas</span></div>';
 
-    // Gráfico 14 días
-    var ult14 = porDia.slice(-14), max14 = Math.max.apply(null, ult14.concat([1]));
+    // Gráfico (días según configuración)
+    var N = Math.min(c.dias, DIAS);
+    var trozo = porDia.slice(-N), maxV = Math.max.apply(null, trozo.concat([1]));
+    document.getElementById('titGrafico').textContent = 'Visitas · últimos ' + N + ' días';
     var chart = document.getElementById('chart'); chart.innerHTML = '';
-    ult14.forEach(function (v, idx) {
-      var off = 13 - idx, vv = Math.max(v, 0);
+    trozo.forEach(function (v, idx) {
+      var off = N - 1 - idx, vv = Math.max(v, 0);
       var col = document.createElement('div');
       col.className = 'col' + (off === 0 ? ' today' : '');
       col.innerHTML = '<div class="v">' + vv + '</div>' +
-        '<div class="bar" style="height:' + Math.round(vv / max14 * 105) + 'px"></div>' +
+        '<div class="bar" style="height:' + Math.round(vv / maxV * 105) + 'px"></div>' +
         '<div class="d">' + etiquetaDia(off, false) + '</div>';
       chart.appendChild(col);
     });
 
-    // Barras horizontales de secciones
     function barras(elId, pares, formatear, clase) {
       var el = document.getElementById(elId); el.innerHTML = '';
+      var lista2 = pares.slice().sort(function (a, b) { return b.v - a.v; });
+      if (c.solo) lista2 = lista2.filter(function (p) { return p.v > 0; });
       var tot = pares.reduce(function (a, p) { return a + Math.max(p.v, 0); }, 0);
       var max = Math.max.apply(null, pares.map(function (p) { return Math.max(p.v, 0); }).concat([1]));
-      pares.slice().sort(function (a, b) { return b.v - a.v; }).forEach(function (p) {
+      if (!lista2.length) { el.innerHTML = '<p class="estado">Aún no hay datos.</p>'; return; }
+      lista2.forEach(function (p) {
         var v = Math.max(p.v, 0);
         var pct = tot > 0 ? Math.round(v / tot * 100) : 0;
         var row = document.createElement('div');
@@ -222,9 +418,46 @@ function cargar() {
     barras('secTiempo', SECCIONES.map(function (s, i) { return { n: s[1], v: secT[i] }; }),
       function (v) { return fmtTiempo(v); }, 't');
 
-    // Detalle por día (14 más recientes)
+    // Avisos generados desde los datos
+    var topSec = null, topV = -1;
+    SECCIONES.forEach(function (s, i) { if (secV[i] > topV) { topV = secV[i]; topSec = s[1]; } });
+    var avisos = [];
+    if (hoyV > 0 && hoyV >= mejorV) avisos.push({ k: 'record', bueno: 1, t: 'Nuevo récord: hoy es el mejor día de los últimos 30 (' + fmt(hoyV) + ' visitas).' });
+    if (ayerV > 0 && hoyV > ayerV) avisos.push({ k: 'hoyayer', bueno: 1, t: 'Hoy supera a ayer: ' + fmt(hoyV) + ' frente a ' + fmt(ayerV) + ' visitas.' });
+    if (ayerV > 0 && hoyV < ayerV) avisos.push({ k: 'hoyayer2', bueno: 0, t: 'Hoy va por debajo de ayer: ' + fmt(hoyV) + ' frente a ' + fmt(ayerV) + ' visitas.' });
+    if (c.meta > 0 && hoyV >= c.meta) avisos.push({ k: 'meta', bueno: 1, t: 'Meta diaria alcanzada: ' + fmt(hoyV) + ' de ' + c.meta.toLocaleString('es') + ' visitas.' });
+    if (sumaPrev7 > 0 && suma7 !== sumaPrev7) avisos.push({ k: 'semana', bueno: suma7 > sumaPrev7, t: 'La semana ' + (suma7 > sumaPrev7 ? 'crece' : 'baja') + ': ' + fmt(suma7) + ' frente a ' + fmt(sumaPrev7) + ' visitas de la semana anterior.' });
+    if (topSec && topV > 0) avisos.push({ k: 'topsec', bueno: 1, t: 'La sección más visitada es ' + topSec + ' (' + fmt(topV) + ' entradas).' });
+    if (hoyV === 0) avisos.push({ k: 'cero', bueno: 0, t: 'Hoy todavía no se registran visitas.' });
+    if (!avisos.length) avisos.push({ k: 'ok', bueno: 1, t: 'Sin novedades: todo marcha con normalidad.' });
+
+    var hoyClave = claveDia(0);
+    var vistos = {};
+    try { vistos = JSON.parse(localStorage.getItem('lpcAvisosVistos') || '{}'); } catch (e) {}
+    var box = document.getElementById('avisos'); box.innerHTML = '';
+    avisos.slice(0, 5).forEach(function (a) {
+      var div = document.createElement('div');
+      div.className = 'aviso' + (a.bueno ? ' bueno' : '');
+      div.innerHTML = a.t + '<small>' + hoyClave + '</small>';
+      box.appendChild(div);
+      if (vistos[hoyClave + ':' + a.k] !== 1) {
+        vistos[hoyClave + ':' + a.k] = 1;
+        if (c.avisosNav && 'Notification' in window && Notification.permission === 'granted' && (a.k === 'record' || a.k === 'meta')) {
+          try { new Notification('La Pelota Cubana', { body: a.t }); } catch (e) {}
+        }
+      }
+    });
+    try { localStorage.setItem('lpcAvisosVistos', JSON.stringify(vistos)); } catch (e) {}
+
+    // Resumen reutilizable (WhatsApp / copiar)
+    RESUMEN.texto = 'La Pelota Cubana · ' + hoyClave + '\nVisitas hoy: ' + fmt(hoyV) + ' · Total: ' + fmt(total) +
+      '\nÚltimos 7 días: ' + fmt(suma7) + (topSec ? '\nSección top: ' + topSec : '');
+    RESUMEN.listo = true;
+    document.getElementById('waBtn').href = 'https://wa.me/' + WA_TEL + '?text=' + encodeURIComponent(RESUMEN.texto);
+
+    // Detalle por día (según configuración)
     var lista = document.getElementById('lista'); lista.innerHTML = '';
-    for (i = DIAS - 1; i >= DIAS - 14; i--) {
+    for (i = DIAS - 1; i >= DIAS - N; i--) {
       var off = DIAS - 1 - i;
       var row = document.createElement('div');
       row.className = 'row' + (off === 0 ? ' today' : '');
@@ -233,13 +466,51 @@ function cargar() {
       lista.appendChild(row);
     }
 
-    document.getElementById('err').style.display = ok ? 'none' : 'block';
+    document.getElementById('err').style.display = total >= 0 ? 'none' : 'block';
     document.getElementById('hora').textContent =
       new Date().toLocaleTimeString('es', { timeZone: 'America/Havana', hour: '2-digit', minute: '2-digit', second: '2-digit' });
   });
 }
+
+/* ---------- herramientas ---------- */
+document.getElementById('csvBtn').addEventListener('click', function () {
+  var d = window.__datosCSV;
+  if (!d) { alert('Espera a que carguen los datos.'); return; }
+  var lineas = ['Fecha;Visitas'];
+  for (var i = 29; i >= 0; i--) lineas.push(claveDia(29 - i) + ';' + Math.max(d.porDia[i], 0));
+  lineas.push('', 'Seccion;Entradas;Tiempo (min aprox.)');
+  SECCIONES.forEach(function (s, ix) {
+    lineas.push(s[1] + ';' + Math.max(d.secV[ix], 0) + ';' + Math.round(Math.max(d.secT[ix], 0) * 0.5));
+  });
+  var blob = new Blob([lineas.join('\n')], { type: 'text/csv;charset=utf-8' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'visitas-la-pelota-cubana.csv';
+  a.click();
+  setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+});
+document.getElementById('copiarBtn').addEventListener('click', function () {
+  if (!RESUMEN.listo) { alert('Espera a que carguen los datos.'); return; }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(RESUMEN.texto).then(function () { alert('Resumen copiado.'); }, function () { alert(RESUMEN.texto); });
+  } else alert(RESUMEN.texto);
+});
+document.getElementById('notifBtn').addEventListener('click', function () {
+  if (!('Notification' in window)) { alert('Este navegador no admite notificaciones.'); return; }
+  Notification.requestPermission().then(function (p) {
+    alert(p === 'granted' ? 'Avisos activados en este dispositivo. Activa también la casilla en Configuración.' : 'Permiso no concedido.');
+  });
+});
+document.getElementById('notasBtn').addEventListener('click', function () {
+  try { localStorage.setItem('lpcAdminNotas', document.getElementById('notas').value); alert('Notas guardadas.'); } catch (e) {}
+});
+try { document.getElementById('notas').value = localStorage.getItem('lpcAdminNotas') || ''; } catch (e) {}
 document.getElementById('btn').addEventListener('click', cargar);
-cargar();
+
+/* ---------- arranque ---------- */
+pintarCfg();
+if (desbloqueado()) mostrarPanel();
+else document.getElementById('lock').style.display = 'flex';
 </script>
 </body>
 </html>
