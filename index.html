@@ -385,7 +385,7 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
         <div class="num"><b id="hRuns">–</b><span>Carreras</span></div>
       </div>
     </div>
-    <div class="card"><h3>Últimos resultados</h3><div id="homeGames"></div></div>
+    <div class="card"><h3 id="homeGamesTitle">Juegos de hoy</h3><div id="homeGames"></div></div>
     <div class="card"><h3>Titular principal</h3><div id="homeNews"></div></div>
     <div class="stamp" id="dataStamp"></div>
     <button class="btn ghost" id="refreshBtn">Actualizar en vivo</button>
@@ -927,7 +927,9 @@ function renderAll(){
   document.getElementById("hGames").textContent = today.length;
   document.getElementById("hFinal").textContent = fin.length;
   document.getElementById("hRuns").textContent = runs;
-  document.getElementById("homeGames").innerHTML = today.map(gameCard).join("") || restDayCard();
+  const homeList = today.length ? today : S.upcoming;
+  document.getElementById("homeGamesTitle").textContent = today.length ? "Juegos de hoy" : "Próximos juegos";
+  document.getElementById("homeGames").innerHTML = homeList.map(gameCard).join("") || restDayCard();
   const n = S.news[0];
   document.getElementById("homeNews").innerHTML = n ? newsInner(n) : '<div class="empty">Sin titulares.</div>';
   document.getElementById("dataStamp").textContent = "Datos: " + S.dateLabel;
