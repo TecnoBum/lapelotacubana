@@ -1807,6 +1807,70 @@ setTimeout(()=>{
     var cab=document.querySelector('header.topbar');
     if(cab && cab.parentNode) cab.parentNode.insertBefore(barra, cab.nextSibling); else document.body.insertBefore(barra, document.body.firstChild);
   }
+  /* Cintillo creativo automatico: cuando Johan no publica uno desde el panel,
+     la cinta rota textos generados en el propio telefono segun lo que va
+     pasando (jornada de hoy o de manana, resultados, lideres, posiciones,
+     predicciones y canal). El cintillo publicado desde el panel manda. */
+  function mensajesAuto(){
+    var M=[], hoy='', man='', juegos=[], prox=[];
+    try{ var hp=habanaParts(); hoy=hp.dstr; var dm=new Date(hp.now.getTime()+86400000); man=dm.getFullYear()+'-'+String(dm.getMonth()+1).padStart(2,'0')+'-'+String(dm.getDate()).padStart(2,'0'); }catch(e){}
+    if(!hoy){ hoy=hoyStr(); }
+    try{ juegos=(typeof GAMES!=='undefined'&&GAMES)?GAMES:[]; }catch(e){}
+    try{ prox=(typeof UPCOMING!=='undefined'&&UPCOMING)?UPCOMING:[]; }catch(e){}
+    var deHoy=prox.filter(function(g){ return g.date===hoy; }), deMan=prox.filter(function(g){ return g.date===man; });
+    var fin=juegos.filter(function(g){ return g.status==='final'; });
+    function gana(g){ return (g.ar||0)>=(g.hr||0) ? {w:g.away,l:g.home,wr:g.ar,lr:g.hr} : {w:g.home,l:g.away,wr:g.hr,lr:g.ar}; }
+    var irJ=function(){ if(typeof go==='function') go('jornada'); };
+    if(deHoy.length){
+      M.push({t:'⚾ ¡Hoy hay pelota! '+deHoy.length+' juegos en la jornada: síguelos aquí en vivo', d:irJ});
+      M.push({t:'🎯 Las predicciones de hoy cierran a la 1:00 PM: elige tus ganadores y suma 3 puntos por acierto', d:function(){ if(typeof go==='function') go('predicciones'); }});
+    } else if(deMan.length){
+      var p=deMan[0];
+      M.push({t:'😴 Hoy no hay juegos: día de traslado y descanso. La acción sigue mañana', d:irJ});
+      M.push({t:'📅 Mañana: '+p.away+' visita a '+p.home+(p.time?(' a las '+p.time):'')+' y '+(deMan.length-1)+' juegos más en la jornada', d:irJ});
+    }
+    if(fin.length){
+      var mejor=fin[0], md=-1; fin.forEach(function(g){ var df=Math.abs((g.hr||0)-(g.ar||0)); if(df>md){ md=df; mejor=g; } });
+      var gg=gana(mejor);
+      M.push({t:'🔥 '+gg.w+' ganó '+gg.wr+'–'+gg.lr+' ante '+gg.l+': el resultado más sonado de la jornada', d:irJ});
+      M.push({t:'📊 Ya están los '+fin.length+' resultados con su boxscore completo: línea, bateo y pitcheo', d:irJ});
+    }
+    try{ var lb=(typeof LEADERS_BAT!=='undefined'&&LEADERS_BAT&&LEADERS_BAT[0])?LEADERS_BAT[0]:null;
+      if(lb) M.push({t:'🏏 '+lb.name+' ('+lb.team+') manda en el bateo con '+lb.val+' en '+lb.cat, d:function(){ if(typeof go==='function') go('lideres'); }});
+      var lp=(typeof LEADERS_PIT!=='undefined'&&LEADERS_PIT&&LEADERS_PIT[0])?LEADERS_PIT[0]:null;
+      if(lp) M.push({t:'⚡ Desde la lomita el que manda es '+lp.name+' ('+lp.team+'): '+lp.val+' en '+lp.cat, d:function(){ if(typeof go==='function') go('lideres'); }});
+    }catch(e){}
+    try{ var oc=(typeof STANDINGS!=='undefined'&&STANDINGS&&STANDINGS.occ&&STANDINGS.occ[0])?STANDINGS.occ[0]:null;
+      if(oc) M.push({t:'📈 '+oc.t+' lidera su grupo con '+oc.w+' ganados y '+oc.l+' perdidos. Mira la tabla completa', d:function(){ if(typeof go==='function') go('posiciones'); }});
+    }catch(e){}
+    try{ var v=versionApk(); if(v) M.push({t:'📲 La aplicación va por la versión '+v+': actualízala y no te quedes atrás', d:function(){ window.open(urlApk(),'_blank'); }});
+    }catch(e){}
+    M.push({t:'📣 Únete al canal de WhatsApp de La Pelota Cubana: resultados y noticias al momento', d:function(){ window.open(urlCanal(),'_blank'); }});
+    if(deMan.length||deHoy.length) M.push({t:'🏆 Sube de rango con tus predicciones: rachas, medallas y 3 puntos por acierto', d:function(){ if(typeof go==='function') go('predicciones'); }});
+    return M.slice(0,7);
+  }
+  function ponerAutoCintillo(){
+    try{ if(sessionStorage.getItem('lpcAutoOff')==='1') return; }catch(e){}
+    var M=mensajesAuto(); if(!M.length) return;
+    var barra=document.createElement('div');
+    barra.style.cssText='background:linear-gradient(90deg,#8f0f0a,#c8101e);color:#fff;font:600 13px/1.35 -apple-system,"Segoe UI",Roboto,Arial,sans-serif;padding:9px 40px 9px 14px;position:relative;cursor:pointer;text-align:center;overflow:hidden';
+    var punto=document.createElement('span');
+    punto.style.cssText='display:inline-block;width:7px;height:7px;border-radius:50%;background:#ffd9d4;margin-right:8px;vertical-align:1px;animation:lpcPulso 1.6s infinite';
+    var txt=document.createElement('span');
+    txt.style.cssText='display:inline-block;transition:opacity .35s ease,transform .35s ease';
+    txt.textContent=M[0].t;
+    var x=document.createElement('span');
+    x.textContent='✕'; x.style.cssText='position:absolute;right:12px;top:50%;transform:translateY(-50%);opacity:.85;font-weight:700';
+    var i=0, destino=M[0].d, timer=null;
+    function pintar(n){ i=(n+M.length)%M.length; txt.style.opacity='0'; txt.style.transform='translateY(7px)'; setTimeout(function(){ txt.textContent=M[i].t; destino=M[i].d; txt.style.opacity='1'; txt.style.transform='translateY(0)'; },360); }
+    timer=setInterval(function(){ if(document.hidden) return; pintar(i+1); },5500);
+    x.addEventListener('click',function(ev){ ev.stopPropagation(); try{ sessionStorage.setItem('lpcAutoOff','1'); }catch(e){} if(timer) clearInterval(timer); barra.remove(); });
+    barra.addEventListener('click',function(){ if(destino) destino(); });
+    var st=document.createElement('style'); st.textContent='@keyframes lpcPulso{0%{opacity:1}50%{opacity:.25}100%{opacity:1}}';
+    barra.appendChild(punto); barra.appendChild(txt); barra.appendChild(x); barra.appendChild(st);
+    var cab=document.querySelector('header.topbar');
+    if(cab && cab.parentNode) cab.parentNode.insertBefore(barra, cab.nextSibling); else document.body.insertBefore(barra, document.body.firstChild);
+  }
   function ponerAviso(v){
     if(v===0) return;
     try{ if(sessionStorage.getItem('lpcAvisoVisto')==='1') return; }catch(e){}
@@ -1832,7 +1896,7 @@ setTimeout(()=>{
       fondo.appendChild(caja); document.body.appendChild(fondo);
     }, 1400);
   }
-  Promise.all([elegir('cint'), elegir('aviso')]).then(function(r){ ponerCintillo(r[0]); ponerAviso(r[1]); }).catch(function(){});
+  Promise.all([elegir('cint'), elegir('aviso')]).then(function(r){ if(r[0]===0){ ponerAutoCintillo(); } else { ponerCintillo(r[0]); } ponerAviso(r[1]); }).catch(function(){ ponerAutoCintillo(); });
 })();
 </script>
 </body>
