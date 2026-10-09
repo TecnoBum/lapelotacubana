@@ -1084,13 +1084,17 @@ function pickScore(g, side){
 }
 function renderPredicciones(){
   const picks = getPicks();
-  const all = (S.games||[]).concat(S.prev||[], S.upcoming||[]);
+  const hp = habanaParts();
+  // Los juegos de hoy viven en S.today (en vivo) o en el calendario incrustado;
+  // tras el arranque S.games no existe, así que hay que incluirlos explícitamente.
+  const calHoy = ((S.cal||{})[hp.dstr]||[]).map(g=>({id:"j"+g.id, num:g.id, date:hp.dstr, away:g.away, home:g.home, ar:g.ar, hr:g.hr, status:g.status, time:g.time, stadium:g.stadium}));
+  const hoy = (S.today&&S.today.length) ? S.today : calHoy;
+  const all = (S.games||[]).concat(hoy, S.prev||[], S.upcoming||[]);
   all.forEach(g=>{ const n = gameNumId(g.id); if(n!=null) GAMES_BY_NUM[n]=g; });
-  // Juegos pronosticables: próximos + no finalizados de hoy
-  const open = (S.upcoming||[]).concat((S.games||[]).filter(g=>g.status!=="final"));
+  // Juegos pronosticables: los de hoy primero (antes del cierre de la 1:00 PM) + próximos
+  const open = hoy.filter(g=>g.status!=="final").concat(S.upcoming||[], (S.games||[]).filter(g=>g.status!=="final"));
   const seen = {};
   const uniq = open.filter(g=>{ const n=gameNumId(g.id); if(n==null||seen[n]) return false; seen[n]=true; return true; });
-  const hp = habanaParts();
   document.getElementById("pickList").innerHTML = uniq.length ? uniq.map(g=>{
     const n = gameNumId(g.id), pk = picks[n];
     const ta = TEAMS[g.away]||{name:g.away,mote:""}, th = TEAMS[g.home]||{name:g.home,mote:""};
@@ -1785,7 +1789,7 @@ setTimeout(()=>{
       var max=0, e=0; vals.forEach(function(v,i){ if(v>max){ max=v; e=i; } }); return e;
     });
   }
-  function juegosHoyN(){ try{ var h=hoyStr(); return (typeof GAMES!=='undefined' && GAMES) ? GAMES.filter(function(g){ return g.date===h; }).length : 0; }catch(e){ return 0; } }
+  function juegosHoyN(){ try{ var h=hoyStr(); if(typeof CAL!=='undefined' && CAL && CAL[h] && CAL[h].length) return CAL[h].length; return (typeof GAMES!=='undefined' && GAMES) ? GAMES.filter(function(g){ return g.date===h; }).length : 0; }catch(e){ return 0; } }
   function versionApk(){ try{ return (typeof APK!=='undefined' && APK && APK.version) ? APK.version : ''; }catch(e){ return ''; } }
   function urlApk(){ try{ return (typeof APK!=='undefined' && APK && APK.url) ? APK.url : '#'; }catch(e){ return '#'; } }
   function urlCanal(){ try{ return (typeof WA_URL!=='undefined' && WA_URL) ? WA_URL : '#'; }catch(e){ return '#'; } }
@@ -1817,7 +1821,8 @@ setTimeout(()=>{
     if(!hoy){ hoy=hoyStr(); }
     try{ juegos=(typeof GAMES!=='undefined'&&GAMES)?GAMES:[]; }catch(e){}
     try{ prox=(typeof UPCOMING!=='undefined'&&UPCOMING)?UPCOMING:[]; }catch(e){}
-    var deHoy=prox.filter(function(g){ return g.date===hoy; }), deMan=prox.filter(function(g){ return g.date===man; });
+    var calHoy=[]; try{ if(typeof CAL!=='undefined'&&CAL&&CAL[hoy]) calHoy=CAL[hoy]; }catch(e){}
+    var deHoy=calHoy.length?calHoy:prox.filter(function(g){ return g.date===hoy; }), deMan=prox.filter(function(g){ return g.date===man; });
     var fin=juegos.filter(function(g){ return g.status==='final'; });
     function gana(g){ return (g.ar||0)>=(g.hr||0) ? {w:g.away,l:g.home,wr:g.ar,lr:g.hr} : {w:g.home,l:g.away,wr:g.hr,lr:g.ar}; }
     var irJ=function(){ if(typeof go==='function') go('jornada'); };
