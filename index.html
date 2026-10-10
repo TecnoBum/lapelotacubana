@@ -448,7 +448,7 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
     </div>
     <div class="card"><h3 id="medalTitle">Medallas</h3><div class="medals" id="medalGrid"></div></div>
     <div class="card"><h3>Pronostica los ganadores</h3><div id="pickList"></div>
-      <div class="gmeta" style="margin-top:8px">Acierta el ganador y suma 3 puntos. Los pronósticos cierran a la 1:00 PM (hora de Cuba) del día del juego. Tus pronósticos se guardan en este teléfono.</div>
+      <div class="gmeta" style="margin-top:8px">Acierta el ganador y suma 3 puntos. Los pronósticos cierran a la 1:00 PM (hora de Cuba) del día del juego, o a la hora de inicio si el juego empieza antes. Tus pronósticos se guardan en este teléfono.</div>
     </div>
     <div class="card"><h3>Mis resultados</h3><div id="pickResults"></div></div>
   </section>
@@ -1070,12 +1070,25 @@ function habanaParts(){
   const m = new Intl.DateTimeFormat("en-CA",{timeZone:"America/Havana",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).format(new Date()).match(/(\d+)-(\d+)-(\d+)[, ]+(\d+):(\d+)/);
   return {dstr:m[1]+"-"+m[2]+"-"+m[3], now:new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5])};
 }
+/* Hora de cierre de pronósticos de un juego: 1:00 PM hora de Cuba,
+   o la hora de inicio si el juego empieza más temprano (p. ej. domingo 10:00 AM) */
+function lockHM(g){
+  let hh=13, mm=0;
+  const t = String((g&&g.time)||"").match(/(\d{1,2}):(\d{2})/);
+  if(t){ const th=+t[1], tm=+t[2]; if(th*60+tm < hh*60+mm){ hh=th; mm=tm; } }
+  return [hh, mm];
+}
+function lockLabel(g){
+  const hm = lockHM(g), ap = hm[0]>=12 ? "PM" : "AM", h12 = hm[0]%12 || 12;
+  return "CIERRA "+h12+":"+String(hm[1]).padStart(2,"0")+" "+ap;
+}
 function pickLocked(g){
   if(!g || g.status==="final") return true;
   if(!g.date) return false;
   const hp = habanaParts(), d = String(g.date).split("-");
   if(d.length<3) return false;
-  return hp.now >= new Date(+d[0], +d[1]-1, +d[2], 13, 0, 0);
+  const hm = lockHM(g);
+  return hp.now >= new Date(+d[0], +d[1]-1, +d[2], hm[0], hm[1], 0);
 }
 function pickScore(g, side){
   if(!g || g.status!=="final" || g.ar==null || g.hr==null || g.ar===g.hr) return null;
@@ -1091,7 +1104,7 @@ function renderPredicciones(){
   const hoy = (S.today&&S.today.length) ? S.today : calHoy;
   const all = (S.games||[]).concat(hoy, S.prev||[], S.upcoming||[]);
   all.forEach(g=>{ const n = gameNumId(g.id); if(n!=null) GAMES_BY_NUM[n]=g; });
-  // Juegos pronosticables: los de hoy primero (antes del cierre de la 1:00 PM) + próximos
+  // Juegos pronosticables: los de hoy primero (antes del cierre de cada juego) + próximos
   const open = hoy.filter(g=>g.status!=="final").concat(S.upcoming||[], (S.games||[]).filter(g=>g.status!=="final"));
   const seen = {};
   const uniq = open.filter(g=>{ const n=gameNumId(g.id); if(n==null||seen[n]) return false; seen[n]=true; return true; });
@@ -1101,7 +1114,7 @@ function renderPredicciones(){
     const meta = "Juego "+n+" · "+fmtDate(g.date)+(g.time?" · "+g.time:"")+(g.stadium?" · "+g.stadium:"");
     const locked = pickLocked(g);
     const tag = locked ? '<span class="clocktag">CERRADO</span>'
-      : (g.date===hp.dstr ? '<span class="clocktag open">CIERRA 1:00 PM</span>' : '');
+      : (g.date===hp.dstr ? '<span class="clocktag open">'+lockLabel(g)+'</span>' : '');
     const btn = (side, t)=>'<button class="pickbtn'+(pk&&pk.side===side?" sel":"")+'"'+(locked?' disabled':' onclick="setPick('+n+',\''+side+'\')"')+'>'+logoBadge(side==="away"?g.away:g.home)+'<span>'+t.name+'</span></button>';
     return '<div class="game"><div class="ghead"><span class="gmeta">'+meta+'</span>'+tag+'</div><div class="pickrow">'+btn("away",ta)+btn("home",th)+'</div></div>';
   }).join("") : '<div class="empty">No hay juegos próximos para pronosticar.</div>';
@@ -1828,7 +1841,9 @@ setTimeout(()=>{
     var irJ=function(){ if(typeof go==='function') go('jornada'); };
     if(deHoy.length){
       M.push({t:'⚾ ¡Hoy hay pelota! '+deHoy.length+' juegos en la jornada: síguelos aquí en vivo', d:irJ});
-      M.push({t:'🎯 Las predicciones de hoy cierran a la 1:00 PM: elige tus ganadores y suma 3 puntos por acierto', d:function(){ if(typeof go==='function') go('predicciones'); }});
+      var primerCierre = deHoy.map(lockHM).sort(function(a,b){ return (a[0]*60+a[1])-(b[0]*60+b[1]); })[0] || [13,0];
+      var apc = primerCierre[0]>=12 ? "PM" : "AM", h12c = primerCierre[0]%12 || 12;
+      M.push({t:'🎯 Las predicciones de hoy cierran a partir de las '+h12c+':'+String(primerCierre[1]).padStart(2,"0")+' '+apc+': elige tus ganadores y suma 3 puntos por acierto', d:function(){ if(typeof go==='function') go('predicciones'); }});
     } else if(deMan.length){
       var p=deMan[0];
       M.push({t:'😴 Hoy no hay juegos: día de traslado y descanso. La acción sigue mañana', d:irJ});
