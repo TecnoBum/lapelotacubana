@@ -26,6 +26,7 @@
 [data-theme="light"] .vs .vsc{color:var(--text); text-shadow:none;}
 [data-theme="light"] .status.final{background:rgba(18,122,57,.12); color:#127a39; border-color:rgba(18,122,57,.4);}
 [data-theme="light"] .status.prog{background:rgba(125,95,0,.12); color:#7d5f00; border-color:rgba(125,95,0,.4);}
+[data-theme="light"] .status.curso{background:rgba(192,57,43,.12); color:#b03a2e; border-color:rgba(192,57,43,.45);}
 [data-theme="light"] .moremenu{box-shadow:0 10px 30px rgba(18,32,54,.18);}
 [data-theme="light"] .moremenu .mi{color:var(--accent);}
 [data-theme="light"] header.topbar{box-shadow:0 2px 12px rgba(120,10,20,.35);}
@@ -267,6 +268,8 @@ button:focus-visible, a:focus-visible, input:focus-visible{outline:2px solid var
 .status{font-size:10px; font-weight:700; padding:4px 8px; border-radius:20px; letter-spacing:.5px; flex:none;}
 .status.final{background:rgba(46,204,113,.15); color:var(--green); border:1px solid rgba(46,204,113,.4);}
 .status.prog{background:rgba(241,196,15,.15); color:var(--gold); border:1px solid rgba(241,196,15,.4);}
+.status.curso{background:rgba(231,76,60,.16); color:#e8604c; border:1px solid rgba(231,76,60,.5); display:inline-flex; align-items:center; gap:5px;}
+.status.curso .pulse{width:7px; height:7px; border-radius:50%; background:#e8604c; animation:blink 1.2s infinite;}
 table.st{width:100%; border-collapse:collapse; font-size:13px;}
 table.st th{font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); padding:8px 6px; text-align:center; border-bottom:1px solid var(--line);}
 table.st th:first-child, table.st td:first-child{text-align:left;}
@@ -903,14 +906,15 @@ function detailHTML(g){
     + '</div><div>'+body+'</div></div>';
 }
 function gameCard(g){
-  const st = g.status==="final" ? '<span class="status final">FINAL</span>' : '<span class="status prog">PRÓXIMO</span>';
+  const enCurso = g.status!=="final" && g.ar!=null && g.hr!=null;
+  const st = g.status==="final" ? '<span class="status final">FINAL</span>' : enCurso ? '<span class="status curso"><span class="pulse"></span>EN CURSO</span>' : '<span class="status prog">PRÓXIMO</span>';
   const aw = g.ar!=null && g.hr!=null && g.ar>g.hr, hw = g.ar!=null && g.hr!=null && g.hr>g.ar;
   const meta = (g.num? "Juego "+g.num:"") + (g.stadium?((g.num?" · ":"")+g.stadium):"");
   const num = gameNumId(g.id);
   const open = expanded.has(g.id);
   const click = num!=null ? ' onclick="toggleGame(\''+g.id+'\')" style="cursor:pointer"' : '';
   const ta = TEAMS[g.away]||{name:g.away,mote:"",color:"#5D6D7E"}, th = TEAMS[g.home]||{name:g.home,mote:"",color:"#5D6D7E"};
-  const scoreHtml = g.status==="final" ? '<div class="vsc">'+g.ar+" - "+g.hr+'</div>' : '<div class="vsc prog">'+(g.time||"VS")+'</div>';
+  const scoreHtml = (g.status==="final"||enCurso) ? '<div class="vsc">'+g.ar+" - "+g.hr+'</div>' : '<div class="vsc prog">'+(g.time||"VS")+'</div>';
   return '<div class="game'+(open?' open':'')+'" id="gc-'+g.id+'"'+click+' style="border-top:3px solid '+(th.color||"#2a3547")+'">'
     +'<div class="ghead"><span class="gmeta">'+meta+'</span><span style="display:flex;align-items:center;gap:6px">'+st+(num!=null?'<span class="chev">▾</span>':'')+'</span></div>'
     +'<div class="vs"><div class="side">'+logoBadge(g.away,true)+'<div class="vsn'+(aw?' win':'')+'">'+ta.name+'</div><div class="vsm">'+ta.mote+'</div></div>'
@@ -1564,6 +1568,40 @@ function parseNews(doc){
   return {news:news.slice(0,10), titulares:titulares.slice(0,10)};
 }
 let refreshing = false;
+/* Consulta en vivo: datos.json liviano publicado junto a la app (~12 KB).
+   Actualiza las tarjetas en su lugar sin reabrir la app. */
+const DATOS_URLS = ["datos.json", "https://tecnobum.github.io/lapelotacubana/datos.json"];
+let pollBusy = false, lastPollOk = 0;
+async function pollDatos(){
+  if(pollBusy || document.hidden) return; pollBusy = true;
+  try{
+    let d = null;
+    for(const u of DATOS_URLS){
+      try{
+        const r = await fetch(u+"?t="+Date.now(), {cache:"no-store"});
+        if(r.ok){ const j = await r.json(); if(j && j.games && j.games.length){ d = j; break; } }
+      }catch(e){}
+    }
+    if(d){
+      const t = (d.games[0]||{}).date || S._todayStr;
+      GAMES.length = 0; d.games.forEach(g=>GAMES.push(g));
+      S.upcoming = d.upcoming||[];
+      S.standings = d.standings||S.standings;
+      S.leadersBat = d.leaders_bat||[];
+      S.leadersPit = d.leaders_pit||[];
+      if(d.news && d.news.length) S.news = d.news;
+      if(d.titulares && d.titulares.length) S.titulares = d.titulares;
+      if(d.date_label) S.dateLabel = d.date_label;
+      S._todayStr = t;
+      S.today = GAMES.filter(g=>g.date===t);
+      S.prev = GAMES.filter(g=>g.date!==t);
+      S.live = true; setLive(true);
+      renderAll();
+      lastPollOk = Date.now();
+    }
+  }catch(e){}
+  pollBusy = false;
+}
 async function refreshLive(silent){
   if(refreshing) return false; refreshing = true;
   const btn = document.getElementById("refreshBtn");
@@ -1677,7 +1715,7 @@ document.getElementById("uPhoto").addEventListener("change", function(e){
   e.target.value = "";
 });
 document.getElementById("uName").addEventListener("input", renderUAvatar);
-document.getElementById("refreshBtn").onclick = ()=>refreshLive(false);
+document.getElementById("refreshBtn").onclick = async ()=>{ await pollDatos(); if(Date.now()-lastPollOk > 90000) refreshLive(false); };
 /* Menú de 3 puntos (ajustes) */
 try{ applyTheme(localStorage.getItem("lpc-theme")||"dark"); }catch(e){ applyTheme("dark"); }
 const moreBtn=document.getElementById("moreBtn"), moreMenu=document.getElementById("moreMenu");
@@ -1687,11 +1725,12 @@ document.getElementById("themeItem").onclick = ()=>{
   applyTheme(document.documentElement.getAttribute("data-theme")==="light"?"dark":"light");
   moreMenu.classList.remove("show");
 };
-document.getElementById("refreshItem").onclick = ()=>{ moreMenu.classList.remove("show"); refreshLive(false); };
+document.getElementById("refreshItem").onclick = async ()=>{ moreMenu.classList.remove("show"); await pollDatos(); if(Date.now()-lastPollOk > 90000) refreshLive(false); };
 document.getElementById("aboutItem").onclick = ()=>{ moreMenu.classList.remove("show"); toast("La Pelota Cubana · 65 Serie Nacional 2026 · Datos: "+S.dateLabel); };
-/* Intento en vivo en segundo plano: nunca bloquea la carga */
-setTimeout(()=>refreshLive(true), 1500);
-setInterval(()=>refreshLive(true), 30*60*1000);
+/* Datos en vivo cada 3 minutos mientras la app está visible (tarjetas se actualizan solas) */
+setTimeout(()=>pollDatos(), 2000);
+setInterval(pollDatos, 3*60*1000);
+document.addEventListener("visibilitychange", ()=>{ if(!document.hidden && Date.now()-lastPollOk > 60000) pollDatos(); });
 /* Modal de actualización de la app (si hay versión nueva publicada hoy) */
 setTimeout(maybeShowApkModal, 1400);
 /* Modal del canal de WhatsApp (cada 3 entradas al día) */
