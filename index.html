@@ -20,18 +20,40 @@
   --accent:#ff6b1a; --accent2:#a855f7; --gold:#ffb300; --green:#2ecc71;
 }
 [data-theme="halloween"] #splash{background:linear-gradient(135deg,#2a0f45,#12061f);}
+[data-theme="halloween"] header.topbar{background:linear-gradient(135deg,#4a1a6b,#1c0b2a);}
+[data-theme="halloween"] .hero{background:linear-gradient(135deg,rgba(255,107,26,.22),rgba(168,85,247,.22)); border:1px solid #5a3678;}
+[data-theme="halloween"] .card{border-color:#4a2f6b; box-shadow:0 0 20px rgba(168,85,247,.14);}
+[data-theme="halloween"] .vsteam.sel,[data-theme="halloween"] .pickbtn.sel{border-color:#ff6b1a; background:rgba(255,107,26,.16);}
+[data-theme="halloween"] .nums .num b{color:#ffb300;}
+[data-theme="halloween"] .medal.earned{border-color:#ff6b1a;}
 [data-theme="navidad"]{
   --bg:#0a1410; --bg2:#10241a; --card:#14301f; --card2:#1a3d28;
   --text:#f2fbf5; --muted:#9fc3ae; --line:#234d33;
   --accent:#e63946; --accent2:#2ecc71; --gold:#f1c40f; --green:#2ecc71;
 }
 [data-theme="navidad"] #splash{background:linear-gradient(135deg,#0f3d22,#071a0f);}
+[data-theme="navidad"] header.topbar{background:linear-gradient(135deg,#b3202c,#0e5c2f);}
+[data-theme="navidad"] .hero{background:linear-gradient(135deg,rgba(230,57,70,.2),rgba(46,204,113,.2)); border:1px solid #2f6b45;}
+[data-theme="navidad"] .card{border-color:#2f6b45; box-shadow:0 0 20px rgba(46,204,113,.12);}
+[data-theme="navidad"] .vsteam.sel,[data-theme="navidad"] .pickbtn.sel{border-color:#e63946; background:rgba(230,57,70,.14);}
+[data-theme="navidad"] .nums .num b{color:#f1c40f;}
+[data-theme="navidad"] .medal.earned{border-color:#e63946;}
 [data-theme="finanio"]{
   --bg:#0a0f1e; --bg2:#111a33; --card:#16224a; --card2:#1d2d5c;
   --text:#f2f5ff; --muted:#a3b1d8; --line:#2a3a6e;
   --accent:#3b82f6; --accent2:#f1c40f; --gold:#ffd700; --green:#2ecc71;
 }
 [data-theme="finanio"] #splash{background:linear-gradient(135deg,#1a2450,#070b1c);}
+[data-theme="finanio"] header.topbar{background:linear-gradient(135deg,#1e2f6e,#0a1030);}
+[data-theme="finanio"] .hero{background:linear-gradient(135deg,rgba(59,130,246,.22),rgba(241,196,15,.18)); border:1px solid #3a4d99;}
+[data-theme="finanio"] .card{border-color:#3a4d99; box-shadow:0 0 20px rgba(59,130,246,.16);}
+[data-theme="finanio"] .vsteam.sel,[data-theme="finanio"] .pickbtn.sel{border-color:#ffd700; background:rgba(255,215,0,.12);}
+[data-theme="finanio"] .nums .num b{color:#ffd700;}
+[data-theme="finanio"] .medal.earned{border-color:#ffd700;}
+/* Adorno flotante del tema especial */
+#themeDeco{position:fixed; top:64px; right:10px; font-size:36px; z-index:5; pointer-events:none; display:none; filter:drop-shadow(0 2px 8px rgba(0,0,0,.5)); animation:decoFloat 4s ease-in-out infinite;}
+@keyframes decoFloat{0%,100%{transform:translateY(0) rotate(-8deg);}50%{transform:translateY(-9px) rotate(8deg);}}
+[data-theme="halloween"] #themeDeco,[data-theme="navidad"] #themeDeco,[data-theme="finanio"] #themeDeco{display:block;}
 [data-theme="light"]{
   --bg:#e9edf4; --bg2:#ffffff; --card:#ffffff; --card2:#edf1f8;
   --text:#101c31; --muted:#42566e; --line:#c4d0e2;
@@ -396,6 +418,7 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
 </head>
 <body>
 <div id="splash"><div class="dots light"><span></span><span></span><span></span></div><h1>La Pelota Cubana</h1><p>65 Serie Nacional &middot; 2026</p></div>
+<div id="themeDeco" aria-hidden="true"></div>
 <header class="topbar">
   <button class="iconbtn" id="menuBtn" aria-label="Menú"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 5h16M2 10h16M2 15h16"/></svg></button>
   <div style="flex:1"><h1>La Pelota Cubana<small>65 Serie Nacional &bull; 2026 &middot; <span id="hdrDate"></span></small></h1></div>
@@ -543,11 +566,10 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
       <small>Toca para poner tu foto</small>
     </div>
     <h3>Crea tu cuenta</h3>
-    <p class="sub">Tus puntos, medallas y pronósticos se guardan en este teléfono.</p>
+    <p class="sub">Tu nombre aparece en el ranking global. Es obligatorio para jugar.</p>
     <input id="uName" class="uin" type="text" maxlength="20" placeholder="Tu nombre" autocomplete="off">
     <div class="uteams" id="uTeams"></div>
     <button class="btn primary" onclick="saveUser()">Guardar</button>
-    <button class="linkbtn" onclick="skipUser()">Omitir por ahora</button>
   </div>
 </div>
 <div id="waModal">
@@ -1142,6 +1164,7 @@ function teamRecord(code){
 function getPicks(){ try{ return JSON.parse(localStorage.getItem("lpc-picks")||"{}"); }catch(e){ return {}; } }
 function savePicks(p){ try{ localStorage.setItem("lpc-picks", JSON.stringify(p)); }catch(e){} }
 function setPick(num, side){
+  if(!getUser()){ openUserModal(); toast("Pon tu nombre para pronosticar"); return; }
   const g = GAMES_BY_NUM[num]; if(pickLocked(g)) return;
   const p = getPicks();
   p[num] = {side:side, away:g.away, home:g.home, date:g.date};
@@ -1315,10 +1338,6 @@ function saveUser(){
   document.getElementById("userModal").classList.remove("show");
   renderUserChip(); toast("Cuenta guardada");
 }
-function skipUser(){
-  try{ localStorage.setItem("lpc-user-skipped","1"); }catch(e){}
-  document.getElementById("userModal").classList.remove("show");
-}
 function renderUserChip(){
   const el = document.getElementById("uChip"); if(!el) return;
   const u = getUser();
@@ -1342,8 +1361,15 @@ async function loadTema(){
     const r = await fetch(TEMA_URL+"?t="+Date.now(),{cache:"no-store"});
     if(!r.ok) return;
     const t = await r.json();
-    if(t && t.tema && t.tema!=="normal") document.documentElement.setAttribute("data-theme", t.tema);
-    else document.documentElement.removeAttribute("data-theme");
+    const deco = document.getElementById("themeDeco");
+    const ICONS = {halloween:"\uD83C\uDF83", navidad:"\uD83C\uDF84", finanio:"\uD83C\uDF86"};
+    if(t && t.tema && t.tema!=="normal"){
+      document.documentElement.setAttribute("data-theme", t.tema);
+      if(deco) deco.textContent = ICONS[t.tema]||"";
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+      if(deco) deco.textContent = "";
+    }
   }catch(e){}
 }
 /* Banner: el admin puede cambiar las imágenes u ocultarlo desde el panel */
@@ -1959,11 +1985,9 @@ document.addEventListener("visibilitychange", ()=>{ if(!document.hidden && Date.
 setTimeout(maybeShowApkModal, 1400);
 /* Modal del canal de WhatsApp (cada 3 entradas al día) */
 setTimeout(maybeShowWaModal, 1700);
-/* Pedir crear cuenta al iniciar (una vez) */
+/* Pedir crear cuenta al iniciar (obligatoria: sin nombre no hay ranking) */
 setTimeout(()=>{
-  let skipped = false;
-  try{ skipped = !!localStorage.getItem("lpc-user-skipped"); }catch(e){}
-  if(!getUser() && !skipped) openUserModal();
+  if(!getUser()) openUserModal();
 }, 1100);
 </script>
 <script>
