@@ -610,10 +610,10 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
       <small>Toca para poner tu foto</small>
     </div>
     <h3>Crea tu cuenta</h3>
-    <p class="sub">Tu nombre aparece en el ranking global. Es obligatorio para jugar.</p>
+    <p class="sub" id="uSub">Tu nombre aparece en el ranking global. El nombre y el equipo son obligatorios para jugar.</p>
     <input id="uName" class="uin" type="text" maxlength="20" placeholder="Tu nombre" autocomplete="off">
     <div class="uteams" id="uTeams"></div>
-    <button class="btn primary" onclick="saveUser()">Guardar</button>
+    <button class="btn primary" id="uSaveBtn" onclick="saveUser()">Guardar</button>
   </div>
 </div>
 <div id="waModal">
@@ -1279,7 +1279,7 @@ function teamRecord(code){
 function getPicks(){ try{ return JSON.parse(localStorage.getItem("lpc-picks")||"{}"); }catch(e){ return {}; } }
 function savePicks(p){ try{ localStorage.setItem("lpc-picks", JSON.stringify(p)); }catch(e){} }
 function setPick(num, side){
-  if(!getUser()){ openUserModal(); toast("Pon tu nombre para pronosticar"); return; }
+  if(!accountComplete()){ openUserModal(true); toast("Pon tu nombre y tu equipo para pronosticar"); return; }
   const g = GAMES_BY_NUM[num]; if(pickLocked(g)) return;
   const p = getPicks();
   p[num] = {side:side, away:g.away, home:g.home, date:g.date};
@@ -1468,11 +1468,26 @@ function renderPredicciones(){
 /* ============ CUENTA DE USUARIO (local) ============ */
 let _uphoto = null, _uteam = null;
 function getUser(){ try{ return JSON.parse(localStorage.getItem("lpc-user")||"null"); }catch(e){ return null; } }
-function openUserModal(){
+/* Cuenta completa: nombre + equipo favorito. Sin esto no hay acceso a la app ni al ranking. */
+function accountComplete(){
+  try{
+    const u = getUser();
+    return !!(u && String(u.name||"").trim() && u.team && TEAMS[u.team]);
+  }catch(e){ return false; }
+}
+function openUserModal(forced){
   const u = getUser();
   _uphoto = (u && u.photo) || null; _uteam = (u && u.team) || null;
   document.getElementById("uName").value = (u && u.name) || "";
   renderUTeams(); renderUAvatar();
+  const sub = document.getElementById("uSub"), btn = document.getElementById("uSaveBtn");
+  if(forced){
+    sub.textContent = "Para usar la app pon tu nombre y elige tu equipo favorito. Tu nombre aparece en el ranking global.";
+    btn.textContent = "Comenzar";
+  } else {
+    sub.textContent = "Tu nombre aparece en el ranking global. El nombre y el equipo son obligatorios para jugar.";
+    btn.textContent = "Guardar";
+  }
   document.getElementById("userModal").classList.add("show");
 }
 function renderUAvatar(){
@@ -1490,6 +1505,7 @@ function pickUTeam(k){ _uteam = (_uteam===k ? null : k); renderUTeams(); }
 function saveUser(){
   const name = document.getElementById("uName").value.trim();
   if(!name){ toast("Escribe tu nombre"); return; }
+  if(!_uteam || !TEAMS[_uteam]){ toast("Elige tu equipo favorito"); return; }
   try{ localStorage.setItem("lpc-user", JSON.stringify({name:name, photo:_uphoto, team:_uteam})); }catch(e){ toast("No se pudo guardar la foto, prueba con otra"); return; }
   try{ localStorage.removeItem("lpc-user-skipped"); }catch(e){}
   document.getElementById("userModal").classList.remove("show");
@@ -1800,6 +1816,7 @@ const menuBtn = document.getElementById("menuBtn"), drawer = document.getElement
 menuBtn.onclick = ()=>{drawer.classList.add("open"); scrim.classList.add("show");};
 scrim.onclick = ()=>{drawer.classList.remove("open"); scrim.classList.remove("show");};
 function go(id){
+  if(!accountComplete()){ openUserModal(true); return; }
   if(id==="donaciones"){ drawer.classList.remove("open"); scrim.classList.remove("show"); openDonateModal(); return; }
   document.querySelectorAll("section.page").forEach(s=>s.classList.remove("active"));
   document.getElementById("pg-"+id).classList.add("active");
@@ -1845,6 +1862,7 @@ let rankSyncBusy=false;
 async function syncRank(){
   if(rankSyncBusy) return;
   try{
+    if(!accountComplete()) return;
     const pts = calcMyPoints();
     const last = +(localStorage.getItem("lpc-rank-sent")||"-1");
     const lastT = +(localStorage.getItem("lpc-rank-sent-t")||"0");
@@ -2217,9 +2235,9 @@ document.addEventListener("visibilitychange", ()=>{ if(!document.hidden && Date.
 setTimeout(maybeShowApkModal, 1400);
 /* Modal del canal de WhatsApp (cada 3 entradas al día) */
 setTimeout(maybeShowWaModal, 1700);
-/* Pedir crear cuenta al iniciar (obligatoria: sin nombre no hay ranking) */
+/* Pedir crear cuenta al iniciar (obligatoria: sin nombre y equipo no hay acceso) */
 setTimeout(()=>{
-  if(!getUser()) openUserModal();
+  if(!accountComplete()) openUserModal(true);
 }, 1100);
 /* Bloquear selección y copia en la app; solo se permite pegar en los campos */
 document.addEventListener("copy", e=>{ if(typeof allowCopyOnce!=="undefined" && allowCopyOnce){ allowCopyOnce=false; return; } e.preventDefault(); });
