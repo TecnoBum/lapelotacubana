@@ -805,7 +805,7 @@ function toggleGame(gameId){
     expanded.add(gameId);
     const num = gameNumId(g.id);
     const emb = g.status==="final" && num!=null && S.box && S.box[num];
-    if(!emb && g.status==="final" && num!=null && !boxCache[num] && !boxLoading[num]) loadBox(gameId, num);
+    if(!emb && (g.status==="final"||gameEnCurso(g)) && num!=null && !boxCache[num] && !boxLoading[num]) loadBox(gameId, num);
   }
   paintGameCard(gameId);
 }
@@ -1036,7 +1036,7 @@ function previaStarters(g, p){
 }
 function detailHTML(g){
   const num = gameNumId(g.id);
-  if(g.status!=="final"){
+  if(g.status!=="final" && !gameEnCurso(g)){
     const prev = num!=null ? (S.previa && S.previa[num]) : null;
     if(!prev) return '<div onclick="event.stopPropagation()"><div class="empty">Las alineaciones y abridores se publicarán cuando estén disponibles.</div></div>';
     const tab = boxTab[g.id] || "alineacion";
@@ -1046,9 +1046,23 @@ function detailHTML(g){
       + bsTabBtn(g.id,"abridores","Abridores",tab)
       + '</div><div>'+body+'</div></div>';
   }
+  // Final o en curso: pestaña de línea (boxscore) + resto según el caso
   const tab = boxTab[g.id] || "line";
+  const data = num!=null ? ((S.box && S.box[num]) || boxCache[num]) : null;
+  let tabs = bsTabBtn(g.id,"line", g.status==="final" ? "Línea" : "Línea en vivo", tab);
+  if(g.status==="final") tabs += bsTabBtn(g.id,"bat","Bateo",tab)+bsTabBtn(g.id,"pit","Pitcheo",tab)+bsTabBtn(g.id,"plays","Jugadas",tab);
+  else tabs += bsTabBtn(g.id,"alineacion","Alineación",tab)+bsTabBtn(g.id,"abridores","Abridores",tab);
   let body;
-    const data = num!=null ? ((S.box && S.box[num]) || boxCache[num]) : {error:true};
+  if(tab==="line"){
+    if(!data){
+      body = '<div class="bsload"><div class="dots"><span></span><span></span><span></span></div></div>';
+      if(num!=null && !boxLoading[num]) loadBox(g.id, num);
+    } else if(data.error){
+      body = '<div class="empty">No se pudo cargar el boxscore.<br><button class="btn ghost" style="max-width:240px;margin:10px auto 0" onclick="event.stopPropagation();retryBox(\''+g.id+'\')">Reintentar</button></div>';
+    } else {
+      body = boxTabBody(g, "line", data);
+    }
+  } else if(g.status==="final"){
     if(!data){
       body = '<div class="bsload"><div class="dots"><span></span><span></span><span></span></div></div>';
       if(num!=null && !boxLoading[num]) loadBox(g.id, num);
@@ -1057,15 +1071,19 @@ function detailHTML(g){
     } else {
       body = boxTabBody(g, tab, data);
     }
-  return '<div onclick="event.stopPropagation()"><div class="bstabs">'
-    + bsTabBtn(g.id,"line","Línea",tab)
-    + bsTabBtn(g.id,"bat","Bateo",tab)
-    + bsTabBtn(g.id,"pit","Pitcheo",tab)
-    + bsTabBtn(g.id,"plays","Jugadas",tab)
-    + '</div><div>'+body+'</div></div>';
+  } else {
+    const prev = num!=null ? (S.previa && S.previa[num]) : null;
+    if(!prev) body = '<div class="empty">Las alineaciones y abridores se publicarán cuando estén disponibles.</div>';
+    else body = tab==="abridores" ? previaStarters(g, prev) : previaLineup(g, prev);
+  }
+  return '<div onclick="event.stopPropagation()"><div class="bstabs">'+tabs+'</div><div>'+body+'</div></div>';
+}
+/* Juego en curso: tiene marcador parcial o dato de inning en vivo */
+function gameEnCurso(g){
+  return g.status!=="final" && !!(g.live || (g.ar!=null && g.hr!=null && (g.ar+g.hr)>0));
 }
 function gameCard(g){
-  const enCurso = g.status!=="final" && (g.live || (g.ar!=null && g.hr!=null && (g.ar+g.hr)>0));
+  const enCurso = gameEnCurso(g);
   const st = g.status==="final" ? '<span class="status final">FINAL</span>' : enCurso ? '<span class="status curso"><span class="pulse"></span>EN CURSO</span>' : '<span class="status prog">PRÓXIMO</span>';
   const aw = g.ar!=null && g.hr!=null && g.ar>g.hr, hw = g.ar!=null && g.hr!=null && g.hr>g.ar;
   const meta = (g.num? "Juego "+g.num:"") + (g.stadium?((g.num?" · ":"")+g.stadium):"");
