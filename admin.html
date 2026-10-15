@@ -135,6 +135,36 @@
     <p class="foot" style="text-align:left">Vale para hoy (hora de Cuba): mañana amanece desactivado y lo publicas otra vez si quieres. El cintillo se puede cerrar con la ✕. Los textos se rellenan solos con los datos del día (juegos, versión).</p>
   </div>
 
+  <div class="panel">
+    <h2>Banner del inicio</h2>
+    <div class="fld">
+      <label for="bannerUrls">Imágenes del banner (una URL por línea)</label>
+      <textarea id="bannerUrls" placeholder="https://ejemplo.com/foto1.jpg&#10;https://ejemplo.com/foto2.jpg"></textarea>
+    </div>
+    <label class="chk"><input type="checkbox" id="bannerHide"> Ocultar el banner</label>
+    <p class="estado" id="estBanner" style="font-size:13px">Estado actual: …</p>
+    <button id="btnBannerOn">Aplicar banner</button>
+    <button class="ghost" id="btnBannerOff">Restablecer banner normal</button>
+    <p class="foot" style="text-align:left">Si dejas las URLs vacías y sin ocultar, el banner vuelve a las imágenes de siempre. Se aplica en unos minutos en la web y en la aplicación.</p>
+  </div>
+
+  <div class="panel">
+    <h2>Tema especial</h2>
+    <div class="fld">
+      <label for="selTema">Tema de la aplicación</label>
+      <select id="selTema">
+        <option value="normal">Normal</option>
+        <option value="halloween">🎃 Halloween</option>
+        <option value="navidad">🎄 Navidad</option>
+        <option value="finanio">🎆 Fin de año</option>
+      </select>
+    </div>
+    <p class="estado" id="estTema" style="font-size:13px">Tema actual: …</p>
+    <button id="btnTemaOn">Aplicar tema</button>
+    <button class="ghost" id="btnTemaOff">Volver al tema normal</button>
+    <p class="foot" style="text-align:left">Tiñe la aplicación con los colores de la fiesta. Se aplica en unos minutos en la web y en la aplicación.</p>
+  </div>
+
   <div class="cards" style="margin-top:12px">
     <div class="card hero">
       <div class="lbl">Visitas totales</div>
@@ -186,8 +216,6 @@
   <div class="panel">
     <h2>Notificaciones y avisos</h2>
     <div id="avisos"></div>
-    <a class="btnlink wa" id="waBtn" target="_blank" rel="noopener">Enviarme el resumen por WhatsApp</a>
-    <button class="ghost" id="notifBtn">Activar avisos en este dispositivo</button>
   </div>
 
   <div class="panel">
@@ -222,16 +250,9 @@
 
   <div class="panel">
     <h2>Herramientas</h2>
-    <button class="ghost" id="csvBtn">Descargar datos (CSV, 30 días y secciones)</button>
-    <button class="ghost" id="copiarBtn">Copiar resumen de hoy</button>
     <a class="btnlink ghost" href="./">Abrir la web pública</a>
     <a class="btnlink ghost" href="https://apklis.cu/application/la.pelota.cubana.hoy" target="_blank" rel="noopener">Ficha de la aplicación en Apklis</a>
     <a class="btnlink ghost" href="https://github.com/TecnoBum/lapelotacubana" target="_blank" rel="noopener">Repositorio en GitHub</a>
-    <div class="fld" style="margin-top:14px">
-      <label for="notas">Notas rápidas (solo en este dispositivo)</label>
-      <textarea id="notas" placeholder="Ej.: revisar las reseñas de instalación el viernes…"></textarea>
-    </div>
-    <button class="ghost" id="notasBtn">Guardar notas</button>
   </div>
 
   <div class="panel">
@@ -252,16 +273,14 @@ var HASH = '2a156f006008b253c6763b5624e98b9cc12b65f51cf571ffa466b67f23c54765';
 var NS = 'tecnobum-lapelotacubana';
 var API = 'https://abacus.jasoncameron.dev/get/' + NS + '/';
 var HIT = 'https://abacus.jasoncameron.dev/hit/' + NS + '/';
-var WA_TEL = '5359785623';
 var SECCIONES = [
   ['inicio','Inicio'], ['jornada','Jornada'], ['posiciones','Posiciones'],
   ['lideres','Líderes'], ['equipos','Equipos'], ['noticias','Noticias'],
-  ['envivo','En Vivo'], ['predicciones','Predicciones'], ['grupos','Grupos y canales'],
-  ['calendario','Calendario']
+  ['envivo','En Vivo'], ['predicciones','Predicciones'], ['ranking','Ranking'],
+  ['grupos','Grupos y canales'], ['calendario','Calendario']
 ];
 var NOMBRES_CINT = { 0: 'desactivado', 1: 'Jornada de hoy', 2: 'Actualiza la aplicación', 3: 'Canal de WhatsApp' };
 var NOMBRES_AVISO = { 0: 'desactivado', 1: 'Canal de WhatsApp', 2: 'Actualiza la aplicación', 3: 'Haz tus predicciones' };
-var RESUMEN = { texto: '', listo: false };
 var timerAuto = null;
 
 /* ---------- puerta con contraseña ---------- */
@@ -278,7 +297,7 @@ function desbloqueado() { try { return sessionStorage.getItem('lpcAdmin') === '1
 function mostrarPanel() {
   document.getElementById('lock').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  cargar(); aplicarAuto(); estadoPublicar();
+  cargar(); aplicarAuto(); estadoPublicar(); estadoBannerTema();
 }
 function intentarClave() {
   var inp = document.getElementById('lockInput');
@@ -514,6 +533,54 @@ document.getElementById('btnAvisoOn').addEventListener('click', function () {
 });
 document.getElementById('btnAvisoOff').addEventListener('click', function () { publicar('aviso', 0, NOMBRES_AVISO); });
 
+/* ---------- banner y tema vía Telegram (los aplica el cron) ---------- */
+var TGBOT = '8835835836:AAETbs7qAKbc5zXDG2DgtyWBRZ25ccwgNbk';
+var TGCHAT = '-1003640679899';
+var TEMAS = { normal: 'Normal', halloween: '🎃 Halloween', navidad: '🎄 Navidad', finanio: '🎆 Fin de año' };
+function tgEnviar(texto, okMsg) {
+  fetch('https://api.telegram.org/bot' + TGBOT + '/sendMessage', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: TGCHAT, text: texto })
+  }).then(function (r) { return r.json(); }).then(function (j) {
+    if (j && j.ok) { alert(okMsg); estadoBannerTema(); }
+    else alert('No se pudo publicar. Revisa tu conexión.');
+  }).catch(function () { alert('No se pudo publicar. Revisa tu conexión.'); });
+}
+function estadoBannerTema() {
+  fetch('https://tecnobum.github.io/lapelotacubana/banner.json?t=' + Date.now(), { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; }).then(function (b) {
+      document.getElementById('estBanner').innerHTML = 'Estado actual: <b>' +
+        (!b ? 'normal' : b.hidden ? 'oculto' : (b.images && b.images.length ? b.images.length + ' imágenes personalizadas' : 'normal')) + '</b>';
+    }).catch(function () {});
+  fetch('https://tecnobum.github.io/lapelotacubana/tema.json?t=' + Date.now(), { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; }).then(function (t) {
+      var tema = (t && t.tema) || 'normal';
+      document.getElementById('estTema').innerHTML = 'Tema actual: <b>' + (TEMAS[tema] || tema) + '</b>';
+      document.getElementById('selTema').value = tema;
+    }).catch(function () {});
+}
+document.getElementById('btnBannerOn').addEventListener('click', function () {
+  var urls = document.getElementById('bannerUrls').value.split('\n').map(function (s) { return s.trim(); })
+    .filter(function (s) { return s && s[0] !== '#'; });
+  var hide = document.getElementById('bannerHide').checked;
+  if (hide) { tgEnviar('BANNER|HIDE', 'Banner ocultado. Se aplica en unos minutos.'); return; }
+  if (urls.length) { tgEnviar('BANNER|SET|' + urls.join('|'), 'Banner actualizado con ' + urls.length + ' imágenes. Se aplica en unos minutos.'); return; }
+  tgEnviar('BANNER|SHOW', 'Banner restablecido a las imágenes de siempre.');
+});
+document.getElementById('btnBannerOff').addEventListener('click', function () {
+  document.getElementById('bannerUrls').value = '';
+  document.getElementById('bannerHide').checked = false;
+  tgEnviar('BANNER|SHOW', 'Banner restablecido a las imágenes de siempre.');
+});
+document.getElementById('btnTemaOn').addEventListener('click', function () {
+  var t = document.getElementById('selTema').value;
+  tgEnviar('TEMA|' + t, t === 'normal' ? 'Tema normal aplicado.' : 'Tema ' + (TEMAS[t] || t) + ' aplicado. Se ve en unos minutos.');
+});
+document.getElementById('btnTemaOff').addEventListener('click', function () {
+  document.getElementById('selTema').value = 'normal';
+  tgEnviar('TEMA|normal', 'Tema normal aplicado.');
+});
+
 /* ---------- visitas y secciones ---------- */
 function cargar() {
   var c = cfg();
@@ -527,8 +594,8 @@ function cargar() {
   Promise.all(promesas).then(function (res) {
     var total = res[0];
     var porDia = res.slice(1, 1 + DIAS);
-    var secV = res.slice(1 + DIAS, 1 + DIAS + 10);
-    var secT = res.slice(1 + DIAS + 10);
+    var secV = res.slice(1 + DIAS, 1 + DIAS + SECCIONES.length);
+    var secT = res.slice(1 + DIAS + SECCIONES.length);
     window.__datosCSV = { porDia: porDia, secV: secV, secT: secT };
 
     var hoyV = porDia[DIAS - 1], ayerV = porDia[DIAS - 2];
@@ -625,11 +692,6 @@ function cargar() {
     });
     try { localStorage.setItem('lpcAvisosVistos', JSON.stringify(vistos)); } catch (e) {}
 
-    RESUMEN.texto = 'La Pelota Cubana · ' + hoyClave + '\nVisitas hoy: ' + fmt(hoyV) + ' · Total: ' + fmt(total) +
-      '\nÚltimos 7 días: ' + fmt(suma7) + (topSec ? '\nSección top: ' + topSec : '');
-    RESUMEN.listo = true;
-    document.getElementById('waBtn').href = 'https://wa.me/' + WA_TEL + '?text=' + encodeURIComponent(RESUMEN.texto);
-
     var lista = document.getElementById('lista'); lista.innerHTML = '';
     for (i = DIAS - 1; i >= DIAS - N; i--) {
       var off = DIAS - 1 - i;
@@ -646,42 +708,8 @@ function cargar() {
   });
 }
 
-/* ---------- herramientas ---------- */
-document.getElementById('csvBtn').addEventListener('click', function () {
-  var d = window.__datosCSV;
-  if (!d) { alert('Espera a que carguen los datos.'); return; }
-  var lineas = ['Fecha;Visitas'];
-  for (var i = 29; i >= 0; i--) lineas.push(claveDia(29 - i) + ';' + Math.max(d.porDia[i], 0));
-  lineas.push('', 'Seccion;Entradas;Tiempo (min aprox.)');
-  SECCIONES.forEach(function (s, ix) {
-    lineas.push(s[1] + ';' + Math.max(d.secV[ix], 0) + ';' + Math.round(Math.max(d.secT[ix], 0) * 0.5));
-  });
-  var blob = new Blob([lineas.join('\n')], { type: 'text/csv;charset=utf-8' });
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'visitas-la-pelota-cubana.csv';
-  a.click();
-  setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
-});
-document.getElementById('copiarBtn').addEventListener('click', function () {
-  if (!RESUMEN.listo) { alert('Espera a que carguen los datos.'); return; }
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(RESUMEN.texto).then(function () { alert('Resumen copiado.'); }, function () { alert(RESUMEN.texto); });
-  } else alert(RESUMEN.texto);
-});
-document.getElementById('notifBtn').addEventListener('click', function () {
-  if (!('Notification' in window)) { alert('Este navegador no admite notificaciones.'); return; }
-  Notification.requestPermission().then(function (p) {
-    alert(p === 'granted' ? 'Avisos activados en este dispositivo. Activa también la casilla en Configuración.' : 'Permiso no concedido.');
-  });
-});
-document.getElementById('notasBtn').addEventListener('click', function () {
-  try { localStorage.setItem('lpcAdminNotas', document.getElementById('notas').value); alert('Notas guardadas.'); } catch (e) {}
-});
-try { document.getElementById('notas').value = localStorage.getItem('lpcAdminNotas') || ''; } catch (e) {}
-document.getElementById('btn').addEventListener('click', cargar);
-
 /* ---------- arranque ---------- */
+document.getElementById('btn').addEventListener('click', cargar);
 pintarCfg();
 if (desbloqueado()) mostrarPanel();
 else document.getElementById('lock').style.display = 'flex';
