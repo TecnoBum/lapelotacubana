@@ -1227,6 +1227,7 @@ function renderPredicciones(){
     return '<div class="medal'+(e?" earned":"")+'">'+medalSVG(m.color,!e)+'<b>'+m.name+'</b><small>'+m.desc+'</small><small class="mp">'+(e?"¡Conseguida!":p[0]+"/"+p[1])+'</small></div>';
   }).join("");
   document.getElementById("ladder").innerHTML = LEVELS.map((L,i)=>'<span class="'+(i===li?"on":(i<li?"done":""))+'">'+L.name+'</span>').join("");
+  if(typeof syncRank==="function") syncRank();
 }
 /* ============ CUENTA DE USUARIO (local) ============ */
 let _uphoto = null, _uteam = null;
@@ -1537,6 +1538,13 @@ function getUid(){
 }
 function calcMyPoints(){
   try{
+    // Asegura el índice de juegos (no depende de haber abierto Predicciones)
+    const hp = habanaParts();
+    const calHoy = ((S.cal||{})[hp.dstr]||[]).map(g=>({id:"j"+g.id, num:g.id, date:hp.dstr, away:g.away, home:g.home, ar:g.ar, hr:g.hr, status:g.status, time:g.time, stadium:g.stadium}));
+    const hoy = (S.today&&S.today.length) ? S.today : calHoy;
+    (S.games||[]).concat(hoy, S.prev||[], S.upcoming||[]).forEach(g=>{
+      const n = gameNumId(g.id); if(n!=null) GAMES_BY_NUM[n]=g;
+    });
     const picks = getPicks(); let pts=0;
     Object.keys(picks).forEach(k=>{
       const s = pickScore(GAMES_BY_NUM[k], picks[k].side);
