@@ -197,6 +197,8 @@
 .pgame .gmeta{font-size:11px; color:var(--muted);}
 .pgame .pickrow{flex-direction:column;}
 .pgame .pickbtn{min-height:46px; font-size:12px;}
+.pickbtn .pbtxt{display:flex; flex-direction:column; align-items:flex-start; line-height:1.3; text-align:left;}
+.pickbtn .pbtxt small{color:var(--muted); font-weight:600; font-size:10px;}
 .clocktag{flex:none; font-size:10px; font-weight:800; color:var(--gold); border:1px solid var(--gold); padding:3px 8px; border-radius:12px; letter-spacing:.5px;}
 .clocktag.open{color:var(--green); border-color:var(--green);}
 [data-theme="light"] .pickbtn.sel{background:rgba(18,122,57,.1);}
@@ -1119,6 +1121,19 @@ function medalSVG(color, locked){
     +'<text x="24" y="36" text-anchor="middle" font-size="15" fill="#fff" font-weight="bold">★</text></svg>';
 }
 const GAMES_BY_NUM = {};
+// Récord y lugar en la tabla de un equipo (busca en ambos grupos)
+function teamRecord(code){
+  try{
+    const groups = [(S.pos||{}).occ||[], (S.pos||{}).ori||[]];
+    for(let gi=0; gi<groups.length; gi++){
+      const rows = groups[gi];
+      for(let i=0;i<rows.length;i++){
+        if(rows[i].t===code) return {w:rows[i].w, l:rows[i].l, pos:i+1};
+      }
+    }
+  }catch(e){}
+  return null;
+}
 function getPicks(){ try{ return JSON.parse(localStorage.getItem("lpc-picks")||"{}"); }catch(e){ return {}; } }
 function savePicks(p){ try{ localStorage.setItem("lpc-picks", JSON.stringify(p)); }catch(e){} }
 function setPick(num, side){
@@ -1185,8 +1200,13 @@ function renderPredicciones(){
         const locked = pickLocked(g);
         const tag = locked ? '<span class="clocktag">CERRADO</span>'
           : (g.date===hp.dstr ? '<span class="clocktag open">'+lockLabel(g)+'</span>' : (g.time?'<span class="gmeta">'+g.time+'</span>':''));
-        const btn = (side, t)=>'<button class="pickbtn'+(pk&&pk.side===side?" sel":"")+'"'+(locked?' disabled':' onclick="setPick('+n+',\''+side+'\')"')+'>'+logoBadge(side==="away"?g.away:g.home)+'<span>'+t.name+'</span></button>';
-        return '<div class="pgame"><div class="ghead"><span class="gmeta">Juego '+n+(g.stadium?' · '+g.stadium:'')+'</span>'+tag+'</div><div class="pickrow">'+btn("away",ta)+btn("home",th)+'</div></div>';
+        const btn = (side, code)=>{
+          const t = TEAMS[code]||{name:code,mote:""};
+          const r = teamRecord(code);
+          const rec = r ? '<small>'+r.w+'G-'+r.l+'P · '+r.pos+'°</small>' : '';
+          return '<button class="pickbtn'+(pk&&pk.side===side?" sel":"")+'"'+(locked?' disabled':' onclick="setPick('+n+',\''+side+'\')"')+'>'+logoBadge(code)+'<span class="pbtxt"><b>'+t.name+'</b>'+rec+'</span></button>';
+        };
+        return '<div class="pgame"><div class="ghead"><span class="gmeta">Juego '+n+(g.stadium?' · '+g.stadium:'')+'</span>'+tag+'</div><div class="pickrow">'+btn("away",g.away)+btn("home",g.home)+'</div></div>';
       }).join("")+'</div>';
   }).join("")+'</div>' : '<div class="empty">No hay juegos próximos para pronosticar.</div>';
   // Resultados: pronósticos de juegos ya finalizados
