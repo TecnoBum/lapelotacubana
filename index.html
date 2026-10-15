@@ -291,6 +291,8 @@ tr.ranknew td{animation:ranknewflash 2.2s ease;}
 @keyframes rankdownflash{0%{background:rgba(239,68,68,.24);}100%{background:transparent;}}
 @keyframes ranknewflash{0%{background:rgba(255,215,0,.32);}100%{background:transparent;}}
 .tag{display:inline-block; font-size:9px; font-weight:800; padding:3px 8px; border-radius:12px; background:var(--gold); color:#1a1a1a; letter-spacing:.5px; vertical-align:middle;}
+/* Inning y outs en juegos en curso */
+.glive{text-align:center; font-size:12px; font-weight:800; color:var(--accent); letter-spacing:.6px; margin:2px 0 6px; text-transform:uppercase;}
 /* Concurso semanal */
 .cq{margin:12px 0; padding:12px; border:1px solid var(--line); border-radius:12px; background:var(--card2);}
 .cq b.q{display:block; margin-bottom:8px; font-size:14px; line-height:1.4;}
@@ -1063,7 +1065,7 @@ function detailHTML(g){
     + '</div><div>'+body+'</div></div>';
 }
 function gameCard(g){
-  const enCurso = g.status!=="final" && g.ar!=null && g.hr!=null;
+  const enCurso = g.status!=="final" && (g.live || (g.ar!=null && g.hr!=null && (g.ar+g.hr)>0));
   const st = g.status==="final" ? '<span class="status final">FINAL</span>' : enCurso ? '<span class="status curso"><span class="pulse"></span>EN CURSO</span>' : '<span class="status prog">PRÓXIMO</span>';
   const aw = g.ar!=null && g.hr!=null && g.ar>g.hr, hw = g.ar!=null && g.hr!=null && g.hr>g.ar;
   const meta = (g.num? "Juego "+g.num:"") + (g.stadium?((g.num?" · ":"")+g.stadium):"");
@@ -1072,11 +1074,14 @@ function gameCard(g){
   const click = num!=null ? ' onclick="toggleGame(\''+g.id+'\')" style="cursor:pointer"' : '';
   const ta = TEAMS[g.away]||{name:g.away,mote:"",color:"#5D6D7E"}, th = TEAMS[g.home]||{name:g.home,mote:"",color:"#5D6D7E"};
   const scoreHtml = (g.status==="final"||enCurso) ? '<div class="vsc">'+g.ar+" - "+g.hr+'</div>' : '<div class="vsc prog">'+(g.time||"VS")+'</div>';
+  const liveInfo = enCurso && (g.live||g.outs)
+    ? '<div class="glive">'+esc(g.live||"")+((g.live&&g.outs)?" · ":"")+esc(g.outs||"")+'</div>' : '';
   return '<div class="game'+(open?' open':'')+'" id="gc-'+g.id+'"'+click+' style="border-top:3px solid '+(th.color||"#2a3547")+'">'
     +'<div class="ghead"><span class="gmeta">'+meta+'</span><span style="display:flex;align-items:center;gap:6px">'+st+(num!=null?'<span class="chev">▾</span>':'')+'</span></div>'
     +'<div class="vs"><div class="side">'+logoBadge(g.away,true)+'<div class="vsn'+(aw?' win':'')+'">'+ta.name+'</div><div class="vsm">'+ta.mote+'</div></div>'
     +scoreHtml
     +'<div class="side">'+logoBadge(g.home,true)+'<div class="vsn'+(hw?' win':'')+'">'+th.name+'</div><div class="vsm">'+th.mote+'</div></div></div>'
+    +liveInfo
     +(g.status!=="final"&&g.stadium?'<div class="gfoot">'+g.stadium+'</div>':'')
     +(open?'<div class="detail">'+detailHTML(g)+'</div>':'')
     +'</div>';
@@ -2096,7 +2101,14 @@ function parseGames(doc){
     };
     const aw = teamOf(rows[0]), hm = teamOf(rows[1]);
     if(!aw || !hm) return;
-    let status = "prog", ar = null, hr = null, el = a.parentElement, d = 0;
+    let status = "prog", ar = null, hr = null, live = null, outs = null, el = a.parentElement, d = 0;
+    const li = a.closest("li.Mini_DayScore");
+    if(li){
+      live = (li.querySelector("span.span_estado")?.textContent||"").trim() || null;
+      outs = (li.querySelector("span.span_outs")?.textContent||"").trim() || null;
+      const rs = [...li.querySelectorAll("div.Mini_DayScore_Runs > span")].map(s=>parseInt(s.textContent));
+      if(rs.length>=2 && !isNaN(rs[0]) && !isNaN(rs[1])){ ar = rs[0]; hr = rs[1]; }
+    }
     while(el && d < 8){
       const tx = el.textContent || "";
       if(/final/i.test(tx)){
@@ -2107,7 +2119,8 @@ function parseGames(doc){
       }
       el = el.parentElement; d++;
     }
-    games.push({id:idm?"j"+idm[1]:"lx"+i, date, away:aw, home:hm, ar, hr, status});
+    if(status==="final" || !(live && /alta|baja|detenid|suspendid/i.test(live))){ live = null; outs = null; }
+    games.push({id:idm?"j"+idm[1]:"lx"+i, date, away:aw, home:hm, ar, hr, status, live, outs});
   });
   return {games, date};
 }
