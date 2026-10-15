@@ -274,7 +274,8 @@ table.st{width:100%; border-collapse:collapse; font-size:13px;}
 table.st th{font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); padding:8px 6px; text-align:center; border-bottom:1px solid var(--line);}
 table.st th:first-child, table.st td:first-child{text-align:left;}
 table.st td{padding:9px 6px; text-align:center; border-bottom:1px solid rgba(42,53,71,.5);}
-table.st tr.lead td{background:rgba(241,196,15,.06);}
+table.st tr.me td{background:rgba(241,196,15,.14);}
+table.st tr.me td:first-child{font-weight:800;}
 .teamcell{display:flex; align-items:center; gap:8px;}
 .teamcell .badge{width:26px; height:26px; font-size:9px;}
 .lead-card{display:flex; align-items:center; gap:12px; background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:12px; margin-bottom:10px;}
@@ -454,6 +455,12 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
       <div class="gmeta" style="margin-top:8px">Acierta el ganador y suma 3 puntos. Los pronósticos cierran a la 1:00 PM (hora de Cuba) del día del juego, o a la hora de inicio si el juego empieza antes. Tus pronósticos se guardan en este teléfono.</div>
     </div>
     <div class="card"><h3>Mis resultados</h3><div id="pickResults"></div></div>
+  </section>
+  <section class="page" id="pg-ranking">
+    <div class="card"><h3>🏆 Ranking global</h3>
+      <div class="gmeta" style="margin-bottom:10px">Todos los jugadores ordenados por puntos de predicciones. Tus puntos se sincronizan automáticamente.</div>
+      <div id="rankTable"><div class="empty">Cargando ranking…</div></div>
+    </div>
   </section>
   <section class="page" id="pg-grupos">
     <div class="card"><h3>Grupos y canales</h3><div id="canalList"></div></div>
@@ -1415,6 +1422,7 @@ const PAGES = [
   {id:"noticias", label:"Noticias", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v12H4zM4 17l-1 4 4-4M20 9h3v9l-3-2"/></svg>'},
   {id:"envivo", label:"En Vivo", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M8.5 8.5a5 5 0 000 7M15.5 8.5a5 5 0 010 7M5.6 5.6a9 9 0 000 12.8M18.4 5.6a9 9 0 010 12.8"/></svg>'},
   {id:"predicciones", label:"Predicciones", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0V4z"/><path d="M7 6H4a1 1 0 00-1 1c0 2.5 2 4 4 4M17 6h3a1 1 0 011 1c0 2.5-2 4-4 4"/></svg>'},
+  {id:"ranking", label:"Ranking", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M8.5 13L7 22l5-3 5 3-1.5-9"/></svg>'},
   {id:"grupos", label:"Grupos y canales", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>'},
   {id:"calendario", label:"Calendario", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>'}
 ];
@@ -1434,9 +1442,80 @@ function go(id){
   drawer.classList.remove("open"); scrim.classList.remove("show");
   if(id==="envivo") initEnvivo();
   if(id==="predicciones"){ renderUserChip(); renderPredicciones(); }
+  if(id==="ranking"){ loadRank(); syncRank(); }
   if(id==="grupos") renderCanales();
   if(id==="calendario") renderCalendario();
   window.scrollTo({top:0, behavior:"smooth"});
+}
+/* ============ RANKING GLOBAL ============
+   Los puntos se publican automáticamente en el canal de Telegram y el
+   ranking agregado se lee de ranking.json (publicado cada 5 minutos). */
+const RANKBOT = {token:"8835835836:AAETbs7qAKbc5zXDG2DgtyWBRZ25ccwgNbk", chat:"-1003640679899"};
+const RANK_URLS = ["ranking.json","https://tecnobum.github.io/lapelotacubana/ranking.json"];
+function getUid(){
+  try{
+    let u = localStorage.getItem("lpc-uid");
+    if(!u){ u = "u"+Math.random().toString(16).slice(2,10)+Date.now().toString(36); localStorage.setItem("lpc-uid",u); }
+    return u;
+  }catch(e){ return "u-anon"; }
+}
+function calcMyPoints(){
+  try{
+    const picks = getPicks(); let pts=0;
+    Object.keys(picks).forEach(k=>{
+      const s = pickScore(GAMES_BY_NUM[k], picks[k].side);
+      if(s!=null) pts+=s;
+    });
+    return pts;
+  }catch(e){ return 0; }
+}
+let rankSyncBusy=false;
+async function syncRank(){
+  if(rankSyncBusy) return;
+  try{
+    const pts = calcMyPoints();
+    const last = +(localStorage.getItem("lpc-rank-sent")||"-1");
+    const lastT = +(localStorage.getItem("lpc-rank-sent-t")||"0");
+    if(pts===last && Date.now()-lastT < 30*60*1000) return;
+    rankSyncBusy=true;
+    const u = getUser()||{};
+    const name = String(u.name||"Anónimo").replace(/\|/g," ").slice(0,30).trim()||"Anónimo";
+    const team = String(u.team||"").replace(/[^A-Za-z]/g,"").slice(0,8).toUpperCase();
+    await fetch("https://api.telegram.org/bot"+RANKBOT.token+"/sendMessage",{
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({chat_id:RANKBOT.chat, text:"RANK|"+getUid()+"|"+name+"|"+team+"|"+pts})
+    });
+    localStorage.setItem("lpc-rank-sent", String(pts));
+    localStorage.setItem("lpc-rank-sent-t", String(Date.now()));
+  }catch(e){}
+  rankSyncBusy=false;
+}
+async function loadRank(){
+  const el = document.getElementById("rankTable"); if(!el) return;
+  let d=null;
+  for(const u of RANK_URLS){
+    try{
+      const r = await fetch(u+"?t="+Date.now(),{cache:"no-store"});
+      if(r.ok){ const j=await r.json(); if(j&&j.players){ d=j; break; } }
+    }catch(e){}
+  }
+  if(!d||!d.players.length){
+    el.innerHTML = '<div class="empty">'+(!d?"No se pudo cargar el ranking. Revisa tu conexión.":"Sé el primero en aparecer: haz tus predicciones y suma puntos.")+'</div>';
+    return;
+  }
+  const me = getUid();
+  const rows = d.players.map((p,i)=>{
+    const isMe = p.id===me;
+    const medal = i===0?"🥇":i===1?"🥈":i===2?"🥉":String(i+1);
+    return '<tr class="'+(isMe?'me':'')+'"><td>'+medal+'</td>'
+      +'<td style="text-align:left"><b>'+esc(p.name)+'</b>'+(isMe?' <span class="tag">TÚ</span>':'')
+      +(p.team?' <small style="color:var(--muted)">'+esc(p.team)+'</small>':'')+'</td>'
+      +'<td><b>'+p.points+'</b></td></tr>';
+  }).join("");
+  el.innerHTML = '<div style="overflow-x:auto"><table class="st"><tr><th>#</th><th>Jugador</th><th>Pts</th></tr>'
+    +rows+'</table></div>'
+    +'<div class="gmeta" style="margin-top:8px">Actualizado: '+esc(d.updated||"")
+    +' · Tus puntos se sincronizan automáticamente.</div>';
 }
 /* ============ SCRAPER EN VIVO (segundo plano, no bloquea) ============ */
 async function fetchLiveHTML(){
@@ -1600,6 +1679,7 @@ async function pollDatos(){
       S.live = true; setLive(true);
       renderAll();
       lastPollOk = Date.now();
+      if(typeof syncRank==="function") syncRank();
     }
   }catch(e){}
   pollBusy = false;
