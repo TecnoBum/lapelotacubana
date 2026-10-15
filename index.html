@@ -186,19 +186,22 @@
 .pickbtn.sel{border-color:var(--green); background:rgba(46,204,113,.12);}
 .pickbtn:disabled{opacity:.55; cursor:default;}
 .pickbtn:disabled:active{transform:none;}
-/* Predicciones: días en scroll lateral, juegos apilados por día */
-.pickdays{display:flex; gap:12px; overflow-x:auto; padding:4px 2px 14px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:thin;}
-.pickday{flex:0 0 274px; scroll-snap-align:start; background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:12px; display:flex; flex-direction:column; gap:10px;}
-.pickday.today{border-color:var(--gold);}
-.pickday>h4{margin:0; font-size:14px; display:flex; justify-content:space-between; align-items:center;}
-.pickday>h4 small{color:var(--muted); font-weight:600; font-size:11px;}
-.pgame{background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:10px;}
-.pgame .ghead{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;}
-.pgame .gmeta{font-size:11px; color:var(--muted);}
-.pgame .pickrow{flex-direction:column;}
-.pgame .pickbtn{min-height:46px; font-size:12px;}
-.pickbtn .pbtxt{display:flex; flex-direction:column; align-items:flex-start; line-height:1.3; text-align:left;}
-.pickbtn .pbtxt small{color:var(--muted); font-weight:600; font-size:10px;}
+/* Predicciones: carrusel lateral, cada juego su tarjeta VS */
+.pickgames{display:flex; gap:12px; overflow-x:auto; padding:4px 2px 14px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:thin;}
+.pvscard{flex:0 0 302px; scroll-snap-align:start; background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:12px;}
+.pvscard.today{border-color:var(--gold);}
+.pvscard .ghead{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
+.pvscard .gmeta{font-size:11px; color:var(--muted);}
+.vsrow{display:flex; align-items:stretch; gap:8px;}
+.vsteam{flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:6px; padding:12px 6px; border-radius:12px; border:2px solid var(--line); background:var(--card2); color:var(--text); cursor:pointer; font-size:13px; font-weight:700;}
+.vsteam:active{transform:scale(.97);}
+.vsteam.sel{border-color:var(--green); background:rgba(46,204,113,.12);}
+.vsteam:disabled{opacity:.55; cursor:default;}
+.vsteam:disabled:active{transform:none;}
+.vsteam .pbtxt{display:flex; flex-direction:column; align-items:center; line-height:1.3; text-align:center;}
+.vsteam .pbtxt small{color:var(--muted); font-weight:600; font-size:10px;}
+.vsmid{align-self:center; font-weight:800; color:var(--muted); font-size:11px; flex:none;}
+[data-theme="light"] .vsteam.sel{background:rgba(18,122,57,.1);}
 .clocktag{flex:none; font-size:10px; font-weight:800; color:var(--gold); border:1px solid var(--gold); padding:3px 8px; border-radius:12px; letter-spacing:.5px;}
 .clocktag.open{color:var(--green); border-color:var(--green);}
 [data-theme="light"] .pickbtn.sel{background:rgba(18,122,57,.1);}
@@ -486,8 +489,10 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
       <div class="lvl"><div class="lvl-top"><span id="pLevel">Novato</span><span id="pNext"></span></div><div class="lvlbar"><div id="pBar"></div></div><div class="ladder" id="ladder"></div></div>
     </div>
     <div class="card"><h3 id="medalTitle">Medallas</h3><div class="medals" id="medalGrid"></div></div>
-    <div class="card"><h3>Pronostica los ganadores</h3><div id="pickList"></div>
+    <div class="card"><h3 id="pickTodayTitle">Pronostica los ganadores</h3><div id="pickList"></div>
       <div class="gmeta" style="margin-top:8px">Acierta el ganador y suma 3 puntos. Los pronósticos cierran a la 1:00 PM (hora de Cuba) del día del juego, o a la hora de inicio si el juego empieza antes. Tus pronósticos se guardan en este teléfono.</div>
+    </div>
+    <div class="card" id="pickNextCard"><h3 id="pickNextTitle">Próxima fecha</h3><div id="pickNext"></div>
     </div>
     <div class="card"><h3>Mis resultados</h3><div id="pickResults"></div></div>
   </section>
@@ -1186,29 +1191,41 @@ function renderPredicciones(){
   const open = hoy.filter(g=>g.status!=="final").concat(S.upcoming||[], (S.games||[]).filter(g=>g.status!=="final"));
   const seen = {};
   const uniq = open.filter(g=>{ const n=gameNumId(g.id); if(n==null||seen[n]) return false; seen[n]=true; return true; });
-  // Agrupar por día: cada día una tarjeta vertical, scroll lateral entre días
+  // Carrusel 1: fecha actual (juegos lado a lado, tarjeta VS por juego).
+  // Carrusel 2: próxima fecha.
   const byDay = {};
   uniq.forEach(g=>{ (byDay[g.date]=byDay[g.date]||[]).push(g); });
   const days = Object.keys(byDay).sort();
-  document.getElementById("pickList").innerHTML = days.length ? '<div class="pickdays">'+days.map(d=>{
-    const games = byDay[d];
-    const isToday = d===hp.dstr;
-    return '<div class="pickday'+(isToday?' today':'')+'"><h4>'+(isToday?'Hoy · ':'')+fmtDate(d)+'<small>'+games.length+' juego'+(games.length===1?'':'s')+'</small></h4>'+
-      games.map(g=>{
-        const n = gameNumId(g.id), pk = picks[n];
-        const ta = TEAMS[g.away]||{name:g.away,mote:""}, th = TEAMS[g.home]||{name:g.home,mote:""};
-        const locked = pickLocked(g);
-        const tag = locked ? '<span class="clocktag">CERRADO</span>'
-          : (g.date===hp.dstr ? '<span class="clocktag open">'+lockLabel(g)+'</span>' : (g.time?'<span class="gmeta">'+g.time+'</span>':''));
-        const btn = (side, code)=>{
-          const t = TEAMS[code]||{name:code,mote:""};
-          const r = teamRecord(code);
-          const rec = r ? '<small>'+r.w+'G-'+r.l+'P · '+r.pos+'°</small>' : '';
-          return '<button class="pickbtn'+(pk&&pk.side===side?" sel":"")+'"'+(locked?' disabled':' onclick="setPick('+n+',\''+side+'\')"')+'>'+logoBadge(code)+'<span class="pbtxt"><b>'+t.name+'</b>'+rec+'</span></button>';
-        };
-        return '<div class="pgame"><div class="ghead"><span class="gmeta">Juego '+n+(g.stadium?' · '+g.stadium:'')+'</span>'+tag+'</div><div class="pickrow">'+btn("away",g.away)+btn("home",g.home)+'</div></div>';
-      }).join("")+'</div>';
-  }).join("")+'</div>' : '<div class="empty">No hay juegos próximos para pronosticar.</div>';
+  const vsCard = (g, isToday)=>{
+    const n = gameNumId(g.id), pk = picks[n];
+    const locked = pickLocked(g);
+    const tag = locked ? '<span class="clocktag">CERRADO</span>'
+      : (g.date===hp.dstr ? '<span class="clocktag open">'+lockLabel(g)+'</span>' : (g.time?'<span class="gmeta">'+g.time+'</span>':''));
+    const side = (sd, code)=>{
+      const t = TEAMS[code]||{name:code,mote:""};
+      const r = teamRecord(code);
+      const rec = r ? '<small>'+r.w+'G-'+r.l+'P · '+r.pos+'°</small>' : '';
+      return '<button class="vsteam'+(pk&&pk.side===sd?" sel":"")+'"'+(locked?' disabled':' onclick="setPick('+n+',\''+sd+'\')"')+'>'+logoBadge(code, true)+'<span class="pbtxt"><b>'+t.name+'</b>'+rec+'</span></button>';
+    };
+    return '<div class="pvscard'+(isToday?' today':'')+'"><div class="ghead"><span class="gmeta">Juego '+n+(g.stadium?' · '+g.stadium:'')+'</span>'+tag+'</div><div class="vsrow">'+side("away",g.away)+'<span class="vsmid">VS</span>'+side("home",g.home)+'</div></div>';
+  };
+  const carrusel = (d)=>'<div class="pickgames">'+byDay[d].map(g=>vsCard(g, d===hp.dstr)).join("")+'</div>';
+  if(days.length){
+    const d0 = days[0];
+    document.getElementById("pickTodayTitle").textContent = (d0===hp.dstr ? "Hoy · " : "")+fmtDate(d0);
+    document.getElementById("pickList").innerHTML = carrusel(d0);
+    if(days.length>1){
+      const d1 = days[1];
+      document.getElementById("pickNextTitle").textContent = "Próxima fecha · "+fmtDate(d1);
+      document.getElementById("pickNext").innerHTML = carrusel(d1);
+      document.getElementById("pickNextCard").style.display = "";
+    } else {
+      document.getElementById("pickNextCard").style.display = "none";
+    }
+  } else {
+    document.getElementById("pickList").innerHTML = '<div class="empty">No hay juegos próximos para pronosticar.</div>';
+    document.getElementById("pickNextCard").style.display = "none";
+  }
   // Resultados: pronósticos de juegos ya finalizados
   let pts=0, hits=0, scored=0, rows="";
   const scoredList=[];
