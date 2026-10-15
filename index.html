@@ -237,6 +237,9 @@
 .scrollhint{float:right; font-size:11px; font-weight:700; color:var(--muted); animation:hintNudge 1.8s ease-in-out infinite; transition:opacity .4s;}
 .scrollhint.done{opacity:0; animation:none;}
 @keyframes hintNudge{0%,100%{transform:translateX(0);}50%{transform:translateX(7px);}}
+/* Texto fijo debajo del carrusel: desaparece al llegar al final */
+.scrollend-hint{text-align:center; font-size:11px; font-weight:600; color:var(--muted); padding:2px 0 8px; animation:hintNudge 1.8s ease-in-out infinite; transition:opacity .4s;}
+.scrollend-hint.done{opacity:0; animation:none;}
 .clocktag{flex:none; font-size:10px; font-weight:800; color:var(--gold); border:1px solid var(--gold); padding:3px 8px; border-radius:12px; letter-spacing:.5px;}
 .clocktag.open{color:var(--green); border-color:var(--green);}
 [data-theme="light"] .pickbtn.sel{background:rgba(18,122,57,.1);}
@@ -1325,27 +1328,37 @@ function renderPredicciones(){
     };
     return '<div class="pvscard'+(isToday?' today':'')+'"><div class="ghead"><span class="gmeta">Juego '+n+(g.stadium?' · '+g.stadium:'')+'</span>'+tag+'</div><div class="vsrow">'+side("away",g.away)+'<span class="vsmid">VS</span>'+side("home",g.home)+'</div></div>';
   };
-  const carrusel = (d)=>'<div class="pickgames">'+byDay[d].map(g=>vsCard(g, d===hp.dstr)).join("")+'</div>';
+  const carrusel = (d, eid)=>'<div class="pickgames">'+byDay[d].map(g=>vsCard(g, d===hp.dstr)).join("")+'</div>'
+    +'<div class="scrollend-hint" id="'+eid+'">Desliza para ver todos los juegos &rarr;</div>';
   if(days.length){
     const d0 = days[0];
     document.getElementById("pickTodayTitle").innerHTML = (d0===hp.dstr ? "Hoy · " : "")+fmtDate(d0)+' <span class="scrollhint" id="hintToday">desliza &rarr;</span>';
-    document.getElementById("pickList").innerHTML = carrusel(d0);
+    document.getElementById("pickList").innerHTML = carrusel(d0, "endHintToday");
     if(days.length>1){
       const d1 = days[1];
       document.getElementById("pickNextTitle").innerHTML = "Próxima fecha · "+fmtDate(d1)+' <span class="scrollhint" id="hintNext">desliza &rarr;</span>';
-      document.getElementById("pickNext").innerHTML = carrusel(d1);
+      document.getElementById("pickNext").innerHTML = carrusel(d1, "endHintNext");
       document.getElementById("pickNextCard").style.display = "";
     } else {
       document.getElementById("pickNextCard").style.display = "none";
     }
-    // Oculta el indicador cuando el usuario ya deslizó
-    [["hintToday","pickList"],["hintNext","pickNext"]].forEach(([hid, cid])=>{
+    // Oculta los indicadores al deslizar / llegar al final
+    [["hintToday","endHintToday","pickList"],["hintNext","endHintNext","pickNext"]].forEach(([hid, eid, cid])=>{
       const car = document.querySelector("#"+cid+" .pickgames");
       const hint = document.getElementById(hid);
-      if(car && hint){
-        hint.classList.remove("done");
-        car.onscroll = ()=>{ if(car.scrollLeft > 30) hint.classList.add("done"); };
-      }
+      const endHint = document.getElementById(eid);
+      if(!car) return;
+      if(hint) hint.classList.remove("done");
+      const checkEnd = ()=>{
+        if(!endHint) return;
+        const atEnd = car.scrollWidth <= car.clientWidth + 12 || car.scrollLeft + car.clientWidth >= car.scrollWidth - 12;
+        endHint.classList.toggle("done", atEnd);
+      };
+      checkEnd();
+      car.onscroll = ()=>{
+        if(car.scrollLeft > 30 && hint) hint.classList.add("done");
+        checkEnd();
+      };
     });
   } else {
     document.getElementById("pickList").innerHTML = '<div class="empty">No hay juegos próximos para pronosticar.</div>';
