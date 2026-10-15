@@ -126,6 +126,15 @@
 /* Cuenta de usuario */
 #userModal{position:fixed; inset:0; z-index:410; background:rgba(0,0,0,.62); display:none; align-items:center; justify-content:center; padding:20px;}
 #userModal.show{display:flex;}
+/* Modal de donaciones */
+#donateModal{position:fixed; inset:0; z-index:410; background:rgba(0,0,0,.62); display:none; align-items:center; justify-content:center; padding:20px;}
+#donateModal.show{display:flex;}
+#donateModal .dlg{background:var(--bg2); border:1px solid var(--line); border-radius:18px; max-width:380px; width:100%; padding:24px 20px; text-align:center; animation:pop .22s ease; max-height:92vh; overflow-y:auto;}
+#donateModal .dlg h3{margin:10px 0 4px; font-size:19px;}
+#donateModal .sub{color:var(--muted); font-size:13px; margin:0 0 12px;}
+#donateModal .btn{margin-top:6px;}
+.donateicon{font-size:52px; line-height:1;}
+.cardnum{font-size:22px; font-weight:800; letter-spacing:2px; background:var(--card); border:1px dashed var(--gold); border-radius:12px; padding:14px 8px; margin:12px 0; color:var(--text);}
 #userModal .dlg{background:var(--bg2); border:1px solid var(--line); border-radius:18px; max-width:380px; width:100%; padding:24px 20px; text-align:center; animation:pop .22s ease; max-height:92vh; overflow-y:auto;}
 #userModal .dlg h3{margin:10px 0 4px; font-size:19px;}
 #userModal .sub{color:var(--muted); font-size:13px; margin:0 0 12px;}
@@ -592,6 +601,33 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
     <p class="sub">Noticias, resultados y todo el béisbol cubano directo en tu WhatsApp.</p>
     <a class="btn wajoin" href="https://whatsapp.com/channel/0029VbC5vO635fM2sACqKt2g" target="_blank" rel="noopener" onclick="waJoined()">Unirme al canal</a>
     <button class="linkbtn" onclick="closeWaModal()">Ahora no</button>
+  </div>
+</div>
+<div id="donateModal">
+  <div class="dlg">
+    <div id="donateStep1">
+      <div class="donateicon">❤️</div>
+      <h3>Apoya a La Pelota Cubana</h3>
+      <p class="sub">Nuestro equipo trabaja con mucho esfuerzo para traerles una aplicación cada día mejor, con resultados en vivo, predicciones y todas las novedades del béisbol cubano.</p>
+      <p class="sub">Con tu donación nos ayudas a seguir creciendo.</p>
+      <button class="btn primary" onclick="donateStep2()">Realizar Donación</button>
+      <button class="linkbtn" onclick="closeDonateModal()">Ahora no</button>
+    </div>
+    <div id="donateStep2" style="display:none">
+      <div class="donateicon">💳</div>
+      <h3>Tarjeta para donar</h3>
+      <p class="sub">Copia el número y haz tu donación por Transfermóvil o EnZona.</p>
+      <div class="cardnum">9224 9598 7725 3706</div>
+      <button class="btn primary" onclick="copyCardNum()">Copiar número</button>
+      <button class="linkbtn" onclick="closeDonateModal()">Cerrar</button>
+    </div>
+    <div id="donateStep3" style="display:none">
+      <div class="donateicon">🙏</div>
+      <h3>¡Muchas gracias!</h3>
+      <p class="sub">Todo el dinero recaudado será usado para el desarrollo de la aplicación y la incorporación de nuevas funciones.</p>
+      <p class="sub"><b>Gracias, Equipo TecnoBum</b></p>
+      <button class="btn primary" onclick="closeDonateModal()">Cerrar</button>
+    </div>
   </div>
 </div>
 
@@ -1513,6 +1549,41 @@ function waJoined(){
   document.getElementById("waModal").classList.remove("show");
 }
 function closeWaModal(){ document.getElementById("waModal").classList.remove("show"); }
+/* ============ DONACIONES ============ */
+function openDonateModal(){
+  document.getElementById("donateStep1").style.display = "";
+  document.getElementById("donateStep2").style.display = "none";
+  document.getElementById("donateStep3").style.display = "none";
+  document.getElementById("donateModal").classList.add("show");
+}
+function donateStep2(){
+  document.getElementById("donateStep1").style.display = "none";
+  document.getElementById("donateStep2").style.display = "";
+  document.getElementById("donateStep3").style.display = "none";
+}
+function closeDonateModal(){ document.getElementById("donateModal").classList.remove("show"); }
+let allowCopyOnce = false;
+function copyCardNum(){
+  const num = "9224959877253706";
+  const done = ()=>{
+    document.getElementById("donateStep1").style.display = "none";
+    document.getElementById("donateStep2").style.display = "none";
+    document.getElementById("donateStep3").style.display = "";
+  };
+  const fallback = ()=>{
+    allowCopyOnce = true;
+    const ta = document.createElement("textarea");
+    ta.value = num; ta.setAttribute("readonly","");
+    ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); }catch(e){}
+    document.body.removeChild(ta);
+    done();
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(num).then(done).catch(fallback);
+  } else fallback();
+}
 function maybeShowWaModal(){
   if(!waCheck()) return;
   if(document.querySelector("#userModal.show, #apkModal.show")){ setTimeout(maybeShowWaModal, 1500); return; }
@@ -1649,7 +1720,8 @@ const PAGES = [
   {id:"predicciones", label:"Predicciones", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0V4z"/><path d="M7 6H4a1 1 0 00-1 1c0 2.5 2 4 4 4M17 6h3a1 1 0 011 1c0 2.5-2 4-4 4"/></svg>'},
   {id:"ranking", label:"Ranking", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M8.5 13L7 22l5-3 5 3-1.5-9"/></svg>'},
   {id:"grupos", label:"Grupos y canales", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>'},
-  {id:"calendario", label:"Calendario", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>'}
+  {id:"calendario", label:"Calendario", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>'},
+  {id:"donaciones", label:"Donaciones", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 00-7.8 7.8l1 1L12 21.2l7.8-7.8 1-1a5.5 5.5 0 000-7.8z"/></svg>'}
 ];
 const drawerNav = document.getElementById("drawerNav");
 PAGES.forEach(p=>{
@@ -1661,6 +1733,7 @@ const menuBtn = document.getElementById("menuBtn"), drawer = document.getElement
 menuBtn.onclick = ()=>{drawer.classList.add("open"); scrim.classList.add("show");};
 scrim.onclick = ()=>{drawer.classList.remove("open"); scrim.classList.remove("show");};
 function go(id){
+  if(id==="donaciones"){ drawer.classList.remove("open"); scrim.classList.remove("show"); openDonateModal(); return; }
   document.querySelectorAll("section.page").forEach(s=>s.classList.remove("active"));
   document.getElementById("pg-"+id).classList.add("active");
   document.querySelectorAll("[data-pg]").forEach(b=>b.classList.toggle("active", b.dataset.pg===id));
@@ -2056,7 +2129,7 @@ setTimeout(()=>{
   if(!getUser()) openUserModal();
 }, 1100);
 /* Bloquear selección y copia en la app; solo se permite pegar en los campos */
-document.addEventListener("copy", e=>e.preventDefault());
+document.addEventListener("copy", e=>{ if(typeof allowCopyOnce!=="undefined" && allowCopyOnce){ allowCopyOnce=false; return; } e.preventDefault(); });
 document.addEventListener("cut", e=>e.preventDefault());
 document.addEventListener("selectstart", e=>{
   const t = e.target;
