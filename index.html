@@ -1679,14 +1679,24 @@ function renderCalendario(){
   const h = new Date(calSel+"T12:00:00").toLocaleDateString("es-ES",{weekday:"long", day:"numeric", month:"long"});
   let head, body;
   if(games.length){
-    const nF = games.filter(g=>g.status==="final").length;
-    head = '<div class="caldate">'+h+' · '+games.length+' juegos'+(nF?' · '+nF+' finalizados':'')+'</div>';
-    body = games.map(g=>{
+    // Datos en vivo indexados por número de juego (traen el resultado actualizado)
+    const liveByNum = {};
+    (S.today||[]).concat(S.prev||[], S.upcoming||[], S.games||[]).forEach(x=>{
+      const n = gameNumId(x.id); if(n!=null) liveByNum[n] = x;
+    });
+    const merged = games.map(g=>{
       const id = "j"+g.id;
-      const g2 = {id:id, num:g.id, date:calSel, away:g.away, home:g.home, ar:g.ar, hr:g.hr, status:g.status, time:g.time, stadium:g.stadium};
+      const live = liveByNum[+g.id];
+      // Si hay datos en vivo del juego, se usan (resultado actualizado); si no, los del calendario
+      const g2 = live
+        ? {id:id, num:g.id, date:calSel, away:live.away||g.away, home:live.home||g.home, ar:live.ar, hr:live.hr, status:live.status, time:live.time||g.time, stadium:live.stadium||g.stadium}
+        : {id:id, num:g.id, date:calSel, away:g.away, home:g.home, ar:g.ar, hr:g.hr, status:g.status, time:g.time, stadium:g.stadium};
       CAL_BY_ID[id] = g2;
-      return gameCard(g2);
-    }).join("");
+      return g2;
+    });
+    const nF = merged.filter(g=>g.status==="final").length;
+    head = '<div class="caldate">'+h+' · '+games.length+' juegos'+(nF?' · '+nF+' finalizados':'')+'</div>';
+    body = merged.map(g2=>gameCard(g2)).join("");
   } else {
     head = '<div class="caldate">'+h+'</div>';
     body = restDayCard();
