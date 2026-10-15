@@ -224,6 +224,10 @@
 .vsteam .pbtxt small{color:var(--muted); font-weight:600; font-size:10px;}
 .vsmid{align-self:center; font-weight:800; color:var(--muted); font-size:11px; flex:none;}
 [data-theme="light"] .vsteam.sel{background:rgba(18,122,57,.1);}
+/* Indicador de scroll lateral en los carruseles de predicciones */
+.scrollhint{float:right; font-size:11px; font-weight:700; color:var(--muted); animation:hintNudge 1.8s ease-in-out infinite; transition:opacity .4s;}
+.scrollhint.done{opacity:0; animation:none;}
+@keyframes hintNudge{0%,100%{transform:translateX(0);}50%{transform:translateX(7px);}}
 .clocktag{flex:none; font-size:10px; font-weight:800; color:var(--gold); border:1px solid var(--gold); padding:3px 8px; border-radius:12px; letter-spacing:.5px;}
 .clocktag.open{color:var(--green); border-color:var(--green);}
 [data-theme="light"] .pickbtn.sel{background:rgba(18,122,57,.1);}
@@ -257,7 +261,8 @@
 .ladder span.done{color:var(--text); border-color:var(--green);}
 .ladder span.on{background:var(--gold); border-color:var(--gold); color:#1a1a1a;}
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
-body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); padding-bottom:24px;}
+body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); padding-bottom:24px; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;}
+input, textarea{-webkit-user-select:text; user-select:text; -webkit-touch-callout:default;}
 header.topbar{position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:12px; padding:12px 16px; background:linear-gradient(135deg,#a4161a,#64100f); box-shadow:0 2px 12px rgba(0,0,0,.4);}
 header.topbar .ball{width:38px; height:38px; border-radius:50%; background:radial-gradient(circle at 35% 35%,#fff,#d7dee8); position:relative; flex:none; box-shadow:0 2px 6px rgba(0,0,0,.4);}
 header.topbar .ball::before, header.topbar .ball::after{content:""; position:absolute; top:4px; bottom:4px; width:10px; border:2px dashed #c0392b; border-radius:50%;}
@@ -336,6 +341,14 @@ table.st tr.me td:first-child{font-weight:800;}
 .teamcell{display:flex; align-items:center; gap:8px;}
 .teamcell .badge{width:26px; height:26px; font-size:9px;}
 .lead-card{display:flex; align-items:center; gap:12px; background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:12px; margin-bottom:10px;}
+/* Votación MVP */
+.mvp-card .info{flex:1; min-width:0;}
+.votebar{height:6px; background:var(--card2); border:1px solid var(--line); border-radius:4px; margin-top:6px; overflow:hidden;}
+.votebar div{height:100%; background:var(--gold); border-radius:4px; transition:width .4s;}
+.votecount{color:var(--muted); font-size:11px; display:block; margin-top:3px;}
+.votebtn{flex:none; align-self:center; padding:9px 18px; border-radius:20px; border:2px solid var(--gold); background:transparent; color:var(--gold); font-weight:800; font-size:12px; cursor:pointer;}
+.votebtn.voted{background:var(--gold); color:#1a1a1a; border-color:var(--gold);}
+.votebtn:active{transform:scale(.95);}
 .lead-card .pos{font-size:22px; font-weight:800; color:var(--gold); width:30px; text-align:center; flex:none;}
 .leadfoto{width:52px; height:52px; border-radius:50%; object-fit:cover; flex:none; background:var(--card2); border:2px solid var(--line);}
 .leadfoto.ini{display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:800; color:var(--gold);}
@@ -1051,16 +1064,60 @@ function renderLeaders(){
     return '<div class="lead-card"><div class="pos">'+(i+1)+'</div>'+foto+'<div class="info"><b>'+esc(l.name)+'</b><span>'+esc(t.name)+(l.pos?" · "+esc(l.pos):"")+'</span></div><div><div class="val">'+esc(l.val)+'</div><div class="lbl">'+esc(l.cat)+'</div></div></div>';
   }).join("");
 }
-function renderMvp(){
+/* Votos del MVP: se agregan en el canal y se leen de votes.json (cada 5 min) */
+const VOTES_URLS = ["votes.json","https://tecnobum.github.io/lapelotacubana/votes.json"];
+let MVP_VOTES = null, MVP_CANDS = [];
+async function loadMvpVotes(){
+  if(MVP_VOTES) return MVP_VOTES;
+  for(const u of VOTES_URLS){
+    try{
+      const r = await fetch(u+"?t="+Date.now(),{cache:"no-store"});
+      if(r.ok){ const j=await r.json(); if(j&&j.counts){ MVP_VOTES=j; return j; } }
+    }catch(e){}
+  }
+  return {counts:{}, total:0};
+}
+async function voteMvp(i){
+  const c = MVP_CANDS[i]; if(!c) return;
+  const u = getUser();
+  if(!u || !u.name){ openUserModal(); toast("Pon tu nombre para votar"); return; }
+  const name = String(u.name).replace(/\|/g," ").slice(0,30).trim();
+  if(!name){ openUserModal(); return; }
+  try{
+    await fetch("https://api.telegram.org/bot"+RANKBOT.token+"/sendMessage",{
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({chat_id:RANKBOT.chat, text:"VOTE|"+getUid()+"|"+name+"|"+String(c.name).replace(/\|/g," ").slice(0,40)})
+    });
+    try{ localStorage.setItem("lpc-mvp-vote", c.name); }catch(e){}
+    toast("Voto registrado para "+c.name);
+    MVP_VOTES = null;
+    renderMvp();
+  }catch(e){ toast("No se pudo votar, revisa tu conexión"); }
+}
+async function renderMvp(){
   const m = S.mvp || {bateo:[], pitcheo:[]};
+  const votes = await loadMvpVotes();
+  const counts = (votes&&votes.counts)||{};
+  const total = (votes&&votes.total)||0;
+  let myVote = "";
+  try{ myVote = localStorage.getItem("lpc-mvp-vote")||""; }catch(e){}
+  MVP_CANDS = (m.bateo||[]).concat(m.pitcheo||[]);
+  let idx = -1;
   const card = (c)=>{
+    idx++;
     const t = TEAMS[c.team] || null;
-    return '<div class="lead-card"><img class="leadfoto" src="'+c.img+'" alt="" loading="lazy" onerror="this.remove()">'
-      +'<div class="info"><b>'+esc(c.name)+'</b><span>'+esc(t?t.name:c.team)+(c.pos?" · "+esc(c.pos):"")+'</span></div></div>';
+    const v = counts[c.name]||0;
+    const pct = total ? Math.round(v/total*100) : 0;
+    const voted = myVote===c.name;
+    return '<div class="lead-card mvp-card"><img class="leadfoto" src="'+c.img+'" alt="" loading="lazy" onerror="this.remove()">'
+      +'<div class="info"><b>'+esc(c.name)+'</b><span>'+esc(t?t.name:c.team)+(c.pos?" · "+esc(c.pos):"")+'</span>'
+      +'<div class="votebar"><div style="width:'+pct+'%"></div></div>'
+      +'<small class="votecount">'+v+' voto'+(v===1?"":"s")+' · '+pct+'%</small></div>'
+      +'<button class="votebtn'+(voted?" voted":"")+'" onclick="voteMvp('+idx+')">'+(voted?"✓ Votado":"Votar")+'</button></div>';
   };
   let h = "";
-  if(m.bateo && m.bateo.length) h += '<div class="gmeta" style="margin:4px 0 8px">Bateo</div>' + m.bateo.map(card).join("");
-  if(m.pitcheo && m.pitcheo.length) h += '<div class="gmeta" style="margin:12px 0 8px">Pitcheo</div>' + m.pitcheo.map(card).join("");
+  if(m.bateo && m.bateo.length) h += '<div class="gmeta" style="margin:4px 0 8px">Bateo · toca Votar por tu favorito</div>' + m.bateo.map(card).join("");
+  if(m.pitcheo && m.pitcheo.length) h += '<div class="gmeta" style="margin:12px 0 8px">Pitcheo · toca Votar por tu favorito</div>' + m.pitcheo.map(card).join("");
   document.getElementById("leadersList").innerHTML = h || '<div class="empty">Aún no hay candidatos publicados.</div>';
 }
 document.getElementById("tabBat").onclick = ()=>{leadersTab="bat"; renderLeaders();};
@@ -1235,16 +1292,25 @@ function renderPredicciones(){
   const carrusel = (d)=>'<div class="pickgames">'+byDay[d].map(g=>vsCard(g, d===hp.dstr)).join("")+'</div>';
   if(days.length){
     const d0 = days[0];
-    document.getElementById("pickTodayTitle").textContent = (d0===hp.dstr ? "Hoy · " : "")+fmtDate(d0);
+    document.getElementById("pickTodayTitle").innerHTML = (d0===hp.dstr ? "Hoy · " : "")+fmtDate(d0)+' <span class="scrollhint" id="hintToday">desliza &rarr;</span>';
     document.getElementById("pickList").innerHTML = carrusel(d0);
     if(days.length>1){
       const d1 = days[1];
-      document.getElementById("pickNextTitle").textContent = "Próxima fecha · "+fmtDate(d1);
+      document.getElementById("pickNextTitle").innerHTML = "Próxima fecha · "+fmtDate(d1)+' <span class="scrollhint" id="hintNext">desliza &rarr;</span>';
       document.getElementById("pickNext").innerHTML = carrusel(d1);
       document.getElementById("pickNextCard").style.display = "";
     } else {
       document.getElementById("pickNextCard").style.display = "none";
     }
+    // Oculta el indicador cuando el usuario ya deslizó
+    [["hintToday","pickList"],["hintNext","pickNext"]].forEach(([hid, cid])=>{
+      const car = document.querySelector("#"+cid+" .pickgames");
+      const hint = document.getElementById(hid);
+      if(car && hint){
+        hint.classList.remove("done");
+        car.onscroll = ()=>{ if(car.scrollLeft > 30) hint.classList.add("done"); };
+      }
+    });
   } else {
     document.getElementById("pickList").innerHTML = '<div class="empty">No hay juegos próximos para pronosticar.</div>';
     document.getElementById("pickNextCard").style.display = "none";
@@ -1989,6 +2055,17 @@ setTimeout(maybeShowWaModal, 1700);
 setTimeout(()=>{
   if(!getUser()) openUserModal();
 }, 1100);
+/* Bloquear selección y copia en la app; solo se permite pegar en los campos */
+document.addEventListener("copy", e=>e.preventDefault());
+document.addEventListener("cut", e=>e.preventDefault());
+document.addEventListener("selectstart", e=>{
+  const t = e.target;
+  if(!(t && (t.tagName==="INPUT" || t.tagName==="TEXTAREA"))) e.preventDefault();
+});
+document.addEventListener("contextmenu", e=>{
+  const t = e.target;
+  if(!(t && (t.tagName==="INPUT" || t.tagName==="TEXTAREA"))) e.preventDefault();
+});
 </script>
 <script>
 /* Contador de visitas: sin cookies, una vez por sesión. Total y por día (hora de Cuba). */
