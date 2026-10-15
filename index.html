@@ -1265,7 +1265,11 @@ function setPick(num, side){
   const p = getPicks();
   p[num] = {side:side, away:g.away, home:g.home, date:g.date};
   savePicks(p);
+  // No perder la posición del carrusel al re-renderizar (bug: volvía al inicio)
+  const sc = {};
+  ["pickList","pickNext"].forEach(cid=>{ const car=document.querySelector("#"+cid+" .pickgames"); if(car) sc[cid]=car.scrollLeft; });
   renderPredicciones();
+  requestAnimationFrame(()=>{ ["pickList","pickNext"].forEach(cid=>{ const car=document.querySelector("#"+cid+" .pickgames"); if(car&&sc[cid]) car.scrollLeft=sc[cid]; }); });
 }
 /* Cierre de pronósticos: 1:00 PM hora de Cuba el día del juego */
 function habanaParts(){
