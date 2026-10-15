@@ -291,6 +291,16 @@ tr.ranknew td{animation:ranknewflash 2.2s ease;}
 @keyframes rankdownflash{0%{background:rgba(239,68,68,.24);}100%{background:transparent;}}
 @keyframes ranknewflash{0%{background:rgba(255,215,0,.32);}100%{background:transparent;}}
 .tag{display:inline-block; font-size:9px; font-weight:800; padding:3px 8px; border-radius:12px; background:var(--gold); color:#1a1a1a; letter-spacing:.5px; vertical-align:middle;}
+/* Concurso semanal */
+.cq{margin:12px 0; padding:12px; border:1px solid var(--line); border-radius:12px; background:var(--card2);}
+.cq b.q{display:block; margin-bottom:8px; font-size:14px; line-height:1.4;}
+.copt{display:block; width:100%; text-align:left; margin:6px 0; padding:10px 12px; border-radius:10px; border:1px solid var(--line); background:var(--bg); color:var(--text); font-size:14px; cursor:pointer;}
+.copt.sel{border-color:var(--gold); background:rgba(241,196,15,.12);}
+.copt.ok{border-color:#22c55e; background:rgba(34,197,94,.14);}
+.copt.bad{border-color:#ef4444; background:rgba(239,68,68,.14);}
+.copt:disabled{cursor:default;}
+.cwin{background:linear-gradient(135deg,rgba(241,196,15,.16),rgba(241,196,15,.05)); border:1px solid var(--gold); border-radius:12px; padding:12px; margin:12px 0; font-size:14px;}
+.cwin b{color:var(--gold);}
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
 body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); padding-bottom:24px; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;}
 input, textarea{-webkit-user-select:text; user-select:text; -webkit-touch-callout:default;}
@@ -567,6 +577,12 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
     <div class="card"><h3>🏆 Ranking global</h3>
       <div class="gmeta" style="margin-bottom:10px">Todos los jugadores ordenados por puntos de predicciones. Tus puntos se sincronizan automáticamente.</div>
       <div id="rankTable"><div class="empty">Cargando ranking…</div></div>
+    </div>
+  </section>
+  <section class="page" id="pg-concurso">
+    <div class="card"><h3>🎁 Concurso semanal</h3>
+      <div class="gmeta" style="margin-bottom:10px">5 preguntas sobre béisbol cubano. Acierta las 5 y entras al sorteo de 3 ganadores cada sábado.</div>
+      <div id="concursoBox"><div class="empty">Cargando concurso…</div></div>
     </div>
   </section>
   <section class="page" id="pg-grupos">
@@ -1802,6 +1818,7 @@ const PAGES = [
   {id:"envivo", label:"En Vivo", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M8.5 8.5a5 5 0 000 7M15.5 8.5a5 5 0 010 7M5.6 5.6a9 9 0 000 12.8M18.4 5.6a9 9 0 010 12.8"/></svg>'},
   {id:"predicciones", label:"Predicciones", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0V4z"/><path d="M7 6H4a1 1 0 00-1 1c0 2.5 2 4 4 4M17 6h3a1 1 0 011 1c0 2.5-2 4-4 4"/></svg>'},
   {id:"ranking", label:"Ranking", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M8.5 13L7 22l5-3 5 3-1.5-9"/></svg>'},
+  {id:"concurso", label:"Concurso", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7c-1.5 0-4.2-.3-5.2-2C6 3.6 7 2.5 8.3 2.7 10 3 12 7 12 7zm0 0c1.5 0 4.2-.3 5.2-2 .8-1.4-.2-2.5-1.5-2.3C14 3 12 7 12 7z"/></svg>'},
   {id:"grupos", label:"Grupos y canales", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>'},
   {id:"calendario", label:"Calendario", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>'},
   {id:"donaciones", label:"Donaciones", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 00-7.8 7.8l1 1L12 21.2l7.8-7.8 1-1a5.5 5.5 0 000-7.8z"/></svg>'}
@@ -1825,6 +1842,7 @@ function go(id){
   if(id==="envivo") initEnvivo();
   if(id==="predicciones"){ renderUserChip(); renderPredicciones(); }
   if(id==="ranking"){ loadRank(); syncRank(); }
+  if(id==="concurso") loadConcurso();
   if(id==="grupos") renderCanales();
   if(id==="calendario") renderCalendario();
   window.scrollTo({top:0, behavior:"smooth"});
@@ -1932,6 +1950,100 @@ async function loadRank(){
     +rows+'</table></div>'
     +'<div class="gmeta" style="margin-top:8px">Actualizado: '+esc(d.updated||"")
     +' · Tus puntos y medallas se sincronizan automáticamente.</div>';
+}
+/* ============ CONCURSO SEMANAL ============
+   5 preguntas de béisbol cubano; al acertar las 5 la app publica
+   CONCURSO|uid|nombre|semana y se entra al sorteo del sábado (3 ganadores). */
+const CONCURSO_URLS = ["concurso.json","https://tecnobum.github.io/lapelotacubana/concurso.json"];
+let CONCURSO = null, _cans = {};
+async function loadConcurso(){
+  const el = document.getElementById("concursoBox"); if(!el) return;
+  if(!CONCURSO){
+    for(const u of CONCURSO_URLS){
+      try{
+        const r = await fetch(u+"?t="+Date.now(),{cache:"no-store"});
+        if(r.ok){ const j=await r.json(); if(j&&j.questions&&j.questions.length){ CONCURSO=j; break; } }
+      }catch(e){}
+    }
+  }
+  renderConcurso();
+}
+function renderConcurso(){
+  const el = document.getElementById("concursoBox"); if(!el||!CONCURSO) return;
+  const wk = CONCURSO.week;
+  let html = "";
+  const wks = Object.keys(CONCURSO.winners||{}).sort().reverse();
+  if(wks.length){
+    html += '<div class="cwin"><b>🏆 Ganadores</b>'+wks.slice(0,3).map(w=>
+      '<div style="margin-top:6px"><small style="color:var(--muted)">Semana '+esc(w)+':</small><br><b>'+CONCURSO.winners[w].map(esc).join(" · ")+'</b></div>'
+    ).join("")+'</div>';
+  }
+  let done = null;
+  try{ done = JSON.parse(localStorage.getItem("lpc-concurso-"+wk)||"null"); }catch(e){}
+  if(done){
+    html += '<div class="cwin"><b>'+(done.score===5?"🎉 ¡Felicidades!":"📝 Tu resultado")+'</b><br>'
+      +'Acertaste <b>'+done.score+'/5</b> esta semana.'
+      +(done.entered?'<br><small>Ya estás participando en el sorteo del sábado. ¡Suerte! 🍀</small>':'')+'</div>';
+  } else {
+    _cans = {};
+    html += '<div class="gmeta" style="margin:10px 0">Marca una respuesta en cada pregunta y envía. Con 5/5 entras al sorteo del sábado.</div>'
+      + CONCURSO.questions.map((q,i)=>'<div class="cq"><b class="q">'+(i+1)+'. '+esc(q.q)+'</b>'
+        + q.opts.map((o,j)=>'<button class="copt" id="cq-'+i+'-'+j+'" onclick="pickConcurso('+i+','+j+')">'+esc(o)+'</button>').join("")
+        +'</div>').join("")
+      + '<button class="btn primary" id="csubmit" style="width:100%;margin-top:6px" onclick="submitConcurso()">Enviar respuestas</button>'
+      + '<div id="cmsg" style="margin-top:10px"></div>';
+  }
+  el.innerHTML = html;
+}
+function pickConcurso(i,j){
+  _cans[i]=j;
+  CONCURSO.questions[i].opts.forEach((_,k)=>{
+    const b=document.getElementById("cq-"+i+"-"+k);
+    if(b) b.classList.toggle("sel", k===j);
+  });
+}
+function retryConcurso(){
+  try{ localStorage.removeItem("lpc-concurso-"+CONCURSO.week); }catch(e){}
+  renderConcurso();
+}
+async function submitConcurso(){
+  const qs = CONCURSO.questions, wk = CONCURSO.week;
+  const msg = document.getElementById("cmsg");
+  for(let i=0;i<qs.length;i++){
+    if(_cans[i]===undefined){ msg.innerHTML='<div class="empty">Responde las 5 preguntas primero.</div>'; return; }
+  }
+  const sb = document.getElementById("csubmit"); if(sb) sb.style.display="none";
+  let score=0;
+  qs.forEach((q,i)=>{
+    const ok = _cans[i]===q.ok;
+    if(ok) score++;
+    q.opts.forEach((_,k)=>{
+      const b=document.getElementById("cq-"+i+"-"+k);
+      if(!b) return;
+      b.disabled=true; b.classList.remove("sel");
+      if(k===q.ok) b.classList.add("ok");
+      else if(k===_cans[i]) b.classList.add("bad");
+    });
+  });
+  let entered=false;
+  if(score===5){
+    try{
+      const u=getUser()||{};
+      const name=String(u.name||"").replace(/\|/g," ").slice(0,30).trim();
+      if(name){
+        await fetch("https://api.telegram.org/bot"+RANKBOT.token+"/sendMessage",{
+          method:"POST", headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({chat_id:RANKBOT.chat, text:"CONCURSO|"+getUid()+"|"+name+"|"+wk})
+        });
+        entered=true;
+      }
+    }catch(e){}
+  }
+  try{ localStorage.setItem("lpc-concurso-"+wk, JSON.stringify({score:score, entered:entered})); }catch(e){}
+  msg.innerHTML = score===5
+    ? '<div class="cwin"><b>🎉 ¡5/5! Ya estás en el sorteo del sábado. ¡Suerte! 🍀</b></div>'
+    : '<div class="empty">Acertaste '+score+'/5. Las correctas están en verde.</div>'
+      +'<button class="btn primary" style="width:100%;margin-top:8px" onclick="retryConcurso()">Intentar de nuevo</button>';
 }
 /* ============ SCRAPER EN VIVO (segundo plano, no bloquea) ============ */
 async function fetchLiveHTML(){
