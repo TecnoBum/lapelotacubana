@@ -2337,6 +2337,7 @@ function loadIntLeague(){
   const body = document.getElementById("intBody");
   const lg = INT_LEAGUES.find(l => l.id === intTab);
   if (!lg) return;
+  if (intTab === "npb" || intTab === "kbo"){ loadIntLive(lg); return; }
   if (!lg.live){
     let h = '<div class="intleague"><div class="eyebrow">' + lg.name + ' · ' + lg.place + '</div>'
       + '<h3>' + lg.full + '</h3>'
@@ -2349,6 +2350,46 @@ function loadIntLeague(){
     return;
   }
   loadMLB(body);
+}
+
+async function loadIntLive(lg){
+  const body = document.getElementById("intBody");
+  body.innerHTML = '<div class="empty">Cargando ' + lg.name + '…</div>';
+  let h = "";
+  try {
+    const r = await fetch("https://tecnobum.github.io/lapelotacubana/int_leagues.json", {cache:"no-store"});
+    if (!r.ok) throw new Error("http " + r.status);
+    const d = await r.json();
+    const sec = d[intTab];
+    const games = (sec && sec.games) || [];
+    if (games.length){
+      h += '<div class="eyebrow">' + lg.name + ' · ' + games.length + ' juego' + (games.length > 1 ? "s" : "") + '</div><div class="mlblist">';
+      games.forEach(function(g){
+        const done = g.status === "final";
+        const live = g.status === "live";
+        h += '<div class="mlbcard' + (live ? " live" : "") + '">'
+          + '<div class="mlbstatus">' + (live ? '<span class="livedot"></span> EN VIVO' : done ? "FINAL" : (g.round || g.detail || "Programado")) + "</div>"
+          + '<div class="mlbteam' + (done && +g.ar > +g.hr ? " win" : "") + '"><span>' + g.away + "</span><b>" + (g.ar != null ? g.ar : "–") + "</b></div>"
+          + '<div class="mlbteam' + (done && +g.hr > +g.ar ? " win" : "") + '"><span>' + g.home + "</span><b>" + (g.hr != null ? g.hr : "–") + "</b></div>"
+          + ((g.stadium || g.meta) ? '<div class="mlbdetail">' + (g.stadium || "") + (g.stadium && g.meta ? " · " : "") + (g.meta || "") + "</div>" : "")
+          + "</div>";
+      });
+      h += "</div>";
+    } else {
+      h += '<div class="empty">Hoy no hay juegos de ' + lg.name + '.</div>';
+    }
+  } catch(e){
+    h += '<div class="empty">No se pudo cargar ' + lg.name + ' ahora mismo.</div>';
+  }
+  // ficha informativa debajo
+  h += '<div class="intleague" style="margin-top:14px"><div class="eyebrow">' + lg.name + ' · ' + lg.place + '</div>'
+    + '<h3>' + lg.full + '</h3>'
+    + '<p class="gmeta">' + lg.desc + '</p>'
+    + '<div class="intseason">' + lg.temporada + '</div>'
+    + '<h4>Equipos (' + lg.teams.length + ')</h4><div class="intteams">'
+    + lg.teams.map(function(nm){ return '<span class="intteam">' + nm + '</span>'; }).join("")
+    + '</div><h4>Formato de competencia</h4><p class="gmeta">' + lg.formato + '</p></div>';
+  body.innerHTML = h;
 }
 
 async function loadMLB(body){
