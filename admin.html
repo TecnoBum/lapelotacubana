@@ -5,88 +5,133 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Panel de Administración · La Pelota Cubana</title>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif; background:#0d0f14; color:#e8eaf0; min-height:100vh; padding:20px 16px 40px; }
-  .top { max-width:560px; margin:0 auto; }
-  h1 { font-size:20px; font-weight:800; letter-spacing:.2px; }
-  h1 span { color:#e63329; }
-  .sub { color:#9aa3b2; font-size:13px; margin:4px 0 18px; }
-  .cards { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .card { background:#161a23; border:1px solid #232836; border-radius:14px; padding:16px 14px; }
-  .card .lbl { font-size:11px; text-transform:uppercase; letter-spacing:.8px; color:#9aa3b2; }
-  .card .num { font-size:32px; font-weight:800; margin-top:6px; line-height:1; }
-  .card.hero { grid-column:1 / -1; background:linear-gradient(135deg,#8f0f0a,#c8101e); border:none; }
-  .card.hero .lbl { color:#ffd9d4; }
-  .card.hero .num { font-size:44px; }
-  .card.wide { grid-column:1 / -1; }
-  .prog { background:#20242f; border-radius:999px; height:10px; overflow:hidden; margin-top:10px; }
-  .prog div { height:100%; background:#4ade80; border-radius:999px; }
-  .panel { background:#161a23; border:1px solid #232836; border-radius:14px; padding:16px 14px; margin-top:12px; }
-  .panel h2 { font-size:13px; text-transform:uppercase; letter-spacing:.8px; color:#9aa3b2; margin-bottom:14px; }
-  .estado { font-size:14px; line-height:1.7; color:#c8cdd8; }
-  .estado b { color:#fff; }
-  .dot { display:inline-block; width:9px; height:9px; border-radius:50%; background:#4ade80; margin-right:6px; }
-  .dot.bad { background:#ff8f86; }
-  .cmp { display:flex; justify-content:space-between; align-items:center; padding:10px 2px; border-bottom:1px solid #20242f; }
-  .cmp:last-child { border-bottom:none; }
-  .cmp .t { font-size:14px; color:#c8cdd8; }
-  .cmp .t small { display:block; color:#7c8496; font-size:12px; margin-top:2px; }
-  .chip { font-size:12px; font-weight:700; padding:4px 9px; border-radius:999px; white-space:nowrap; }
-  .up { background:#12351f; color:#4ade80; }
-  .down { background:#3d1a16; color:#ff8f86; }
-  .flat { background:#232836; color:#9aa3b2; }
-  .chart { display:flex; align-items:flex-end; gap:4px; height:150px; }
-  .col { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; min-width:0; }
-  .col .v { font-size:10px; color:#c8cdd8; margin-bottom:4px; }
-  .col .bar { width:100%; max-width:26px; background:#39415a; border-radius:5px 5px 0 0; min-height:3px; }
-  .col.today .bar { background:#e63329; }
-  .col .d { font-size:9px; color:#7c8496; margin-top:6px; white-space:nowrap; }
-  .hrow { display:flex; align-items:center; gap:10px; padding:7px 0; }
-  .hrow .nm { width:118px; font-size:13px; color:#c8cdd8; flex-shrink:0; }
-  .hrow .nm.s { width:52px; }
-  .hrow .track { flex:1; background:#20242f; border-radius:6px; height:16px; overflow:hidden; }
-  .hrow .fill { height:100%; background:#e63329; border-radius:6px; min-width:2px; }
-  .hrow .fill.t { background:#d9a441; }
-  .hrow .fill.star { background:#d9a441; }
-  .hrow .vl { width:86px; text-align:right; font-size:12px; font-weight:700; flex-shrink:0; }
-  .hrow .vl small { display:block; font-weight:400; color:#7c8496; font-size:10px; }
-  .row { display:flex; justify-content:space-between; padding:9px 2px; border-bottom:1px solid #20242f; font-size:14px; }
-  .row:last-child { border-bottom:none; }
-  .row .f { color:#c8cdd8; text-transform:capitalize; }
-  .row .n { font-weight:700; }
-  .row.today .f, .row.today .n { color:#ff6f66; }
-  .ver { padding:10px 2px; border-bottom:1px solid #20242f; font-size:14px; }
-  .ver:last-child { border-bottom:none; }
-  .ver .a { display:flex; justify-content:space-between; }
-  .ver .a b { color:#fff; }
-  .ver small { color:#7c8496; font-size:12px; display:block; margin-top:2px; }
-  .aviso { background:#12151d; border:1px solid #232836; border-left:4px solid #d9a441; border-radius:10px; padding:11px 12px; margin-bottom:9px; font-size:14px; line-height:1.45; }
-  .aviso small { display:block; color:#7c8496; font-size:11px; margin-top:3px; }
-  .aviso.bueno { border-left-color:#4ade80; }
-  .fld { margin-bottom:14px; }
-  .fld label { display:block; font-size:13px; color:#c8cdd8; margin-bottom:6px; }
-  .fld input[type=number], .fld select, .fld textarea { width:100%; background:#0d0f14; border:1px solid #2a3040; border-radius:10px; padding:11px; color:#fff; font-size:15px; font-family:inherit; }
-  .fld textarea { min-height:76px; resize:vertical; }
-  .chk { display:flex; align-items:center; gap:10px; font-size:14px; color:#c8cdd8; padding:6px 0; }
-  .chk input { width:20px; height:20px; accent-color:#e63329; }
-  button, .btnlink { display:block; width:100%; margin-top:10px; background:#e63329; color:#fff; border:none; border-radius:12px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; text-align:center; text-decoration:none; }
-  button:active { opacity:.85; }
-  button.ghost, .btnlink.ghost { background:transparent; border:1px solid #2a3040; color:#c8cdd8; font-weight:600; }
-  .btnlink.wa { background:#177a3e; }
-  .foot { color:#7c8496; font-size:12px; text-align:center; margin-top:14px; line-height:1.6; }
-  .err { color:#ff9d94; font-size:13px; text-align:center; margin-top:10px; display:none; }
-  #lock { position:fixed; inset:0; background:#0d0f14; z-index:50; display:none; align-items:center; justify-content:center; padding:20px; }
-  #lock .box { background:#161a23; border:1px solid #232836; border-radius:16px; padding:24px; width:100%; max-width:330px; }
-  #lock input { width:100%; background:#0d0f14; border:1px solid #2a3040; border-radius:10px; padding:12px; color:#fff; font-size:16px; margin-top:12px; }
-  .vuelve { display:block; text-align:center; color:#9aa3b2; font-size:13px; margin-top:14px; }
+  :root{
+    --rojo:#e63329; --rojo-d:#8f0f0a; --bg:#0b0d12; --card:#141821; --card2:#10141c;
+    --line:#232a38; --txt:#e9ecf3; --mut:#9aa3b5; --mut2:#6f7889;
+    --verde:#4ade80; --dorado:#e8b64c; --azul:#5aa9ff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
+  /* ---------- encabezado ---------- */
+  .topbar{position:sticky;top:0;z-index:20;background:rgba(11,13,18,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .topbar .in{max-width:640px;margin:0 auto;padding:14px 16px 0}
+  .hrow1{display:flex;align-items:center;gap:10px}
+  .ball{width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#ff6f66,var(--rojo) 55%,var(--rojo-d));display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+  h1{font-size:18px;font-weight:800;letter-spacing:.2px}
+  h1 span{color:var(--rojo)}
+  .sub{color:var(--mut);font-size:12px;margin-top:2px}
+  .pill{margin-left:auto;font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;background:#17202c;color:var(--mut);white-space:nowrap;display:flex;align-items:center;gap:6px}
+  .pill .dot{width:8px;height:8px;border-radius:50%;background:var(--mut2)}
+  .pill.ok{color:var(--verde)} .pill.ok .dot{background:var(--verde);box-shadow:0 0 8px var(--verde)}
+  .pill.warn{color:var(--dorado)} .pill.warn .dot{background:var(--dorado)}
+  /* ---------- pestañas ---------- */
+  .tabs{display:flex;gap:4px;overflow-x:auto;padding:12px 0 0;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:1;min-width:86px;background:transparent;border:none;color:var(--mut);font-size:13px;font-weight:700;padding:10px 6px;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;font-family:inherit}
+  .tab.on{color:#fff;border-bottom-color:var(--rojo)}
+  /* ---------- contenido ---------- */
+  .wrap{max-width:640px;margin:0 auto;padding:16px 16px 48px}
+  .tabpage{display:none} .tabpage.on{display:block;animation:fade .18s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 14px;margin-bottom:12px}
+  .panel h2{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--mut);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .panel h2 .ico{font-size:15px}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px 14px;position:relative;overflow:hidden}
+  .card .lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--mut)}
+  .card .num{font-size:31px;font-weight:800;margin-top:6px;line-height:1;font-variant-numeric:tabular-nums}
+  .card .sub2{font-size:11.5px;color:var(--mut2);margin-top:5px}
+  .card.hero{grid-column:1/-1;background:linear-gradient(135deg,#8f0f0a,#d21a12 60%,#a3120b);border:none}
+  .card.hero .lbl{color:#ffd9d4} .card.hero .num{font-size:42px}
+  .card.hero::after{content:'⚾';position:absolute;right:10px;top:6px;font-size:64px;opacity:.16;transform:rotate(-18deg)}
+  .prog{background:#20242f;border-radius:999px;height:10px;overflow:hidden;margin-top:10px}
+  .prog div{height:100%;background:linear-gradient(90deg,var(--verde),#22c55e);border-radius:999px;transition:width .5s}
+  .estado{font-size:14px;line-height:1.75;color:#c8cdd8}
+  .estado b{color:#fff}
+  .dotok{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--verde);margin-right:6px;box-shadow:0 0 6px var(--verde)}
+  .dotbad{display:inline-block;width:9px;height:9px;border-radius:50%;background:#ff8f86;margin-right:6px}
+  .pulse{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--rojo);margin-right:6px;animation:pl 1.1s infinite}
+  @keyframes pl{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.75)}}
+  .cmp{display:flex;justify-content:space-between;align-items:center;padding:10px 2px;border-bottom:1px solid #1d2330}
+  .cmp:last-child{border-bottom:none}
+  .cmp .t{font-size:14px;color:#c8cdd8}
+  .cmp .t small{display:block;color:var(--mut2);font-size:12px;margin-top:2px}
+  .chip{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;white-space:nowrap}
+  .up{background:#12351f;color:var(--verde)} .down{background:#3d1a16;color:#ff8f86} .flat{background:#232836;color:var(--mut)}
+  /* jornada */
+  .jg{display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid #1d2330;font-size:14px}
+  .jg:last-child{border-bottom:none}
+  .jg .eq{font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .jg .mk{font-weight:800;font-variant-numeric:tabular-nums;background:#0d1017;border:1px solid var(--line);padding:5px 10px;border-radius:9px;font-size:14px}
+  .jg .st{font-size:11.5px;color:var(--mut);text-align:right;min-width:86px;line-height:1.5}
+  .jg .st.live{color:#ff8f86;font-weight:700}
+  /* gráficas */
+  .chart{display:flex;align-items:flex-end;gap:4px;height:158px}
+  .col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;min-width:0}
+  .col .v{font-size:10px;color:#c8cdd8;margin-bottom:4px;font-variant-numeric:tabular-nums}
+  .col .bar{width:100%;max-width:26px;background:#39415a;border-radius:5px 5px 0 0;min-height:3px}
+  .col.today .bar{background:var(--rojo)} .col.today .v{color:#ff8f86;font-weight:700}
+  .col .d{font-size:9px;color:var(--mut2);margin-top:6px;white-space:nowrap}
+  .hrow{display:flex;align-items:center;gap:10px;padding:7px 0}
+  .hrow .nm{width:120px;font-size:13px;color:#c8cdd8;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hrow .track{flex:1;background:#20242f;border-radius:6px;height:16px;overflow:hidden}
+  .hrow .fill{height:100%;background:var(--rojo);border-radius:6px;min-width:2px}
+  .hrow .fill.t{background:var(--dorado)} .hrow .fill.v{background:var(--azul)} .hrow .fill.g{background:var(--verde)}
+  .hrow .vl{width:88px;text-align:right;font-size:12px;font-weight:700;flex-shrink:0;font-variant-numeric:tabular-nums}
+  .hrow .vl small{display:block;font-weight:400;color:var(--mut2);font-size:10px}
+  .row{display:flex;justify-content:space-between;padding:9px 2px;border-bottom:1px solid #1d2330;font-size:14px}
+  .row:last-child{border-bottom:none}
+  .row .f{color:#c8cdd8;text-transform:capitalize} .row .n{font-weight:700;font-variant-numeric:tabular-nums}
+  .row.today .f,.row.today .n{color:#ff6f66}
+  .ver{padding:10px 2px;border-bottom:1px solid #1d2330;font-size:14px}
+  .ver:last-child{border-bottom:none}
+  .ver .a{display:flex;justify-content:space-between} .ver .a b{color:#fff}
+  .ver small{color:var(--mut2);font-size:12px;display:block;margin-top:2px}
+  .aviso{background:var(--card2);border:1px solid var(--line);border-left:4px solid var(--dorado);border-radius:10px;padding:11px 12px;margin-bottom:9px;font-size:14px;line-height:1.45}
+  .aviso small{display:block;color:var(--mut2);font-size:11px;margin-top:3px}
+  .aviso.bueno{border-left-color:var(--verde)}
+  .rankrow{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid #1d2330;font-size:14px}
+  .rankrow:last-child{border-bottom:none}
+  .pos{width:30px;height:30px;border-radius:50%;background:#20242f;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0}
+  .rankrow:nth-child(1) .pos{background:#e8b64c;color:#3a2a08}
+  .rankrow:nth-child(2) .pos{background:#c0c7d1;color:#2a2e36}
+  .rankrow:nth-child(3) .pos{background:#b07a3f;color:#2e1d08}
+  .rankrow .nm{flex:1;min-width:0} .rankrow .nm b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rankrow .nm small{color:var(--mut2);font-size:11.5px}
+  .rankrow .pt{font-weight:800;color:var(--dorado);font-variant-numeric:tabular-nums}
+  /* formularios */
+  .fld{margin-bottom:14px}
+  .fld label{display:block;font-size:13px;color:#c8cdd8;margin-bottom:6px;font-weight:600}
+  .fld input[type=number],.fld select,.fld textarea{width:100%;background:#0b0d12;border:1px solid #2a3040;border-radius:10px;padding:11px;color:#fff;font-size:15px;font-family:inherit}
+  .fld textarea{min-height:70px;resize:vertical}
+  .fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:var(--rojo)}
+  .chk{display:flex;align-items:center;gap:10px;font-size:14px;color:#c8cdd8;padding:6px 0;cursor:pointer}
+  .chk input{width:20px;height:20px;accent-color:var(--rojo)}
+  button,.btnlink{display:block;width:100%;margin-top:10px;background:var(--rojo);color:#fff;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;font-family:inherit}
+  button:active{opacity:.85}
+  button.ghost,.btnlink.ghost{background:transparent;border:1px solid #2a3040;color:#c8cdd8;font-weight:600}
+  button.azul{background:#1d4ed8}
+  .btnrow{display:flex;gap:10px} .btnrow button{margin-top:10px}
+  .nota{background:#0d1420;border:1px dashed #2a3a55;border-radius:10px;padding:11px 12px;font-size:13px;color:#a9bcd8;line-height:1.6;margin-top:10px}
+  .nota code{background:#1a2233;padding:2px 7px;border-radius:6px;font-size:12.5px;color:#7fd0ff;word-break:break-all}
+  .foot{color:var(--mut2);font-size:12px;text-align:center;margin-top:14px;line-height:1.6}
+  .err{color:#ff9d94;font-size:13px;text-align:center;margin-top:10px;display:none}
+  #lock{position:fixed;inset:0;background:var(--bg);z-index:50;display:none;align-items:center;justify-content:center;padding:20px}
+  #lock .box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px 24px;width:100%;max-width:340px;text-align:center}
+  #lock .ball{margin:0 auto 12px;width:52px;height:52px;font-size:28px}
+  #lock input{width:100%;background:#0b0d12;border:1px solid #2a3040;border-radius:10px;padding:13px;color:#fff;font-size:16px;margin-top:14px;text-align:center}
+  #lock input:focus{outline:none;border-color:var(--rojo)}
+  .vuelve{display:block;text-align:center;color:var(--mut);font-size:13px;margin-top:14px;text-decoration:none}
+  .cmdbox{background:#0b0d12;border:1px solid #2a3040;border-radius:10px;padding:11px 12px;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:#7fd0ff;word-break:break-all;margin-top:8px;line-height:1.6}
 </style>
 </head>
 <body>
 
 <div id="lock">
   <div class="box">
-    <h1 style="font-size:18px">Panel de <span>Administración</span></h1>
-    <p class="sub" style="margin:6px 0 0">Área privada. Escribe la contraseña para entrar.</p>
+    <div class="ball">⚾</div>
+    <h1 style="font-size:19px">Panel de <span>Administración</span></h1>
+    <p class="sub" style="margin:6px 0 0">Área privada de La Pelota Cubana.</p>
     <input id="lockInput" type="password" placeholder="Contraseña" autocomplete="off">
     <p class="err" id="lockErr">Contraseña incorrecta.</p>
     <button id="lockBtn">Entrar</button>
@@ -94,178 +139,199 @@
   </div>
 </div>
 
-<div class="top" id="app" style="display:none">
-  <h1>Panel de <span>Administración</span></h1>
-  <p class="sub">La Pelota Cubana · visitas, aplicación, avisos y ajustes.</p>
+<div id="app" style="display:none">
+  <div class="topbar"><div class="in">
+    <div class="hrow1">
+      <div class="ball">⚾</div>
+      <div><h1>Panel de <span>Administración</span></h1><p class="sub">La Pelota Cubana</p></div>
+      <div class="pill" id="pillEstado"><span class="dot"></span><span id="pillTxt">Conectando…</span></div>
+    </div>
+    <div class="tabs" id="tabs">
+      <button class="tab on" data-tab="resumen">Resumen</button>
+      <button class="tab" data-tab="publicar">Publicar</button>
+      <button class="tab" data-tab="comunidad">Comunidad</button>
+      <button class="tab" data-tab="metricas">Métricas</button>
+      <button class="tab" data-tab="web">Web y APK</button>
+      <button class="tab" data-tab="ajustes">Ajustes</button>
+    </div>
+  </div></div>
 
-  <div class="panel" style="margin-top:0">
-    <h2>Estado de la web</h2>
-    <div class="estado" id="estado">Comprobando…</div>
-  </div>
+  <div class="wrap">
 
-  <div class="panel">
-    <h2>Aplicación en Apklis</h2>
-    <div id="apklis">Cargando…</div>
-  </div>
-
-  <div class="panel">
-    <h2>Publicar en la web (hoy)</h2>
-    <div class="fld">
-      <label>Cintillo superior</label>
-      <select id="pubCint">
-        <option value="1">Jornada de hoy (automático según los juegos)</option>
-        <option value="2">Actualiza la aplicación</option>
-        <option value="3">Canal de WhatsApp</option>
-      </select>
+  <!-- ============ RESUMEN ============ -->
+  <div class="tabpage on" id="pg-resumen">
+    <div class="panel">
+      <h2><span class="ico">📡</span> Estado del sistema</h2>
+      <div class="estado" id="pipeEstado">Comprobando…</div>
     </div>
-    <p class="estado" id="estCint" style="font-size:13px">Estado: …</p>
-    <button id="btnCintOn">Publicar cintillo</button>
-    <button class="ghost" id="btnCintOff">Quitar cintillo</button>
-    <div class="fld" style="margin-top:16px">
-      <label>Aviso en ventana (al abrir la web, una vez por sesión)</label>
-      <select id="pubAviso">
-        <option value="1">Canal de WhatsApp</option>
-        <option value="2">Actualiza la aplicación</option>
-        <option value="3">Haz tus predicciones</option>
-      </select>
+    <div class="panel">
+      <h2><span class="ico">⚾</span> Jornada de hoy</h2>
+      <div id="jornadaHoy"><p class="estado">Cargando…</p></div>
     </div>
-    <p class="estado" id="estAviso" style="font-size:13px">Estado: …</p>
-    <button id="btnAvisoOn">Publicar aviso</button>
-    <button class="ghost" id="btnAvisoOff">Quitar aviso</button>
-    <p class="foot" style="text-align:left">Vale para hoy (hora de Cuba): mañana amanece desactivado y lo publicas otra vez si quieres. El cintillo se puede cerrar con la ✕. Los textos se rellenan solos con los datos del día (juegos, versión).</p>
-  </div>
-
-  <div class="panel">
-    <h2>Banner del inicio</h2>
-    <div class="fld">
-      <label for="bannerUrls">Imágenes del banner (una URL por línea)</label>
-      <textarea id="bannerUrls" placeholder="https://ejemplo.com/foto1.jpg&#10;https://ejemplo.com/foto2.jpg"></textarea>
+    <div class="cards">
+      <div class="card hero"><div class="lbl">Visitas totales</div><div class="num" id="total">…</div><div class="sub2" id="totalSub"></div></div>
+      <div class="card"><div class="lbl">Hoy</div><div class="num" id="hoy">…</div><div class="sub2" id="hoySub"></div></div>
+      <div class="card"><div class="lbl">Ayer</div><div class="num" id="ayer">…</div></div>
+      <div class="card"><div class="lbl">Promedio diario (7 días)</div><div class="num" id="prom">…</div></div>
+      <div class="card"><div class="lbl">Últimos 7 días</div><div class="num" id="semana">…</div></div>
+      <div class="card" id="metaCard" style="display:none"><div class="lbl">Meta de hoy</div><div class="prog"><div id="metaBar" style="width:0%"></div></div><div class="estado" id="metaTxt" style="margin-top:8px;font-size:13px"></div></div>
+      <div class="card"><div class="lbl">Jugadores en el ranking</div><div class="num" id="jugadores">…</div><div class="sub2">puntos publicados por la app</div></div>
     </div>
-    <label class="chk"><input type="checkbox" id="bannerHide"> Ocultar el banner</label>
-    <p class="estado" id="estBanner" style="font-size:13px">Estado actual: …</p>
-    <button id="btnBannerOn">Aplicar banner</button>
-    <button class="ghost" id="btnBannerOff">Restablecer banner normal</button>
-    <p class="foot" style="text-align:left">Si dejas las URLs vacías y sin ocultar, el banner vuelve a las imágenes de siempre. Se aplica en unos minutos en la web y en la aplicación.</p>
-  </div>
-
-  <div class="panel">
-    <h2>Tema especial</h2>
-    <div class="fld">
-      <label for="selTema">Tema de la aplicación</label>
-      <select id="selTema">
-        <option value="normal">Normal</option>
-        <option value="halloween">🎃 Halloween</option>
-        <option value="navidad">🎄 Navidad</option>
-        <option value="finanio">🎆 Fin de año</option>
-      </select>
+    <div class="panel">
+      <h2><span class="ico">📊</span> Visitas · últimos 7 días</h2>
+      <div class="chart" id="chartMini"></div>
     </div>
-    <p class="estado" id="estTema" style="font-size:13px">Tema actual: …</p>
-    <button id="btnTemaOn">Aplicar tema</button>
-    <button class="ghost" id="btnTemaOff">Volver al tema normal</button>
-    <p class="foot" style="text-align:left">Tiñe la aplicación con los colores de la fiesta. Se aplica en unos minutos en la web y en la aplicación.</p>
-  </div>
-
-  <div class="cards" style="margin-top:12px">
-    <div class="card hero">
-      <div class="lbl">Visitas totales</div>
-      <div class="num" id="total">…</div>
-    </div>
-    <div class="card">
-      <div class="lbl">Hoy</div>
-      <div class="num" id="hoy">…</div>
-    </div>
-    <div class="card">
-      <div class="lbl">Ayer</div>
-      <div class="num" id="ayer">…</div>
-    </div>
-    <div class="card">
-      <div class="lbl">Promedio diario (7 días)</div>
-      <div class="num" id="prom">…</div>
-    </div>
-    <div class="card">
-      <div class="lbl">Últimos 7 días</div>
-      <div class="num" id="semana">…</div>
-    </div>
-    <div class="card wide" id="metaCard" style="display:none">
-      <div class="lbl">Meta de hoy</div>
-      <div class="prog"><div id="metaBar" style="width:0%"></div></div>
-      <div class="estado" id="metaTxt" style="margin-top:8px;font-size:13px"></div>
+    <div class="panel">
+      <h2><span class="ico">🔔</span> Avisos</h2>
+      <div id="avisos"></div>
     </div>
   </div>
 
-  <div class="panel">
-    <h2>Comparativas</h2>
-    <div id="comparativas"></div>
-  </div>
-
-  <div class="panel">
-    <h2 id="titGrafico">Visitas por día</h2>
-    <div class="chart" id="chart"></div>
-  </div>
-
-  <div class="panel">
-    <h2>Entradas por sección</h2>
-    <div id="secEntradas"></div>
-  </div>
-
-  <div class="panel">
-    <h2>Tiempo por sección (aprox.)</h2>
-    <div id="secTiempo"></div>
-  </div>
-
-  <div class="panel">
-    <h2>Notificaciones y avisos</h2>
-    <div id="avisos"></div>
-  </div>
-
-  <div class="panel">
-    <h2>Configuración</h2>
-    <div class="fld">
-      <label for="cfgMeta">Meta diaria de visitas (0 = sin meta)</label>
-      <input type="number" id="cfgMeta" min="0" step="1">
+  <!-- ============ PUBLICAR ============ -->
+  <div class="tabpage" id="pg-publicar">
+    <div class="panel">
+      <h2><span class="ico">📢</span> Cintillo superior (hoy)</h2>
+      <div class="fld"><label>Texto del cintillo</label>
+        <select id="pubCint">
+          <option value="1">Jornada de hoy (automático según los juegos)</option>
+          <option value="2">Actualiza la aplicación</option>
+          <option value="3">Canal de WhatsApp</option>
+        </select>
+      </div>
+      <p class="estado" id="estCint" style="font-size:13px">Estado: …</p>
+      <div class="btnrow"><button id="btnCintOn">Publicar</button><button class="ghost" id="btnCintOff">Quitar</button></div>
     </div>
-    <div class="fld">
-      <label for="cfgDias">Días en el gráfico y el detalle</label>
-      <select id="cfgDias">
-        <option value="7">7 días</option>
-        <option value="14">14 días</option>
-        <option value="30">30 días</option>
-      </select>
+    <div class="panel">
+      <h2><span class="ico">💬</span> Aviso en ventana (hoy)</h2>
+      <div class="fld"><label>Se muestra al abrir la web, una vez por sesión</label>
+        <select id="pubAviso">
+          <option value="1">Canal de WhatsApp</option>
+          <option value="2">Actualiza la aplicación</option>
+          <option value="3">Haz tus predicciones</option>
+        </select>
+      </div>
+      <p class="estado" id="estAviso" style="font-size:13px">Estado: …</p>
+      <div class="btnrow"><button id="btnAvisoOn">Publicar</button><button class="ghost" id="btnAvisoOff">Quitar</button></div>
+      <p class="foot" style="text-align:left">Vale para hoy (hora de Cuba). El cintillo se puede cerrar con la ✕. Los textos se rellenan solos con los datos del día.</p>
     </div>
-    <div class="fld">
-      <label for="cfgAuto">Actualización automática del panel</label>
-      <select id="cfgAuto">
-        <option value="0">Desactivada</option>
-        <option value="30">Cada 30 segundos</option>
-        <option value="60">Cada minuto</option>
-        <option value="300">Cada 5 minutos</option>
-      </select>
+    <div class="panel">
+      <h2><span class="ico">🖼️</span> Banner del inicio</h2>
+      <div class="fld"><label for="bannerUrls">Imágenes del banner (una URL por línea)</label>
+        <textarea id="bannerUrls" placeholder="https://ejemplo.com/foto1.jpg&#10;https://ejemplo.com/foto2.jpg"></textarea>
+      </div>
+      <label class="chk"><input type="checkbox" id="bannerHide"> Ocultar el banner</label>
+      <p class="estado" id="estBanner" style="font-size:13px">Estado actual: …</p>
+      <div class="btnrow">
+        <button class="azul" id="btnBannerCopy">Copiar comando</button>
+        <button class="ghost" id="btnBannerOff">Restablecer</button>
+      </div>
+      <div class="nota">El panel genera el comando y tú lo pegas como mensaje en tu <b>canal privado de Telegram</b> (donde están los bots). El sistema lo aplica solo en unos minutos y aquí verás el «Estado actual» actualizado. Sin claves en la página.</div>
+      <div class="cmdbox" id="bannerCmd" style="display:none"></div>
     </div>
-    <label class="chk"><input type="checkbox" id="cfgSolo"> Mostrar solo secciones con datos</label>
-    <label class="chk"><input type="checkbox" id="cfgAvisosNav"> Avisos del navegador por récord o meta (con el panel abierto)</label>
-    <button id="cfgGuardar">Guardar configuración</button>
-    <button class="ghost" id="cfgReset">Restablecer configuración</button>
-    <p class="foot" style="text-align:left">La configuración se guarda en este dispositivo (este navegador). La web es pública y sin servidor, así que estos ajustes no cambian la página para los demás.</p>
+    <div class="panel">
+      <h2><span class="ico">🎨</span> Tema especial</h2>
+      <div class="fld"><label for="selTema">Tema de la aplicación</label>
+        <select id="selTema">
+          <option value="normal">Normal</option>
+          <option value="halloween">🎃 Halloween</option>
+          <option value="navidad">🎄 Navidad</option>
+          <option value="finanio">🎆 Fin de año</option>
+        </select>
+      </div>
+      <p class="estado" id="estTema" style="font-size:13px">Tema actual: …</p>
+      <div class="btnrow">
+        <button class="azul" id="btnTemaCopy">Copiar comando</button>
+        <button class="ghost" id="btnTemaOff">Tema normal</button>
+      </div>
+      <div class="nota">Copia el comando y pégalo en tu <b>canal privado de Telegram</b>. Tiñe toda la aplicación con los colores de la fiesta en unos minutos.</div>
+      <div class="cmdbox" id="temaCmd" style="display:none"></div>
+    </div>
   </div>
 
-  <div class="panel">
-    <h2>Herramientas</h2>
-    <a class="btnlink ghost" href="./">Abrir la web pública</a>
-    <a class="btnlink ghost" href="https://apklis.cu/application/la.pelota.cubana.hoy" target="_blank" rel="noopener">Ficha de la aplicación en Apklis</a>
-    <a class="btnlink ghost" href="https://github.com/TecnoBum/lapelotacubana" target="_blank" rel="noopener">Repositorio en GitHub</a>
+  <!-- ============ COMUNIDAD ============ -->
+  <div class="tabpage" id="pg-comunidad">
+    <div class="panel">
+      <h2><span class="ico">🏆</span> Ranking global <span style="margin-left:auto;font-weight:400;text-transform:none;letter-spacing:0" id="rankUpd"></span></h2>
+      <div id="rankTop"><p class="estado">Cargando…</p></div>
+    </div>
+    <div class="panel">
+      <h2><span class="ico">🗳️</span> Votación del MVP <span style="margin-left:auto;font-weight:400;text-transform:none;letter-spacing:0" id="mvpUpd"></span></h2>
+      <div id="mvpVotes"><p class="estado">Cargando…</p></div>
+    </div>
+    <div class="panel">
+      <h2><span class="ico">🎁</span> Concurso semanal</h2>
+      <div id="concursoInfo"><p class="estado">Cargando…</p></div>
+    </div>
   </div>
 
-  <div class="panel">
-    <h2>Detalle por día</h2>
-    <div id="lista"></div>
+  <!-- ============ MÉTRICAS ============ -->
+  <div class="tabpage" id="pg-metricas">
+    <div class="panel">
+      <h2><span class="ico">⚖️</span> Comparativas</h2>
+      <div id="comparativas"></div>
+    </div>
+    <div class="panel">
+      <h2 id="titGrafico"><span class="ico">📈</span> Visitas por día</h2>
+      <div class="chart" id="chart"></div>
+    </div>
+    <div class="panel">
+      <h2><span class="ico">👆</span> Entradas por sección</h2>
+      <div id="secEntradas"></div>
+    </div>
+    <div class="panel">
+      <h2><span class="ico">⏱️</span> Tiempo por sección (aprox.)</h2>
+      <div id="secTiempo"></div>
+    </div>
+    <div class="panel">
+      <h2><span class="ico">🗓️</span> Detalle por día</h2>
+      <div id="lista"></div>
+      <button class="ghost" id="btnCSV">⬇ Descargar datos en CSV</button>
+    </div>
   </div>
 
-  <button id="btn">↻ Actualizar ahora</button>
-  <button class="ghost" id="bloquearBtn">Bloquear panel</button>
-  <p class="err" id="err">No se pudieron leer algunos datos. Revisa tu conexión e inténtalo de nuevo.</p>
-  <p class="foot">Todo se cuenta desde el 8 de octubre de 2026. Una visita por sesión, sin cookies.<br>
-  El tiempo por sección es aproximado: bloques de 30 segundos con la página visible.<br>
-  Actualizado: <span id="hora">—</span></p>
+  <!-- ============ WEB Y APK ============ -->
+  <div class="tabpage" id="pg-web">
+    <div class="panel">
+      <h2><span class="ico">🌐</span> Estado de la web</h2>
+      <div class="estado" id="estado">Comprobando…</div>
+    </div>
+    <div class="panel">
+      <h2><span class="ico">📱</span> Aplicación en Apklis</h2>
+      <div id="apklis">Cargando…</div>
+    </div>
+  </div>
+
+  <!-- ============ AJUSTES ============ -->
+  <div class="tabpage" id="pg-ajustes">
+    <div class="panel">
+      <h2><span class="ico">⚙️</span> Configuración del panel</h2>
+      <div class="fld"><label for="cfgMeta">Meta diaria de visitas (0 = sin meta)</label><input type="number" id="cfgMeta" min="0" step="1"></div>
+      <div class="fld"><label for="cfgDias">Días en el gráfico y el detalle</label>
+        <select id="cfgDias"><option value="7">7 días</option><option value="14">14 días</option><option value="30">30 días</option></select>
+      </div>
+      <div class="fld"><label for="cfgAuto">Actualización automática del panel</label>
+        <select id="cfgAuto"><option value="0">Desactivada</option><option value="30">Cada 30 segundos</option><option value="60">Cada minuto</option><option value="300">Cada 5 minutos</option></select>
+      </div>
+      <label class="chk"><input type="checkbox" id="cfgSolo"> Mostrar solo secciones con datos</label>
+      <label class="chk"><input type="checkbox" id="cfgAvisosNav"> Avisos del navegador por récord o meta (con el panel abierto)</label>
+      <div class="btnrow"><button id="cfgGuardar">Guardar</button><button class="ghost" id="cfgReset">Restablecer</button></div>
+      <p class="foot" style="text-align:left">La configuración se guarda en este dispositivo. La web es pública y sin servidor: estos ajustes no cambian la página para los demás.</p>
+    </div>
+    <div class="panel">
+      <h2><span class="ico">🧰</span> Herramientas</h2>
+      <a class="btnlink ghost" href="./">Abrir la web pública</a>
+      <a class="btnlink ghost" href="https://apklis.cu/application/la.pelota.cubana.hoy" target="_blank" rel="noopener">Ficha de la aplicación en Apklis</a>
+      <a class="btnlink ghost" href="https://github.com/TecnoBum/lapelotacubana" target="_blank" rel="noopener">Repositorio en GitHub</a>
+    </div>
+    <button id="btn">↻ Actualizar ahora</button>
+    <button class="ghost" id="bloquearBtn">🔒 Bloquear panel</button>
+    <p class="err" id="err">No se pudieron leer algunos datos. Revisa tu conexión e inténtalo de nuevo.</p>
+    <p class="foot">Todo se cuenta desde el 8 de octubre de 2026. Una visita por sesión, sin cookies.<br>
+    El tiempo por sección es aproximado: bloques de 30 segundos con la página visible.<br>
+    Actualizado: <span id="hora">—</span></p>
+  </div>
+
+  </div>
 </div>
 
 <script>
@@ -275,13 +341,24 @@ var API = 'https://abacus.jasoncameron.dev/get/' + NS + '/';
 var HIT = 'https://abacus.jasoncameron.dev/hit/' + NS + '/';
 var SECCIONES = [
   ['inicio','Inicio'], ['jornada','Jornada'], ['posiciones','Posiciones'],
-  ['lideres','Líderes'], ['equipos','Equipos'], ['noticias','Noticias'],
-  ['envivo','En Vivo'], ['predicciones','Predicciones'], ['ranking','Ranking'],
-  ['grupos','Grupos y canales'], ['calendario','Calendario']
+  ['calendario','Calendario'], ['lideres','Líderes'], ['equipos','Equipos'],
+  ['noticias','Noticias'], ['envivo','En Vivo'], ['predicciones','Predicciones'],
+  ['ranking','Ranking'], ['concurso','Concurso'], ['grupos','Grupos y canales'],
+  ['donaciones','Donaciones']
 ];
 var NOMBRES_CINT = { 0: 'desactivado', 1: 'Jornada de hoy', 2: 'Actualiza la aplicación', 3: 'Canal de WhatsApp' };
 var NOMBRES_AVISO = { 0: 'desactivado', 1: 'Canal de WhatsApp', 2: 'Actualiza la aplicación', 3: 'Haz tus predicciones' };
+var TEAMS = {PRI:'Pinar del Río',IJV:'Isla de la Juventud',ART:'Artemisa',IND:'Industriales',MAY:'Mayabeque',MTZ:'Matanzas',VCL:'Villa Clara',CFG:'Cienfuegos',SSP:'Sancti Spíritus',CAV:'Ciego de Ávila',LTU:'Las Tunas',CMG:'Camagüey',HOL:'Holguín',GRA:'Granma',SCU:'Santiago de Cuba',GTM:'Guantánamo'};
+var TEMAS = { normal: 'Normal', halloween: '🎃 Halloween', navidad: '🎄 Navidad', finanio: '🎆 Fin de año' };
 var timerAuto = null;
+
+/* ---------- pestañas ---------- */
+document.getElementById('tabs').addEventListener('click', function (e) {
+  var b = e.target.closest('.tab'); if (!b) return;
+  document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('on', t === b); });
+  document.querySelectorAll('.tabpage').forEach(function (p) { p.classList.toggle('on', p.id === 'pg-' + b.dataset.tab); });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
 
 /* ---------- puerta con contraseña ---------- */
 function sha(txt) {
@@ -297,7 +374,7 @@ function desbloqueado() { try { return sessionStorage.getItem('lpcAdmin') === '1
 function mostrarPanel() {
   document.getElementById('lock').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  cargar(); aplicarAuto(); estadoPublicar(); estadoBannerTema();
+  cargar(); aplicarAuto(); estadoPublicar(); estadoBannerTema(); cargarComunidad();
 }
 function intentarClave() {
   var inp = document.getElementById('lockInput');
@@ -351,7 +428,7 @@ document.getElementById('cfgReset').addEventListener('click', function () {
 function aplicarAuto() {
   if (timerAuto) { clearInterval(timerAuto); timerAuto = null; }
   var s = cfg().auto;
-  if (s > 0) timerAuto = setInterval(cargar, s * 1000);
+  if (s > 0) timerAuto = setInterval(function () { cargar(); cargarComunidad(); }, s * 1000);
 }
 
 /* ---------- utilidades ---------- */
@@ -378,6 +455,16 @@ function diasDesde(iso) {
   var a = Date.UTC(+p[0], +p[1] - 1, +p[2]), b = Date.UTC(+h[0], +h[1] - 1, +h[2]);
   return Math.round((b - a) / 864e5);
 }
+function haceCuanto(ts) {
+  if (!ts) return '—';
+  var s = Math.max(0, Math.round(Date.now() / 1000 - ts));
+  if (s < 60) return 'hace ' + s + ' seg';
+  var m = Math.round(s / 60);
+  if (m < 60) return 'hace ' + m + ' min';
+  var h = Math.floor(m / 60);
+  if (h < 24) return 'hace ' + h + ' h' + (m % 60 ? ' ' + (m % 60) + ' min' : '');
+  return 'hace ' + Math.floor(h / 24) + ' días';
+}
 function leer(clave) {
   return fetch(API + clave)
     .then(function (r) { return r.ok ? r.json() : { value: 0 }; })
@@ -385,6 +472,9 @@ function leer(clave) {
     .catch(function () { return -1; });
 }
 function leerNum(clave) { return leer(clave).then(function (v) { return v < 0 ? 0 : v; }); }
+function leerJSON(url) {
+  return fetch(url, { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+}
 function fmt(n) { return n < 0 ? '—' : n.toLocaleString('es'); }
 function fmtTiempo(bloques) {
   var min = Math.round(bloques * 0.5);
@@ -400,19 +490,33 @@ function chip(actual, base) {
   if (d < 0) return '<span class="chip down">▼ ' + p + '%</span>';
   return '<span class="chip flat">= 0%</span>';
 }
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function extraerAPK(html) {
   var m = html.match(/APK\s*=\s*\{/);
   if (!m) return null;
   var i = m.index + m[0].length - 1;
-  var depth = 0, inStr = false, esc = false;
+  var depth = 0, inStr = false, escc = false;
   for (var j = i; j < html.length; j++) {
     var ch = html[j];
-    if (inStr) { if (esc) esc = false; else if (ch === '\\') esc = true; else if (ch === '"') inStr = false; }
+    if (inStr) { if (escc) escc = false; else if (ch === '\\') escc = true; else if (ch === '"') inStr = false; }
     else if (ch === '"') inStr = true;
     else if (ch === '{') depth++;
     else if (ch === '}') { depth--; if (depth === 0) { try { return JSON.parse(html.slice(i, j + 1)); } catch (e) { return null; } } }
   }
   return null;
+}
+function copiarTexto(t, okMsg) {
+  function done() { alert(okMsg || 'Copiado.'); }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(t).then(done).catch(function () { fallback(); });
+  } else fallback();
+  function fallback() {
+    var ta = document.createElement('textarea');
+    ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) { alert('No se pudo copiar.'); }
+    document.body.removeChild(ta);
+  }
 }
 
 /* ---------- estado de la web + Apklis ---------- */
@@ -421,13 +525,20 @@ function estadoWeb() {
   fetch('./', { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (t) {
     var etiqueta = (t.match(/DATA_LABEL\s*=\s*"([^"]+)"/) || [])[1] || '—';
     var apk = extraerAPK(t);
-    el.innerHTML = '<span class="dot"></span><b>En línea</b><br>Datos actualizados: <b>' + etiqueta + '</b>' +
-      (apk && apk.version ? '<br>Versión de la aplicación: <b>' + apk.version + '</b>' : '');
+    el.innerHTML = '<span class="dotok"></span><b>En línea</b><br>Datos actualizados: <b>' + esc(etiqueta) + '</b>' +
+      (apk && apk.version ? '<br>Versión de la aplicación: <b>' + esc(apk.version) + '</b>' : '');
     pintarApklis(apk);
+    setPill(true, 'En línea');
   }).catch(function () {
-    el.innerHTML = '<span class="dot bad"></span><b>Sin conexión para comprobar</b>';
+    el.innerHTML = '<span class="dotbad"></span><b>Sin conexión para comprobar</b>';
     document.getElementById('apklis').textContent = 'Sin conexión para leer los datos.';
+    setPill(false, 'Sin conexión');
   });
+}
+function setPill(ok, txt) {
+  var p = document.getElementById('pillEstado');
+  p.className = 'pill ' + (ok ? 'ok' : 'warn');
+  document.getElementById('pillTxt').textContent = txt;
 }
 function pintarApklis(apk) {
   var box = document.getElementById('apklis');
@@ -438,32 +549,17 @@ function pintarApklis(apk) {
     '<div class="card"><div class="lbl">Descargas</div><div class="num" style="font-size:28px">' + fmt(apk.downloads != null ? apk.downloads : -1) + '</div></div>' +
     '<div class="card"><div class="lbl">Valoración</div><div class="num" style="font-size:28px">' + (apk.rating != null ? Number(apk.rating).toLocaleString('es', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ★' : '—') + '</div></div>' +
     '<div class="card"><div class="lbl">Opiniones</div><div class="num" style="font-size:28px">' + fmt(apk.reviews != null ? apk.reviews : -1) + '</div></div>' +
-    '<div class="card"><div class="lbl">Última versión</div><div class="num" style="font-size:28px">' + (apk.version || '—') + '</div></div>' +
+    '<div class="card"><div class="lbl">Última versión</div><div class="num" style="font-size:28px">' + esc(apk.version || '—') + '</div></div>' +
     '</div>';
   html += '<p class="estado" style="font-size:13px">Publicada el ' + fechaBonita(apk.date) +
     (dias === 0 ? ' (hoy)' : dias === 1 ? ' (ayer)' : dias > 1 ? ' (hace ' + dias + ' días)' : '') + '.</p>';
 
-  if (apk.dist) {
-    var tot = 0, k;
-    for (k in apk.dist) tot += apk.dist[k] || 0;
-    var maxD = 1;
-    for (k in apk.dist) maxD = Math.max(maxD, apk.dist[k] || 0);
-    html += '<h2 style="margin-top:16px">Valoraciones por estrellas</h2>';
-    [5, 4, 3, 2, 1].forEach(function (e) {
-      var v = apk.dist[String(e)] || 0;
-      var pct = tot > 0 ? Math.round(v / tot * 100) : 0;
-      html += '<div class="hrow"><div class="nm s">' + e + ' ★</div>' +
-        '<div class="track"><div class="fill star" style="width:' + Math.round(v / maxD * 100) + '%"></div></div>' +
-        '<div class="vl">' + v + '<small>' + pct + '%</small></div></div>';
-    });
-  }
-
   var hist = Array.isArray(apk.historial) ? apk.historial.slice() : [];
-  html += '<h2 style="margin-top:16px">Comparativa entre versiones</h2>';
+  html += '<h2 style="margin-top:16px"><span class="ico">🕘</span> Comparativa entre versiones</h2>';
   if (hist.length >= 2) {
     var act = hist[hist.length - 1], prev = hist[hist.length - 2];
     var ganadas = (act.downloads != null && prev.downloads != null) ? act.downloads - prev.downloads : null;
-    html += '<p class="estado" style="font-size:13px;margin-bottom:8px">Desde la v' + prev.version + ': <b>' +
+    html += '<p class="estado" style="font-size:13px;margin-bottom:8px">Desde la v' + esc(prev.version) + ': <b>' +
       (ganadas != null ? '+' + ganadas.toLocaleString('es') + ' descargas' : '—') + '</b>.</p>';
   } else {
     html += '<p class="estado" style="font-size:13px;margin-bottom:8px">El historial empieza hoy; la comparativa se completa cuando salga la próxima versión.</p>';
@@ -477,11 +573,11 @@ function pintarApklis(apk) {
         var gan = (e2.downloads != null && sig.downloads != null) ? e2.downloads - sig.downloads : null;
         extra = (dd != null ? dd + ' días tras la anterior · ' : '') + (gan != null ? '+' + gan.toLocaleString('es') + ' descargas en su etapa' : '');
       }
-      return '<div class="ver"><div class="a"><b>v' + e2.version + '</b><span>' + fmt(e2.downloads != null ? e2.downloads : -1) + ' descargas</span></div>' +
+      return '<div class="ver"><div class="a"><b>v' + esc(e2.version) + '</b><span>' + fmt(e2.downloads != null ? e2.downloads : -1) + ' descargas</span></div>' +
         '<small>' + fechaBonita(e2.date) + (extra ? ' · ' + extra : '') + '</small></div>';
     }).join('');
   }
-  html += '<a class="btnlink ghost" href="' + (apk.url || 'https://apklis.cu/application/la.pelota.cubana.hoy') + '" target="_blank" rel="noopener">Ver la ficha en Apklis</a>';
+  html += '<a class="btnlink ghost" href="' + esc(apk.url || 'https://apklis.cu/application/la.pelota.cubana.hoy') + '" target="_blank" rel="noopener">Ver la ficha en Apklis</a>';
   box.innerHTML = html;
 }
 function diasEntre(a, b) {
@@ -490,7 +586,49 @@ function diasEntre(a, b) {
   return Math.round((Date.UTC(+pa[0], +pa[1] - 1, +pa[2]) - Date.UTC(+pb[0], +pb[1] - 1, +pb[2])) / 864e5);
 }
 
-/* ---------- publicar en la web (contadores del día) ---------- */
+/* ---------- pipeline + jornada de hoy (datos.json) ---------- */
+function enCurso(g) {
+  return g.status !== 'final' && !!(g.live || (g.ar != null && g.hr != null && (g.ar + g.hr) > 0));
+}
+function cargarPipeline() {
+  leerJSON('./datos.json').then(function (d) {
+    var pe = document.getElementById('pipeEstado');
+    var jh = document.getElementById('jornadaHoy');
+    if (!d || !d.games) {
+      pe.innerHTML = '<span class="dotbad"></span><b>No se pudo leer datos.json</b>';
+      jh.innerHTML = '<p class="estado">Sin datos.</p>';
+      return;
+    }
+    var frescura = haceCuanto(d.ts);
+    var enVivo = d.games.filter(enCurso).length;
+    var finales = d.games.filter(function (g) { return g.status === 'final'; }).length;
+    var vieja = d.ts && (Date.now() / 1000 - d.ts) > 20 * 60;
+    pe.innerHTML = '<span class="' + (vieja ? 'dotbad' : 'dotok') + '"></span><b>Datos ' + (vieja ? 'desactualizados' : 'al día') + '</b>' +
+      '<br>Etiqueta: <b>' + esc(d.date_label || '—') + '</b> (' + frescura + ')' +
+      '<br>Juegos de hoy: <b>' + d.games.length + '</b> · en curso: <b>' + enVivo + '</b> · finalizados: <b>' + finales + '</b>';
+    if (vieja) setPill(false, 'Datos viejos');
+
+    var html = '';
+    d.games.forEach(function (g) {
+      var aw = TEAMS[g.away] || g.away, hm = TEAMS[g.home] || g.home;
+      var mk = (g.ar != null && g.hr != null) ? g.ar + ' – ' + g.hr : '–';
+      var st, cls = '';
+      if (g.status === 'final') { st = 'FINAL'; }
+      else if (enCurso(g)) {
+        var info = g.live ? String(g.live).toUpperCase() : '';
+        if (/DETENIDO|SUSPENDIDO/i.test(info)) st = info;
+        else st = (info ? info : 'EN CURSO') + (g.outs ? '<br>' + String(g.outs).toUpperCase() : '');
+        cls = 'live';
+      }
+      else { st = g.time ? 'HOY ' + g.time : 'PRÓXIMO'; }
+      html += '<div class="jg"><div class="eq">' + esc(aw) + ' <span style="color:var(--mut2)">vs</span> ' + esc(hm) + '</div>' +
+        '<div class="mk">' + mk + '</div><div class="st ' + cls + '">' + (cls === 'live' ? '<span class="pulse"></span>' : '') + st + '</div></div>';
+    });
+    jh.innerHTML = html || '<p class="estado">No hay juegos hoy.</p>';
+  });
+}
+
+/* ---------- publicar: cintillo y aviso (contadores del día) ---------- */
 function clavesDe(pref) { return [0, 1, 2, 3].map(function (v) { return pref + '-' + hoyStr() + '-v' + v; }); }
 function elegidoDe(vals) {
   var max = 0, e = 0;
@@ -502,7 +640,7 @@ function estadoPublicar() {
     Promise.all(clavesDe(cfgF[0]).map(leerNum)).then(function (vals) {
       var e = elegidoDe(vals);
       document.getElementById(cfgF[2]).innerHTML = 'Estado de hoy: <b>' +
-        (e === 0 ? 'desactivado' : 'activado · «' + cfgF[1][e] + '»') + '</b>';
+        (e === 0 ? 'desactivado' : 'activado · «' + esc(cfgF[1][e]) + '»') + '</b>';
     });
   });
 }
@@ -533,59 +671,148 @@ document.getElementById('btnAvisoOn').addEventListener('click', function () {
 });
 document.getElementById('btnAvisoOff').addEventListener('click', function () { publicar('aviso', 0, NOMBRES_AVISO); });
 
-/* ---------- banner y tema vía Telegram (los aplica el cron) ---------- */
-var TGBOT = '8835835836:AAETbs7qAKbc5zXDG2DgtyWBRZ25ccwgNbk';
-var TGCHAT = '-1003640679899';
-var TEMAS = { normal: 'Normal', halloween: '🎃 Halloween', navidad: '🎄 Navidad', finanio: '🎆 Fin de año' };
-function tgEnviar(texto, okMsg) {
-  fetch('https://api.telegram.org/bot' + TGBOT + '/sendMessage', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: TGCHAT, text: texto })
-  }).then(function (r) { return r.json(); }).then(function (j) {
-    if (j && j.ok) { alert(okMsg); estadoBannerTema(); }
-    else alert('No se pudo publicar. Revisa tu conexión.');
-  }).catch(function () { alert('No se pudo publicar. Revisa tu conexión.'); });
-}
+/* ---------- banner y tema: comando para el canal privado (sin claves en la página) ---------- */
 function estadoBannerTema() {
-  fetch('https://tecnobum.github.io/lapelotacubana/banner.json?t=' + Date.now(), { cache: 'no-store' })
-    .then(function (r) { return r.ok ? r.json() : null; }).then(function (b) {
-      document.getElementById('estBanner').innerHTML = 'Estado actual: <b>' +
-        (!b ? 'normal' : b.hidden ? 'oculto' : (b.images && b.images.length ? b.images.length + ' imágenes personalizadas' : 'normal')) + '</b>';
-    }).catch(function () {});
-  fetch('https://tecnobum.github.io/lapelotacubana/tema.json?t=' + Date.now(), { cache: 'no-store' })
-    .then(function (r) { return r.ok ? r.json() : null; }).then(function (t) {
-      var tema = (t && t.tema) || 'normal';
-      document.getElementById('estTema').innerHTML = 'Tema actual: <b>' + (TEMAS[tema] || tema) + '</b>';
-      document.getElementById('selTema').value = tema;
-    }).catch(function () {});
+  leerJSON('./banner.json').then(function (b) {
+    document.getElementById('estBanner').innerHTML = 'Estado actual: <b>' +
+      (!b ? 'normal' : b.hidden ? 'oculto' : (b.images && b.images.length ? b.images.length + ' imágenes personalizadas' : 'normal')) + '</b>';
+  });
+  leerJSON('./tema.json').then(function (t) {
+    var tema = (t && t.tema) || 'normal';
+    document.getElementById('estTema').innerHTML = 'Tema actual: <b>' + esc(TEMAS[tema] || tema) + '</b>';
+    document.getElementById('selTema').value = tema;
+  });
 }
-document.getElementById('btnBannerOn').addEventListener('click', function () {
+document.getElementById('btnBannerCopy').addEventListener('click', function () {
   var urls = document.getElementById('bannerUrls').value.split('\n').map(function (s) { return s.trim(); })
     .filter(function (s) { return s && s[0] !== '#'; });
   var hide = document.getElementById('bannerHide').checked;
-  if (hide) { tgEnviar('BANNER|HIDE', 'Banner ocultado. Se aplica en unos minutos.'); return; }
-  if (urls.length) { tgEnviar('BANNER|SET|' + urls.join('|'), 'Banner actualizado con ' + urls.length + ' imágenes. Se aplica en unos minutos.'); return; }
-  tgEnviar('BANNER|SHOW', 'Banner restablecido a las imágenes de siempre.');
+  var cmd = hide ? 'BANNER|HIDE' : (urls.length ? 'BANNER|SET|' + urls.join('|') : 'BANNER|SHOW');
+  var box = document.getElementById('bannerCmd');
+  box.style.display = 'block'; box.textContent = cmd;
+  copiarTexto(cmd, 'Comando copiado. Pégalo en tu canal privado de Telegram.');
 });
 document.getElementById('btnBannerOff').addEventListener('click', function () {
   document.getElementById('bannerUrls').value = '';
   document.getElementById('bannerHide').checked = false;
-  tgEnviar('BANNER|SHOW', 'Banner restablecido a las imágenes de siempre.');
+  var box = document.getElementById('bannerCmd');
+  box.style.display = 'block'; box.textContent = 'BANNER|SHOW';
+  copiarTexto('BANNER|SHOW', 'Comando copiado: banner restablecido. Pégalo en tu canal de Telegram.');
 });
-document.getElementById('btnTemaOn').addEventListener('click', function () {
+document.getElementById('btnTemaCopy').addEventListener('click', function () {
   var t = document.getElementById('selTema').value;
-  tgEnviar('TEMA|' + t, t === 'normal' ? 'Tema normal aplicado.' : 'Tema ' + (TEMAS[t] || t) + ' aplicado. Se ve en unos minutos.');
+  var cmd = 'TEMA|' + t;
+  var box = document.getElementById('temaCmd');
+  box.style.display = 'block'; box.textContent = cmd;
+  copiarTexto(cmd, 'Comando copiado. Pégalo en tu canal privado de Telegram.');
 });
 document.getElementById('btnTemaOff').addEventListener('click', function () {
   document.getElementById('selTema').value = 'normal';
-  tgEnviar('TEMA|normal', 'Tema normal aplicado.');
+  var box = document.getElementById('temaCmd');
+  box.style.display = 'block'; box.textContent = 'TEMA|normal';
+  copiarTexto('TEMA|normal', 'Comando copiado: tema normal. Pégalo en tu canal de Telegram.');
 });
 
-/* ---------- visitas y secciones ---------- */
+/* ---------- comunidad: ranking, MVP, concurso ---------- */
+function cargarComunidad() {
+  leerJSON('./ranking.json').then(function (r) {
+    var box = document.getElementById('rankTop');
+    var n = 0;
+    if (r && Array.isArray(r.players)) {
+      n = r.players.length;
+      var top = r.players.slice().sort(function (a, b) { return (b.points || 0) - (a.points || 0); }).slice(0, 5);
+      document.getElementById('rankUpd').textContent = r.updated ? '· ' + r.updated : '';
+      box.innerHTML = top.map(function (p, i) {
+        return '<div class="rankrow"><div class="pos">' + (i + 1) + '</div>' +
+          '<div class="nm"><b>' + esc(p.name || '—') + '</b><small>' + esc(TEAMS[p.team] || p.team || '') + '</small></div>' +
+          '<div class="pt">' + fmt(p.points || 0) + '</div></div>';
+      }).join('') || '<p class="estado">Aún no hay jugadores.</p>';
+    } else {
+      box.innerHTML = '<p class="estado">No se pudo leer el ranking.</p>';
+    }
+    document.getElementById('jugadores').textContent = fmt(n);
+  });
+  leerJSON('./votes.json').then(function (v) {
+    var box = document.getElementById('mvpVotes');
+    if (!v || !v.counts) { box.innerHTML = '<p class="estado">No se pudo leer los votos.</p>'; return; }
+    document.getElementById('mvpUpd').textContent = v.updated ? '· ' + v.updated : '';
+    var pares = Object.keys(v.counts).map(function (k) { return { n: k, v: v.counts[k] }; })
+      .sort(function (a, b) { return b.v - a.v; });
+    var tot = pares.reduce(function (a, p) { return a + p.v; }, 0);
+    var max = Math.max.apply(null, pares.map(function (p) { return p.v; }).concat([1]));
+    box.innerHTML = '<p class="estado" style="margin-bottom:10px">Votantes: <b>' + fmt(v.total || 0) + '</b> · votos: <b>' + fmt(tot) + '</b></p>' +
+      pares.map(function (p) {
+        var pct = tot > 0 ? Math.round(p.v / tot * 100) : 0;
+        return '<div class="hrow"><div class="nm">' + esc(p.n) + '</div>' +
+          '<div class="track"><div class="fill v" style="width:' + Math.round(p.v / max * 100) + '%"></div></div>' +
+          '<div class="vl">' + p.v + '<small>' + pct + '%</small></div></div>';
+      }).join('') || '<p class="estado">Aún no hay votos.</p>';
+  });
+  Promise.all([leerJSON('./concurso.json'), leerJSON('./concurso_stats.json')]).then(function (res) {
+    var c = res[0], st = res[1];
+    var box = document.getElementById('concursoInfo');
+    if (!c) { box.innerHTML = '<p class="estado">No se pudo leer el concurso.</p>'; return; }
+    var parts = st && st[c.week] ? st[c.week].participants : null;
+    var html = '<div class="cards" style="margin-bottom:4px">' +
+      '<div class="card"><div class="lbl">Semana actual</div><div class="num" style="font-size:24px">' + esc(c.week || '—') + '</div></div>' +
+      '<div class="card"><div class="lbl">Participantes (5/5)</div><div class="num" style="font-size:28px">' + (parts != null ? fmt(parts) : '—') + '</div></div>' +
+      '</div>';
+    html += '<p class="estado" style="font-size:13px">Preguntas de la semana: <b>' + (c.questions ? c.questions.length : 0) + '</b> · sorteo: <b>sábados 8:00 PM</b> (hora de Cuba).</p>';
+    var w = c.winners || {};
+    var sems = Object.keys(w).sort().reverse();
+    if (sems.length) {
+      html += '<h2 style="margin-top:14px"><span class="ico">🏅</span> Ganadores</h2>';
+      sems.slice(0, 4).forEach(function (s) {
+        var gs = w[s];
+        var nombres = Array.isArray(gs) ? gs.map(function (g) { return esc(typeof g === 'string' ? g : (g.name || g)); }).join(', ')
+          : esc(typeof gs === 'string' ? gs : JSON.stringify(gs));
+        html += '<div class="ver"><div class="a"><b>' + esc(s) + '</b></div><small>' + (nombres || '—') + '</small></div>';
+      });
+    } else {
+      html += '<p class="estado" style="font-size:13px;margin-top:10px">Aún no hay ganadores: el primer sorteo es el sábado a las 8:00 PM.</p>';
+    }
+    box.innerHTML = html;
+  });
+}
+
+/* ---------- visitas y métricas ---------- */
+function pintarChart(elId, porDia, N) {
+  var trozo = porDia.slice(-N), maxV = Math.max.apply(null, trozo.concat([1]));
+  var chart = document.getElementById(elId); chart.innerHTML = '';
+  trozo.forEach(function (v, idx) {
+    var off = N - 1 - idx, vv = Math.max(v, 0);
+    var col = document.createElement('div');
+    col.className = 'col' + (off === 0 ? ' today' : '');
+    col.innerHTML = '<div class="v">' + vv + '</div>' +
+      '<div class="bar" style="height:' + Math.round(vv / maxV * 105) + 'px"></div>' +
+      '<div class="d">' + etiquetaDia(off, false) + '</div>';
+    chart.appendChild(col);
+  });
+}
+function barras(elId, pares, formatear, clase) {
+  var c = cfg();
+  var el = document.getElementById(elId); el.innerHTML = '';
+  var lista2 = pares.slice().sort(function (a, b) { return b.v - a.v; });
+  if (c.solo) lista2 = lista2.filter(function (p) { return p.v > 0; });
+  var tot = pares.reduce(function (a, p) { return a + Math.max(p.v, 0); }, 0);
+  var max = Math.max.apply(null, pares.map(function (p) { return Math.max(p.v, 0); }).concat([1]));
+  if (!lista2.length) { el.innerHTML = '<p class="estado">Aún no hay datos.</p>'; return; }
+  lista2.forEach(function (p) {
+    var v = Math.max(p.v, 0);
+    var pct2 = tot > 0 ? Math.round(v / tot * 100) : 0;
+    var row = document.createElement('div');
+    row.className = 'hrow';
+    row.innerHTML = '<div class="nm">' + esc(p.n) + '</div>' +
+      '<div class="track"><div class="fill ' + (clase || '') + '" style="width:' + Math.round(v / max * 100) + '%"></div></div>' +
+      '<div class="vl">' + formatear(v) + '<small>' + pct2 + '% del total</small></div>';
+    el.appendChild(row);
+  });
+}
 function cargar() {
   var c = cfg();
   var DIAS = 30;
   estadoWeb();
+  cargarPipeline();
   var i, promesas = [leer('visitas-total')];
   for (i = DIAS - 1; i >= 0; i--) promesas.push(leer('visitas-' + claveDia(i)));
   SECCIONES.forEach(function (s) { promesas.push(leer('sec-v-' + s[0])); });
@@ -596,7 +823,7 @@ function cargar() {
     var porDia = res.slice(1, 1 + DIAS);
     var secV = res.slice(1 + DIAS, 1 + DIAS + SECCIONES.length);
     var secT = res.slice(1 + DIAS + SECCIONES.length);
-    window.__datosCSV = { porDia: porDia, secV: secV, secT: secT };
+    window.__datosCSV = { porDia: porDia, secV: secV, secT: secT, dias: DIAS };
 
     var hoyV = porDia[DIAS - 1], ayerV = porDia[DIAS - 2];
     var ult7 = porDia.slice(-7), prev7 = porDia.slice(-14, -7);
@@ -607,7 +834,10 @@ function cargar() {
     porDia.forEach(function (v, idx) { if (v > mejorV) { mejorV = v; mejorOff = DIAS - 1 - idx; } });
 
     document.getElementById('total').textContent = fmt(total);
+    document.getElementById('totalSub').textContent = 'desde el 8 de octubre de 2026';
     document.getElementById('hoy').textContent = fmt(hoyV);
+    document.getElementById('hoySub').innerHTML = ayerV > 0
+      ? (hoyV >= ayerV ? '<span style="color:var(--verde)">▲</span> ' : '<span style="color:#ff8f86">▼</span> ') + 'ayer: ' + fmt(ayerV) : '';
     document.getElementById('ayer').textContent = fmt(ayerV);
     document.getElementById('prom').textContent = fmt(prom);
     document.getElementById('semana').textContent = fmt(suma7);
@@ -626,37 +856,10 @@ function cargar() {
       '<div class="cmp"><div class="t">Mejor día (últimos 30)<small>' + etiquetaDia(mejorOff, true) + '</small></div><span class="chip flat">' + fmt(mejorV) + ' visitas</span></div>';
 
     var N = Math.min(c.dias, DIAS);
-    var trozo = porDia.slice(-N), maxV = Math.max.apply(null, trozo.concat([1]));
-    document.getElementById('titGrafico').textContent = 'Visitas · últimos ' + N + ' días';
-    var chart = document.getElementById('chart'); chart.innerHTML = '';
-    trozo.forEach(function (v, idx) {
-      var off = N - 1 - idx, vv = Math.max(v, 0);
-      var col = document.createElement('div');
-      col.className = 'col' + (off === 0 ? ' today' : '');
-      col.innerHTML = '<div class="v">' + vv + '</div>' +
-        '<div class="bar" style="height:' + Math.round(vv / maxV * 105) + 'px"></div>' +
-        '<div class="d">' + etiquetaDia(off, false) + '</div>';
-      chart.appendChild(col);
-    });
+    document.getElementById('titGrafico').innerHTML = '<span class="ico">📈</span> Visitas · últimos ' + N + ' días';
+    pintarChart('chart', porDia, N);
+    pintarChart('chartMini', porDia, 7);
 
-    function barras(elId, pares, formatear, clase) {
-      var el = document.getElementById(elId); el.innerHTML = '';
-      var lista2 = pares.slice().sort(function (a, b) { return b.v - a.v; });
-      if (c.solo) lista2 = lista2.filter(function (p) { return p.v > 0; });
-      var tot = pares.reduce(function (a, p) { return a + Math.max(p.v, 0); }, 0);
-      var max = Math.max.apply(null, pares.map(function (p) { return Math.max(p.v, 0); }).concat([1]));
-      if (!lista2.length) { el.innerHTML = '<p class="estado">Aún no hay datos.</p>'; return; }
-      lista2.forEach(function (p) {
-        var v = Math.max(p.v, 0);
-        var pct2 = tot > 0 ? Math.round(v / tot * 100) : 0;
-        var row = document.createElement('div');
-        row.className = 'hrow';
-        row.innerHTML = '<div class="nm">' + p.n + '</div>' +
-          '<div class="track"><div class="fill ' + (clase || '') + '" style="width:' + Math.round(v / max * 100) + '%"></div></div>' +
-          '<div class="vl">' + formatear(v) + '<small>' + pct2 + '% del total</small></div>';
-        el.appendChild(row);
-      });
-    }
     barras('secEntradas', SECCIONES.map(function (s, i) { return { n: s[1], v: secV[i] }; }),
       function (v) { return v.toLocaleString('es'); }, '');
     barras('secTiempo', SECCIONES.map(function (s, i) { return { n: s[1], v: secT[i] }; }),
@@ -681,7 +884,7 @@ function cargar() {
     avisos.slice(0, 5).forEach(function (a) {
       var div = document.createElement('div');
       div.className = 'aviso' + (a.bueno ? ' bueno' : '');
-      div.innerHTML = a.t + '<small>' + hoyClave + '</small>';
+      div.innerHTML = esc(a.t) + '<small>' + hoyClave + '</small>';
       box.appendChild(div);
       if (vistos[hoyClave + ':' + a.k] !== 1) {
         vistos[hoyClave + ':' + a.k] = 1;
@@ -708,8 +911,31 @@ function cargar() {
   });
 }
 
+/* ---------- exportar CSV ---------- */
+document.getElementById('btnCSV').addEventListener('click', function () {
+  var d = window.__datosCSV;
+  if (!d) { alert('Todavía no hay datos cargados.'); return; }
+  var lineas = ['fecha,visitas'];
+  for (var i = d.dias - 1; i >= 0; i--) {
+    var v = d.porDia[i];
+    lineas.push(claveDia(d.dias - 1 - i) + ',' + (v < 0 ? '' : v));
+  }
+  lineas.push('');
+  lineas.push('seccion,entradas,tiempo_min');
+  SECCIONES.forEach(function (s, ix) {
+    var vv = Math.max(d.secV[ix], 0), tt = Math.max(d.secT[ix], 0);
+    lineas.push('"' + s[1] + '",' + vv + ',' + Math.round(tt * 0.5));
+  });
+  var blob = new Blob([lineas.join('\n')], { type: 'text/csv;charset=utf-8' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'la-pelota-cubana-' + hoyStr() + '.csv';
+  document.body.appendChild(a); a.click();
+  setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+});
+
 /* ---------- arranque ---------- */
-document.getElementById('btn').addEventListener('click', cargar);
+document.getElementById('btn').addEventListener('click', function () { cargar(); cargarComunidad(); estadoPublicar(); estadoBannerTema(); });
 pintarCfg();
 if (desbloqueado()) mostrarPanel();
 else document.getElementById('lock').style.display = 'flex';
