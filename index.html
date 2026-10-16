@@ -284,6 +284,13 @@
 .rankmv.up{color:#22c55e; animation:mvbounce .55s ease 2;}
 .rankmv.down{color:#ef4444; animation:mvbounce .55s ease 2;}
 @keyframes mvbounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+/* Ranking: hito de cifra cerrada (50, 100, 200...): banner dorado celebratorio */
+.rankhito{background:linear-gradient(120deg,#8a6300,#f3c64f 40%,#fff3c4 50%,#f3c64f 60%,#8a6300);background-size:220% 100%;border-radius:14px;padding:14px 12px;text-align:center;margin-bottom:12px;color:#332500;box-shadow:0 4px 18px rgba(232,182,76,.35);animation:hitobrillo 3.5s linear infinite;}
+.rankhito.nuevo{animation:hitobrillo 1.4s linear infinite,hitopop .55s ease;}
+@keyframes hitobrillo{to{background-position:220% 0;}}
+@keyframes hitopop{0%{transform:scale(.9);}55%{transform:scale(1.04);}100%{transform:scale(1);}}
+.rh-big{font-size:22px;font-weight:900;letter-spacing:.5px;}
+.rh-sub{font-size:12.5px;font-weight:700;opacity:.85;margin-top:4px;}
 tr.rankup td{animation:rankupflash 1.8s ease;}
 tr.rankdown td{animation:rankdownflash 1.8s ease;}
 tr.ranknew td{animation:ranknewflash 2.2s ease;}
@@ -1969,7 +1976,20 @@ async function loadRank(){
       +'<td><b>'+p.points+'</b></td></tr>';
   }).join("");
   try{ localStorage.setItem("lpc-rank-prev", JSON.stringify(Object.fromEntries(d.players.map((p,i)=>[p.id,i+1])))); }catch(e){}
-  el.innerHTML = '<div style="overflow-x:auto"><table class="st"><tr><th>#</th><th>Jugador</th><th>Insignias</th><th>Pts</th></tr>'
+  // Hito de cifra cerrada: banner dorado cuando el ranking llega a 50, 100, 200...
+  const nJug = d.players.length;
+  const hito = nJug>=1000 ? Math.floor(nJug/500)*500 : nJug>=100 ? Math.floor(nJug/100)*100 : nJug>=50 ? 50 : 0;
+  let hitoHtml = "";
+  if(hito>0){
+    let hitoPrev = 0;
+    try{ hitoPrev = +(localStorage.getItem("lpc-rank-hito")||"0"); }catch(e){}
+    const esNuevo = hito>hitoPrev;
+    try{ if(esNuevo) localStorage.setItem("lpc-rank-hito", String(hito)); }catch(e){}
+    hitoHtml = '<div class="rankhito'+(esNuevo?' nuevo':'')+'"><div class="rh-big">🎉 ¡'+hito+' JUGADORES!</div>'
+      +'<div class="rh-sub">El ranking sigue creciendo · invita a tus amigos a predecir ⚾</div></div>';
+  }
+  el.innerHTML = hitoHtml
+    +'<div style="overflow-x:auto"><table class="st"><tr><th>#</th><th>Jugador</th><th>Insignias</th><th>Pts</th></tr>'
     +rows+'</table></div>'
     +'<div class="gmeta" style="margin-top:8px">Actualizado: '+esc(d.updated||"")
     +' · Tus puntos y medallas se sincronizan automáticamente.</div>';
