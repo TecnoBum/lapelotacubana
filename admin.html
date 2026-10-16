@@ -757,7 +757,7 @@ function cargarComunidad() {
       '<div class="card"><div class="lbl">Semana actual</div><div class="num" style="font-size:24px">' + esc(c.week || '—') + '</div></div>' +
       '<div class="card"><div class="lbl">Participantes (5/5)</div><div class="num" style="font-size:28px">' + (parts != null ? fmt(parts) : '—') + '</div></div>' +
       '</div>';
-    html += '<p class="estado" style="font-size:13px">Preguntas de la semana: <b>' + (c.questions ? c.questions.length : 0) + '</b> · sorteo: <b>sábados 8:00 PM</b> (hora de Cuba).</p>';
+    html += '<p class="estado" style="font-size:13px">Preguntas de la semana: <b>' + (c.questions ? c.questions.length : 0) + '</b> · resultados y ganadores: <b>sábados 8:00 PM</b> (hora de Cuba).</p>';
     var w = c.winners || {};
     var sems = Object.keys(w).sort().reverse();
     if (sems.length) {
@@ -769,7 +769,7 @@ function cargarComunidad() {
         html += '<div class="ver"><div class="a"><b>' + esc(s) + '</b></div><small>' + (nombres || '—') + '</small></div>';
       });
     } else {
-      html += '<p class="estado" style="font-size:13px;margin-top:10px">Aún no hay ganadores: el primer sorteo es el sábado a las 8:00 PM.</p>';
+      html += '<p class="estado" style="font-size:13px;margin-top:10px">Aún no hay ganadores: los primeros resultados se dan el sábado a las 8:00 PM.</p>';
     }
     box.innerHTML = html;
   });

@@ -309,6 +309,8 @@ tr.ranknew td{animation:ranknewflash 2.2s ease;}
 .copt.bad{border-color:#ef4444; background:rgba(239,68,68,.14);}
 .copt:disabled{cursor:default;}
 .cwin{background:linear-gradient(135deg,rgba(241,196,15,.16),rgba(241,196,15,.05)); border:1px solid var(--gold); border-radius:12px; padding:12px; margin:12px 0; font-size:14px;}
+.ccount{background:#1a1408; border:1px solid #5a4510; border-radius:12px; padding:11px 12px; text-align:center; font-size:14px; color:#f3c64f; margin-bottom:4px; font-variant-numeric:tabular-nums;}
+.ccount b{color:#ffe9a8;}
 .cwin b{color:var(--gold);}
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
 body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); padding-bottom:24px; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;}
@@ -590,7 +592,7 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
   </section>
   <section class="page" id="pg-concurso">
     <div class="card"><h3>🎁 Concurso semanal</h3>
-      <div class="gmeta" style="margin-bottom:10px">5 preguntas sobre béisbol cubano. Acierta las 5 y entras al sorteo de 3 ganadores cada sábado.</div>
+      <div class="gmeta" style="margin-bottom:10px">5 preguntas sobre béisbol cubano. Acierta las 5 y participas: el sábado se dan los resultados y los 3 ganadores.</div>
       <div id="concursoBox"><div class="empty">Cargando concurso…</div></div>
     </div>
   </section>
@@ -1996,7 +1998,7 @@ async function loadRank(){
 }
 /* ============ CONCURSO SEMANAL ============
    5 preguntas de béisbol cubano; al acertar las 5 la app publica
-   CONCURSO|uid|nombre|semana y se entra al sorteo del sábado (3 ganadores). */
+   CONCURSO|uid|nombre|semana y el sábado se dan los resultados y los 3 ganadores. */
 const CONCURSO_URLS = ["concurso.json","https://tecnobum.github.io/lapelotacubana/concurso.json"];
 let CONCURSO = null, _cans = {};
 async function loadConcurso(){
@@ -2014,22 +2016,27 @@ async function loadConcurso(){
 function renderConcurso(){
   const el = document.getElementById("concursoBox"); if(!el||!CONCURSO) return;
   const wk = CONCURSO.week;
-  let html = "";
+  let html = '<div class="ccount" id="ccount"><span style="opacity:.7">⏳ Calculando…</span></div>';
   const wks = Object.keys(CONCURSO.winners||{}).sort().reverse();
   if(wks.length){
-    html += '<div class="cwin"><b>🏆 Ganadores</b>'+wks.slice(0,3).map(w=>
-      '<div style="margin-top:6px"><small style="color:var(--muted)">Semana '+esc(w)+':</small><br><b>'+CONCURSO.winners[w].map(esc).join(" · ")+'</b></div>'
-    ).join("")+'</div>';
+    html += '<div class="cwin"><b>🏆 Resultados</b>'+wks.slice(0,3).map(w=>{
+      const ns = CONCURSO.winners[w];
+      const nombres = Array.isArray(ns) ? ns.map(esc).join(" · ") : esc(ns);
+      const ans = (CONCURSO.answers||{})[w];
+      return '<div style="margin-top:6px"><small style="color:var(--muted)">Semana '+esc(w)+':</small><br><b>'+nombres+'</b>'
+        +((ans&&ans.length)?'<br><small style="color:var(--muted)">Respuestas correctas:</small><br><small><b>'+ans.map(esc).join(" · ")+'</b></small>':'')
+        +'</div>';
+    }).join("")+'</div>';
   }
   let done = null;
   try{ done = JSON.parse(localStorage.getItem("lpc-concurso-"+wk)||"null"); }catch(e){}
   if(done){
     html += '<div class="cwin"><b>'+(done.score===5?"🎉 ¡Felicidades!":"📝 Tu resultado")+'</b><br>'
       +'Acertaste <b>'+done.score+'/5</b> esta semana.'
-      +(done.entered?'<br><small>Ya estás participando en el sorteo del sábado. ¡Suerte! 🍀</small>':'')+'</div>';
+      +(done.entered?'<br><small>Ya participas: el sábado se dan los resultados y los 3 ganadores. ¡Suerte! 🍀</small>':'')+'</div>';
   } else {
     _cans = {};
-    html += '<div class="gmeta" style="margin:10px 0">Marca una respuesta en cada pregunta y envía. Con 5/5 entras al sorteo del sábado.</div>'
+    html += '<div class="gmeta" style="margin:10px 0">Marca una respuesta en cada pregunta y envía. Con 5/5 participas: el sábado se dan los resultados y los 3 ganadores.</div>'
       + CONCURSO.questions.map((q,i)=>'<div class="cq"><b class="q">'+(i+1)+'. '+esc(q.q)+'</b>'
         + q.opts.map((o,j)=>'<button class="copt" id="cq-'+i+'-'+j+'" onclick="pickConcurso('+i+','+j+')">'+esc(o)+'</button>').join("")
         +'</div>').join("")
@@ -2037,6 +2044,40 @@ function renderConcurso(){
       + '<div id="cmsg" style="margin-top:10px"></div>';
   }
   el.innerHTML = html;
+  if(!cCountTimer) cCountTimer = setInterval(tickCuenta, 1000);
+  tickCuenta();
+}
+/* Cuenta regresiva hasta el sábado 8:00 PM (hora de Cuba): resultados y ganadores */
+let cCountTimer = null;
+function habanaWall(ms){
+  const o = {};
+  new Intl.DateTimeFormat('en-CA',{timeZone:'America/Havana',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).formatToParts(new Date(ms)).forEach(p=>{ o[p.type]=p.value; });
+  const wd = new Date(ms).toLocaleDateString('en-US',{timeZone:'America/Havana',weekday:'short'});
+  return {y:+o.year, mo:+o.month, d:+o.day, h:(+o.hour)%24, mi:+o.minute, wd:wd};
+}
+function habanaAEpoch(y,mo,d,h,mi){
+  let guess = Date.UTC(y, mo-1, d, h, mi);
+  for(let k=0;k<3;k++){
+    const w = habanaWall(guess);
+    guess += (Date.UTC(y,mo-1,d,h,mi) - Date.UTC(w.y,w.mo-1,w.d,w.h,w.mi));
+  }
+  return guess;
+}
+function proximoResultado(){
+  const w = habanaWall(Date.now());
+  const ds = {Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
+  let add = (6 - (ds[w.wd]==null?6:ds[w.wd]) + 7) % 7;
+  if(add===0 && (w.h*60+w.mi) >= 20*60) add = 7; // ya pasó la hora: próximo sábado
+  const t = new Date(Date.UTC(w.y, w.mo-1, w.d) + add*864e5);
+  return habanaAEpoch(t.getUTCFullYear(), t.getUTCMonth()+1, t.getUTCDate(), 20, 0);
+}
+function tickCuenta(){
+  const el = document.getElementById('ccount');
+  if(!el) return;
+  const t = proximoResultado() - Date.now();
+  if(t<=0){ el.innerHTML = '⏳ ¡Los resultados salen en breve!'; return; }
+  const d=Math.floor(t/864e5), h=Math.floor(t%864e5/36e5), m=Math.floor(t%36e5/6e4), s=Math.floor(t%6e4/1e3);
+  el.innerHTML = '⏳ Resultados y ganadores en: <b>'+(d>0?d+'d ':'')+h+'h '+m+'m '+s+'s</b>';
 }
 function pickConcurso(i,j){
   _cans[i]=j;
@@ -2084,7 +2125,7 @@ async function submitConcurso(){
   }
   try{ localStorage.setItem("lpc-concurso-"+wk, JSON.stringify({score:score, entered:entered})); }catch(e){}
   msg.innerHTML = score===5
-    ? '<div class="cwin"><b>🎉 ¡5/5! Ya estás en el sorteo del sábado. ¡Suerte! 🍀</b></div>'
+    ? '<div class="cwin"><b>🎉 ¡5/5! Ya participas. El sábado se dan los resultados y los 3 ganadores. ¡Suerte! 🍀</b></div>'
     : '<div class="empty">Acertaste '+score+'/5. Las correctas están en verde.</div>'
       +'<button class="btn primary" style="width:100%;margin-top:8px" onclick="retryConcurso()">Intentar de nuevo</button>';
 }
