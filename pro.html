@@ -2300,7 +2300,7 @@ const INT_LEAGUES = [
    temporada:"Temporada regular: marzo a septiembre · Postemporada: octubre",
    formato:"10 equipos en una sola tabla. Los 5 mejores avanzan a la postemporada en formato de escalera (Wild Card, Semi-playoff, Playoff) hasta la Serie Coreana al mejor de 7.",
    teams:["LG Twins","Doosan Bears","KIA Tigers","Samsung Lions","SSG Landers","KT Wiz","Lotte Giants","Hanwha Eagles","NC Dinos","Kiwoom Heroes"]},
-  {id:"lidom", name:"LIDOM", full:"Liga de Béisbol Profesional de la República Dominicana", place:"República Dominicana", live:false,
+  {id:"lidom", name:"LIDOM", full:"Liga de Béisbol Profesional de la República Dominicana", place:"República Dominicana", live:true,
    desc:"La liga invernal dominicana: cuna de estrellas de Grandes Ligas.",
    temporada:"Temporada: mediados de octubre a enero · Juego de Estrellas en diciembre",
    formato:"6 equipos juegan el round robin regular. Los 4 mejores pasan al Round Robin semifinal y los 2 finalistas disputan la Serie Final al mejor de 9. El campeón representa a Dominicana en la Serie del Caribe.",
@@ -2337,7 +2337,7 @@ function loadIntLeague(){
   const body = document.getElementById("intBody");
   const lg = INT_LEAGUES.find(l => l.id === intTab);
   if (!lg) return;
-  if (intTab === "npb" || intTab === "kbo"){ loadIntLive(lg); return; }
+  if (intTab === "npb" || intTab === "kbo" || intTab === "lidom"){ loadIntLive(lg); return; }
   if (!lg.live){
     let h = '<div class="intleague"><div class="eyebrow">' + lg.name + ' · ' + lg.place + '</div>'
       + '<h3>' + lg.full + '</h3>'
