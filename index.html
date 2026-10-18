@@ -309,6 +309,13 @@ tr.ranknew td{animation:ranknewflash 2.2s ease;}
 .copt.bad{border-color:#ef4444; background:rgba(239,68,68,.14);}
 .copt:disabled{cursor:default;}
 .cwin{background:linear-gradient(135deg,rgba(241,196,15,.16),rgba(241,196,15,.05)); border:1px solid var(--gold); border-radius:12px; padding:12px; margin:12px 0; font-size:14px;}
+/* Ganadores del concurso: diseño dorado estilo hito del ranking */
+.cwin-gan{background:linear-gradient(120deg,#8a6300,#f3c64f 40%,#fff3c4 50%,#f3c64f 60%,#8a6300);background-size:220% 100%;border-radius:16px;padding:16px 12px;text-align:center;margin:12px 0;color:#332500;box-shadow:0 4px 20px rgba(232,182,76,.4);animation:hitobrillo 3.5s linear infinite;}
+.cg-title{font-size:19px;font-weight:800;letter-spacing:1px;}
+.cg-week{font-size:12.5px;font-weight:600;opacity:.75;margin:4px 0 10px;}
+.cwin-tag{display:inline-block;background:linear-gradient(120deg,#6e4d00,#d9a83c 40%,#fff8dd 50%,#d9a83c 60%,#6e4d00);background-size:220% 100%;color:#2e2100;font-weight:800;border-radius:999px;padding:9px 20px;margin:5px 4px;font-size:15.5px;box-shadow:0 3px 12px rgba(90,60,0,.45),inset 0 1px 0 rgba(255,255,255,.5);animation:hitobrillo 3s linear infinite;border:1px solid rgba(110,77,0,.5);}
+.cg-ans{margin-top:12px;font-size:13px;color:#4a3600;}
+.cg-ans b{color:#2e2100;}
 .ccount{background:#1a1408; border:1px solid #5a4510; border-radius:12px; padding:11px 12px; text-align:center; font-size:14px; color:#f3c64f; margin-bottom:4px; font-variant-numeric:tabular-nums;}
 .ccount b{color:#ffe9a8;}
 .cwin b{color:var(--gold);}
@@ -2020,21 +2027,35 @@ async function loadConcurso(){
   }
   renderConcurso();
 }
+function cwinHTML(){
+  const wks = Object.keys(CONCURSO.winners||{}).sort().reverse();
+  if(!wks.length) return "";
+  const medals = ["🥇","🥈","🥉"];
+  return wks.slice(0,3).map(w=>{
+    const ns = CONCURSO.winners[w];
+    const arr = Array.isArray(ns) ? ns : [ns];
+    const tags = arr.map((n,i)=>'<span class="cwin-tag">'+medals[i%3]+" "+esc(n)+"</span>").join("");
+    const ans = (CONCURSO.answers||{})[w];
+    return '<div class="cwin-gan"><div class="cg-title">🏆 GANADORES</div>'
+      +'<div class="cg-week">Semana '+esc(w)+'</div><div>'+tags+'</div>'
+      +((ans&&ans.length)?'<div class="cg-ans"><small>Respuestas correctas</small><br><b>'+ans.map(esc).join(" · ")+"</b></div>":"")
+      +"</div>";
+  }).join("");
+}
 function renderConcurso(){
   const el = document.getElementById("concursoBox"); if(!el||!CONCURSO) return;
   const wk = CONCURSO.week;
-  let html = '<div class="ccount" id="ccount"><span style="opacity:.7">⏳ Calculando…</span></div>';
-  const wks = Object.keys(CONCURSO.winners||{}).sort().reverse();
-  if(wks.length){
-    html += '<div class="cwin"><b>🏆 Resultados</b>'+wks.slice(0,3).map(w=>{
-      const ns = CONCURSO.winners[w];
-      const nombres = Array.isArray(ns) ? ns.map(esc).join(" · ") : esc(ns);
-      const ans = (CONCURSO.answers||{})[w];
-      return '<div style="margin-top:6px"><small style="color:var(--muted)">Semana '+esc(w)+':</small><br><b>'+nombres+'</b>'
-        +((ans&&ans.length)?'<br><small style="color:var(--muted)">Respuestas correctas:</small><br><small><b>'+ans.map(esc).join(" · ")+'</b></small>':'')
-        +'</div>';
-    }).join("")+'</div>';
+  const esSabado = habanaWall(Date.now()).wd === "Sat";
+  const winHTML = cwinHTML();
+  let html = "";
+  if(esSabado){
+    /* sábado: solo los ganadores, sin cuenta regresiva ni mensajes */
+    html = winHTML || '<div class="empty">🎲 Los ganadores se publican hoy a las 8:00 PM.</div>';
+    el.innerHTML = html;
+    return;
   }
+  html = '<div class="ccount" id="ccount"><span style="opacity:.7">⏳ Calculando…</span></div>';
+  html += winHTML;
   let done = null;
   try{ done = JSON.parse(localStorage.getItem("lpc-concurso-"+wk)||"null"); }catch(e){}
   if(done){
