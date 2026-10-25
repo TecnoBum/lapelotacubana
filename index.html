@@ -389,6 +389,7 @@ button:focus-visible, a:focus-visible, input:focus-visible{outline:2px solid var
 .status{font-size:10px; font-weight:700; padding:4px 8px; border-radius:20px; letter-spacing:.5px; flex:none;}
 .status.final{background:rgba(46,204,113,.15); color:var(--green); border:1px solid rgba(46,204,113,.4);}
 .status.prog{background:rgba(241,196,15,.15); color:var(--gold); border:1px solid rgba(241,196,15,.4);}
+.status.susp{background:rgba(154,167,189,.15); color:#9aa7bd; border:1px solid rgba(154,167,189,.45);}
 .status.curso{background:rgba(231,76,60,.16); color:#e8604c; border:1px solid rgba(231,76,60,.5); display:inline-flex; align-items:center; gap:5px;}
 .status.curso .pulse{width:7px; height:7px; border-radius:50%; background:#e8604c; animation:blink 1.2s infinite;}
 table.st{width:100%; border-collapse:collapse; font-size:13px;}
@@ -494,6 +495,7 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
 <header class="topbar">
   <button class="iconbtn" id="menuBtn" aria-label="Menú"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 5h16M2 10h16M2 15h16"/></svg></button>
   <div style="flex:1"><h1>La Pelota Cubana<small>65 Serie Nacional &bull; 2026 &middot; <span id="hdrDate"></span></small></h1></div>
+  <span id="liveDot" class="livedot off"><span class="p"></span><span id="liveTxt">SYNC</span></span>
   <button class="iconbtn" id="moreBtn" aria-label="Ajustes"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></button>
 </header>
 <div id="moreMenu" class="moremenu">
@@ -729,8 +731,8 @@ const LOGOS = {
 const BASE = "https://www.beisbolcubano.cu/";
 function abs(u){ if(!u) return ""; if(/^https?:/i.test(u)) return u; return BASE+u.replace(/^\//,""); }
 /*__LPC_DATA_START__*/
-const DATA_LABEL = "25 de octubre de 2026 · 04:50";
-const GAMES = [{"id": "j83", "date": "2026-10-24", "away": "CFG", "home": "MAY", "ar": 12, "hr": 0, "status": "final", "num": 83, "stadium": "Nelson Fernández", "time": null, "live": null, "outs": null}, {"id": "j90", "date": "2026-10-25", "away": "IND", "home": "IJV", "ar": 8, "hr": 8, "status": "final", "num": 90, "stadium": "Cristóbal Labra", "time": null, "live": null, "outs": ""}, {"id": "j129", "date": "2026-10-24", "away": "ART", "home": "PRI", "ar": 3, "hr": 6, "status": "final", "num": 129, "stadium": "Capitán San Luis", "time": null, "live": null, "outs": null}, {"id": "j130", "date": "2026-10-24", "away": "IJV", "home": "IND", "ar": null, "hr": null, "status": "prog", "num": 130, "stadium": "Latinoamericano", "time": null, "live": "Suspendido", "outs": ""}, {"id": "j131", "date": "2026-10-24", "away": "VCL", "home": "MTZ", "ar": 3, "hr": 13, "status": "final", "num": 131, "stadium": "Victoria de Girón", "time": null, "live": null, "outs": null}, {"id": "j132", "date": "2026-10-24", "away": "MAY", "home": "CFG", "ar": 6, "hr": 1, "status": "final", "num": 132, "stadium": "5 de Septiembre", "time": null, "live": null, "outs": null}, {"id": "j133", "date": "2026-10-24", "away": "SSP", "home": "CAV", "ar": 0, "hr": 8, "status": "final", "num": 133, "stadium": "José Ramón Cepero", "time": null, "live": null, "outs": null}, {"id": "j134", "date": "2026-10-24", "away": "CMG", "home": "LTU", "ar": 2, "hr": 9, "status": "final", "num": 134, "stadium": "Julio Antonio Mella", "time": null, "live": null, "outs": null}, {"id": "j136", "date": "2026-10-24", "away": "GTM", "home": "HOL", "ar": 3, "hr": 10, "status": "final", "num": 136, "stadium": "Mayor General Calixto García", "time": null, "live": null, "outs": null}, {"id": "j137", "date": "2026-10-25", "away": "ART", "home": "PRI", "ar": null, "hr": null, "status": "prog", "num": 137, "stadium": "Capitán San Luis", "time": "13:30", "live": null, "outs": null}, {"id": "j138", "date": "2026-10-25", "away": "IJV", "home": "IND", "ar": null, "hr": null, "status": "prog", "num": 138, "stadium": "Latinoamericano", "time": "13:30", "live": null, "outs": null}, {"id": "j139", "date": "2026-10-25", "away": "VCL", "home": "MTZ", "ar": null, "hr": null, "status": "prog", "num": 139, "stadium": "Victoria de Girón", "time": "13:30", "live": null, "outs": null}, {"id": "j140", "date": "2026-10-25", "away": "MAY", "home": "CFG", "ar": null, "hr": null, "status": "prog", "num": 140, "stadium": "5 de Septiembre", "time": "10:00", "live": null, "outs": null}, {"id": "j141", "date": "2026-10-25", "away": "SSP", "home": "CAV", "ar": null, "hr": null, "status": "prog", "num": 141, "stadium": "José Ramón Cepero", "time": "13:30", "live": null, "outs": null}, {"id": "j142", "date": "2026-10-25", "away": "CMG", "home": "LTU", "ar": null, "hr": null, "status": "prog", "num": 142, "stadium": "Julio Antonio Mella", "time": "13:30", "live": null, "outs": null}, {"id": "j143", "date": "2026-10-25", "away": "SCU", "home": "GRA", "ar": null, "hr": null, "status": "prog", "num": 143, "stadium": "Mártires de Barbados", "time": "10:00", "live": null, "outs": null}, {"id": "j144", "date": "2026-10-25", "away": "GTM", "home": "HOL", "ar": null, "hr": null, "status": "prog", "num": 144, "stadium": "Mayor General Calixto García", "time": "13:30", "live": null, "outs": null}, {"id": "j145", "date": "2026-10-26", "away": "ART", "home": "PRI", "ar": null, "hr": null, "status": "prog", "num": 145, "stadium": "Capitán San Luis", "time": "13:30", "live": null, "outs": null}, {"id": "j146", "date": "2026-10-26", "away": "IJV", "home": "IND", "ar": null, "hr": null, "status": "prog", "num": 146, "stadium": "Latinoamericano", "time": "13:30", "live": null, "outs": null}, {"id": "j147", "date": "2026-10-26", "away": "VCL", "home": "MTZ", "ar": null, "hr": null, "status": "prog", "num": 147, "stadium": "Victoria de Girón", "time": "13:30", "live": null, "outs": null}, {"id": "j148", "date": "2026-10-26", "away": "MAY", "home": "CFG", "ar": null, "hr": null, "status": "prog", "num": 148, "stadium": "5 de Septiembre", "time": "10:00", "live": null, "outs": null}, {"id": "j149", "date": "2026-10-26", "away": "SSP", "home": "CAV", "ar": null, "hr": null, "status": "prog", "num": 149, "stadium": "José Ramón Cepero", "time": "13:30", "live": null, "outs": null}, {"id": "j150", "date": "2026-10-26", "away": "CMG", "home": "LTU", "ar": null, "hr": null, "status": "prog", "num": 150, "stadium": "Julio Antonio Mella", "time": "13:30", "live": null, "outs": null}, {"id": "j151", "date": "2026-10-26", "away": "SCU", "home": "GRA", "ar": null, "hr": null, "status": "prog", "num": 151, "stadium": "Mártires de Barbados", "time": "13:30", "live": null, "outs": null}, {"id": "j152", "date": "2026-10-26", "away": "GTM", "home": "HOL", "ar": null, "hr": null, "status": "prog", "num": 152, "stadium": "Mayor General Calixto García", "time": "13:30", "live": null, "outs": null}];
+const DATA_LABEL = "25 de octubre de 2026 · 06:35";
+const GAMES = [{"id": "j83", "date": "2026-10-24", "away": "CFG", "home": "MAY", "ar": 12, "hr": 0, "status": "final", "num": 83, "stadium": "Nelson Fernández", "time": null, "live": null, "outs": null}, {"id": "j90", "date": "2026-10-25", "away": "IND", "home": "IJV", "ar": 8, "hr": 8, "status": "susp", "num": 90, "stadium": "Cristóbal Labra", "time": null, "live": null, "outs": ""}, {"id": "j129", "date": "2026-10-24", "away": "ART", "home": "PRI", "ar": 3, "hr": 6, "status": "final", "num": 129, "stadium": "Capitán San Luis", "time": null, "live": null, "outs": null}, {"id": "j130", "date": "2026-10-24", "away": "IJV", "home": "IND", "ar": null, "hr": null, "status": "prog", "num": 130, "stadium": "Latinoamericano", "time": null, "live": "Suspendido", "outs": ""}, {"id": "j131", "date": "2026-10-24", "away": "VCL", "home": "MTZ", "ar": 3, "hr": 13, "status": "final", "num": 131, "stadium": "Victoria de Girón", "time": null, "live": null, "outs": null}, {"id": "j132", "date": "2026-10-24", "away": "MAY", "home": "CFG", "ar": 6, "hr": 1, "status": "final", "num": 132, "stadium": "5 de Septiembre", "time": null, "live": null, "outs": null}, {"id": "j133", "date": "2026-10-24", "away": "SSP", "home": "CAV", "ar": 0, "hr": 8, "status": "final", "num": 133, "stadium": "José Ramón Cepero", "time": null, "live": null, "outs": null}, {"id": "j134", "date": "2026-10-24", "away": "CMG", "home": "LTU", "ar": 2, "hr": 9, "status": "final", "num": 134, "stadium": "Julio Antonio Mella", "time": null, "live": null, "outs": null}, {"id": "j136", "date": "2026-10-24", "away": "GTM", "home": "HOL", "ar": 3, "hr": 10, "status": "final", "num": 136, "stadium": "Mayor General Calixto García", "time": null, "live": null, "outs": null}, {"id": "j137", "date": "2026-10-25", "away": "ART", "home": "PRI", "ar": null, "hr": null, "status": "prog", "num": 137, "stadium": "Capitán San Luis", "time": "13:30", "live": null, "outs": null}, {"id": "j138", "date": "2026-10-25", "away": "IJV", "home": "IND", "ar": null, "hr": null, "status": "prog", "num": 138, "stadium": "Latinoamericano", "time": "13:30", "live": null, "outs": null}, {"id": "j139", "date": "2026-10-25", "away": "VCL", "home": "MTZ", "ar": null, "hr": null, "status": "prog", "num": 139, "stadium": "Victoria de Girón", "time": "13:30", "live": null, "outs": null}, {"id": "j140", "date": "2026-10-25", "away": "MAY", "home": "CFG", "ar": null, "hr": null, "status": "prog", "num": 140, "stadium": "5 de Septiembre", "time": "10:00", "live": null, "outs": null}, {"id": "j141", "date": "2026-10-25", "away": "SSP", "home": "CAV", "ar": null, "hr": null, "status": "prog", "num": 141, "stadium": "José Ramón Cepero", "time": "13:30", "live": null, "outs": null}, {"id": "j142", "date": "2026-10-25", "away": "CMG", "home": "LTU", "ar": null, "hr": null, "status": "prog", "num": 142, "stadium": "Julio Antonio Mella", "time": "13:30", "live": null, "outs": null}, {"id": "j143", "date": "2026-10-25", "away": "SCU", "home": "GRA", "ar": null, "hr": null, "status": "prog", "num": 143, "stadium": "Mártires de Barbados", "time": "10:00", "live": null, "outs": null}, {"id": "j144", "date": "2026-10-25", "away": "GTM", "home": "HOL", "ar": null, "hr": null, "status": "prog", "num": 144, "stadium": "Mayor General Calixto García", "time": "13:30", "live": null, "outs": null}, {"id": "j145", "date": "2026-10-26", "away": "ART", "home": "PRI", "ar": null, "hr": null, "status": "prog", "num": 145, "stadium": "Capitán San Luis", "time": "13:30", "live": null, "outs": null}, {"id": "j146", "date": "2026-10-26", "away": "IJV", "home": "IND", "ar": null, "hr": null, "status": "prog", "num": 146, "stadium": "Latinoamericano", "time": "13:30", "live": null, "outs": null}, {"id": "j147", "date": "2026-10-26", "away": "VCL", "home": "MTZ", "ar": null, "hr": null, "status": "prog", "num": 147, "stadium": "Victoria de Girón", "time": "13:30", "live": null, "outs": null}, {"id": "j148", "date": "2026-10-26", "away": "MAY", "home": "CFG", "ar": null, "hr": null, "status": "prog", "num": 148, "stadium": "5 de Septiembre", "time": "10:00", "live": null, "outs": null}, {"id": "j149", "date": "2026-10-26", "away": "SSP", "home": "CAV", "ar": null, "hr": null, "status": "prog", "num": 149, "stadium": "José Ramón Cepero", "time": "13:30", "live": null, "outs": null}, {"id": "j150", "date": "2026-10-26", "away": "CMG", "home": "LTU", "ar": null, "hr": null, "status": "prog", "num": 150, "stadium": "Julio Antonio Mella", "time": "13:30", "live": null, "outs": null}, {"id": "j151", "date": "2026-10-26", "away": "SCU", "home": "GRA", "ar": null, "hr": null, "status": "prog", "num": 151, "stadium": "Mártires de Barbados", "time": "13:30", "live": null, "outs": null}, {"id": "j152", "date": "2026-10-26", "away": "GTM", "home": "HOL", "ar": null, "hr": null, "status": "prog", "num": 152, "stadium": "Mayor General Calixto García", "time": "13:30", "live": null, "outs": null}];
 const UPCOMING = [{"id": "u145", "date": "2026-10-26", "away": "ART", "home": "PRI", "ar": null, "hr": null, "status": "prog", "num": 145, "stadium": "Capitán San Luis", "time": "13:30"}, {"id": "u146", "date": "2026-10-26", "away": "IJV", "home": "IND", "ar": null, "hr": null, "status": "prog", "num": 146, "stadium": "Latinoamericano", "time": "13:30"}, {"id": "u147", "date": "2026-10-26", "away": "VCL", "home": "MTZ", "ar": null, "hr": null, "status": "prog", "num": 147, "stadium": "Victoria de Girón", "time": "13:30"}, {"id": "u148", "date": "2026-10-26", "away": "MAY", "home": "CFG", "ar": null, "hr": null, "status": "prog", "num": 148, "stadium": "5 de Septiembre", "time": "10:00"}, {"id": "u149", "date": "2026-10-26", "away": "SSP", "home": "CAV", "ar": null, "hr": null, "status": "prog", "num": 149, "stadium": "José Ramón Cepero", "time": "13:30"}, {"id": "u150", "date": "2026-10-26", "away": "CMG", "home": "LTU", "ar": null, "hr": null, "status": "prog", "num": 150, "stadium": "Julio Antonio Mella", "time": "13:30"}, {"id": "u151", "date": "2026-10-26", "away": "SCU", "home": "GRA", "ar": null, "hr": null, "status": "prog", "num": 151, "stadium": "Mártires de Barbados", "time": "13:30"}, {"id": "u152", "date": "2026-10-26", "away": "GTM", "home": "HOL", "ar": null, "hr": null, "status": "prog", "num": 152, "stadium": "Mayor General Calixto García", "time": "13:30"}, {"id": "u153", "date": "2026-10-27", "away": "ART", "home": "PRI", "ar": null, "hr": null, "status": "prog", "num": 153, "stadium": "Capitán San Luis", "time": "13:30"}, {"id": "u154", "date": "2026-10-27", "away": "IJV", "home": "IND", "ar": null, "hr": null, "status": "prog", "num": 154, "stadium": "Latinoamericano", "time": "10:00"}, {"id": "u155", "date": "2026-10-27", "away": "VCL", "home": "MTZ", "ar": null, "hr": null, "status": "prog", "num": 155, "stadium": "Victoria de Girón", "time": "13:30"}, {"id": "u156", "date": "2026-10-27", "away": "MAY", "home": "CFG", "ar": null, "hr": null, "status": "prog", "num": 156, "stadium": "5 de Septiembre", "time": "13:30"}, {"id": "u157", "date": "2026-10-27", "away": "SSP", "home": "CAV", "ar": null, "hr": null, "status": "prog", "num": 157, "stadium": "José Ramón Cepero", "time": "13:30"}, {"id": "u158", "date": "2026-10-27", "away": "CMG", "home": "LTU", "ar": null, "hr": null, "status": "prog", "num": 158, "stadium": "Julio Antonio Mella", "time": "13:30"}, {"id": "u159", "date": "2026-10-27", "away": "SCU", "home": "GRA", "ar": null, "hr": null, "status": "prog", "num": 159, "stadium": "Mártires de Barbados", "time": "13:30"}, {"id": "u160", "date": "2026-10-27", "away": "GTM", "home": "HOL", "ar": null, "hr": null, "status": "prog", "num": 160, "stadium": "Mayor General Calixto García", "time": "13:30"}];
 const STANDINGS = {"occ": [{"t": "PRI", "w": 13, "l": 4, "dif": "-", "pro": ".765", "u10": "(7-3)", "racha": "G-2"}, {"t": "MTZ", "w": 11, "l": 6, "dif": "2.0", "pro": ".647", "u10": "(6-4)", "racha": "G-4"}, {"t": "IND", "w": 7, "l": 7, "dif": "4.5", "pro": ".500", "u10": "(6-4)", "racha": "P-1"}, {"t": "ART", "w": 8, "l": 9, "dif": "5.0", "pro": ".471", "u10": "(4-6)", "racha": "P-1"}, {"t": "MAY", "w": 7, "l": 8, "dif": "5.0", "pro": ".467", "u10": "(4-6)", "racha": "P-1"}, {"t": "VCL", "w": 7, "l": 9, "dif": "5.5", "pro": ".438", "u10": "(5-5)", "racha": "P-2"}, {"t": "CFG", "w": 7, "l": 9, "dif": "5.5", "pro": ".438", "u10": "(4-6)", "racha": "G-1"}, {"t": "IJV", "w": 3, "l": 11, "dif": "8.5", "pro": ".214", "u10": "(2-8)", "racha": "P-1"}], "ori": [{"t": "SCU", "w": 10, "l": 6, "dif": "-", "pro": ".625", "u10": "(6-4)", "racha": "G-2"}, {"t": "LTU", "w": 10, "l": 7, "dif": "0.5", "pro": ".588", "u10": "(7-3)", "racha": "G-4"}, {"t": "GRA", "w": 9, "l": 7, "dif": "1.0", "pro": ".563", "u10": "(6-4)", "racha": "P-2"}, {"t": "CAV", "w": 9, "l": 8, "dif": "1.5", "pro": ".529", "u10": "(5-5)", "racha": "G-1"}, {"t": "SSP", "w": 9, "l": 8, "dif": "1.5", "pro": ".529", "u10": "(4-6)", "racha": "P-1"}, {"t": "HOL", "w": 9, "l": 8, "dif": "1.5", "pro": ".529", "u10": "(5-5)", "racha": "G-3"}, {"t": "CMG", "w": 6, "l": 11, "dif": "4.5", "pro": ".353", "u10": "(4-6)", "racha": "P-2"}, {"t": "GTM", "w": 5, "l": 12, "dif": "5.5", "pro": ".294", "u10": "(4-6)", "racha": "P-3"}]};
 const LEADERS_BAT = [{"cat": "Average de bateo", "name": "D. Laza Spencer", "team": "MAY", "pos": "OF", "val": ".478", "idj": "4799"}, {"cat": "Cuadrangulares", "name": "Y. Guibert Steven", "team": "SCU", "pos": "OF", "val": "10", "idj": "5516"}, {"cat": "Carreras impulsadas", "name": "Y. Guibert Steven", "team": "SCU", "pos": "OF", "val": "26", "idj": "5516"}, {"cat": "Bases robadas", "name": "J. Noroña Gandara", "team": "MTZ", "pos": "OF", "val": "5", "idj": "5426"}, {"cat": "Bases robadas", "name": "H. Videt Medina", "team": "MTZ", "pos": "OF", "val": "5", "idj": "9942"}];
@@ -755,9 +757,9 @@ function logoBadge(sig, lg){
 }
 
 const NEWS_IMGS = [
-  {keys:["avispas","invicto"], img:"https://www.jit.cu/images/content/24-SN-63-Stgo-Guibert%20%282%29.jpg"},
-  {keys:["elefantes","cocodrilos"], img:"https://www.jit.cu/images/content/25-64-CFG-Luis%20Vicente%20Mateo-2.JPG"},
-  {keys:["beisbol5","panamericanos"], img:"https://www.jit.cu/images/content/25-Tepic-4.jpg"}
+  {keys:["avispas","invicto","santiago"], img:"https://www.cubahora.cu/uploads/resources/images/2017/12/27/xar-beisbol-aniversario-cuba-12.jpg"},
+  {keys:["elefantes","cocodrilos","cienfuegos","matanzas"], img:"https://www.cubaplusmagazine.com/img/articulos/carr/Latinoamericano.jpg"},
+  {keys:["beisbol5","panamericanos"], img:"https://www.cvi.icrt.cu/wp-content/uploads/2019/11/BEISBOL-CUBANO-1.jpg"}
 ];
 function norm(s){ return (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,""); }
 function newsImg(n){
@@ -774,7 +776,7 @@ function newsInner(x){
   const img = newsImg(x);
   return '<div class="nmedia"><div class="nimg-fb"><div class="dots"><span></span><span></span><span></span></div></div>'
     + (img?'<img class="nimg" src="'+img+'" alt="" loading="lazy" decoding="async" onerror="this.remove()">':'')
-    + '</div><div class="nbody"><h4>'+x.title+'</h4>'+(x.text?'<p>'+x.text+'</p>':'')+'</div>';
+    + '</div><div class="nbody"><h4>'+esc(x.title)+'</h4>'+(x.text?'<p>'+esc(x.text)+'</p>':'')+'</div>';
 }
 function newsCard(x){ return '<article class="card ncard">'+newsInner(x)+'</article>'; }
 function setLive(on){
@@ -1094,20 +1096,32 @@ function detailHTML(g){
   }
   return '<div onclick="event.stopPropagation()"><div class="bstabs">'+tabs+'</div><div>'+body+'</div></div>';
 }
+/* Juego suspendido/pospuesto/cancelado: nunca "en curso" ni con marcador inventado */
+function gameSuspendido(g){
+  if(!g) return false;
+  if(g.status==="susp") return true;
+  const lv = String(g.live||"").toLowerCase();
+  return lv.indexOf("suspend")>=0 || lv.indexOf("pospuesto")>=0 || lv.indexOf("cancelado")>=0;
+}
 /* Juego en curso: tiene marcador parcial o dato de inning en vivo */
 function gameEnCurso(g){
+  if(gameSuspendido(g)) return false;
   return g.status!=="final" && !!(g.live || (g.ar!=null && g.hr!=null && (g.ar+g.hr)>0));
 }
 function gameCard(g){
   const enCurso = gameEnCurso(g);
-  const st = g.status==="final" ? '<span class="status final">FINAL</span>' : enCurso ? '<span class="status curso"><span class="pulse"></span>EN CURSO</span>' : '<span class="status prog">PRÓXIMO</span>';
+  const susp = gameSuspendido(g);
+  const st = susp ? '<span class="status susp">SUSPENDIDO</span>' : g.status==="final" ? '<span class="status final">FINAL</span>' : enCurso ? '<span class="status curso"><span class="pulse"></span>EN CURSO</span>' : '<span class="status prog">PRÓXIMO</span>';
   const aw = g.ar!=null && g.hr!=null && g.ar>g.hr, hw = g.ar!=null && g.hr!=null && g.hr>g.ar;
   const meta = (g.num? "Juego "+g.num:"") + (g.stadium?((g.num?" · ":"")+g.stadium):"");
   const num = gameNumId(g.id);
   const open = expanded.has(g.id);
   const click = num!=null ? ' onclick="toggleGame(\''+g.id+'\')" style="cursor:pointer"' : '';
   const ta = TEAMS[g.away]||{name:g.away,mote:"",color:"#5D6D7E"}, th = TEAMS[g.home]||{name:g.home,mote:"",color:"#5D6D7E"};
-  const scoreHtml = (g.status==="final"||enCurso) ? '<div class="vsc">'+g.ar+" - "+g.hr+'</div>' : '<div class="vsc prog">'+(g.time||"VS")+'</div>';
+  const hasScore = g.ar!=null && g.hr!=null;
+  const scoreHtml = susp ? (hasScore ? '<div class="vsc">'+g.ar+" - "+g.hr+'</div>' : '<div class="vsc prog">VS</div>')
+    : (g.status==="final"||enCurso) && hasScore ? '<div class="vsc">'+g.ar+" - "+g.hr+'</div>'
+    : '<div class="vsc prog">'+(g.time||"VS")+'</div>';
   const liveInfo = enCurso && (g.live||g.outs)
     ? '<div class="glive">'+esc(g.live||"")+((g.live&&g.outs)?" · ":"")+esc(g.outs||"")+'</div>' : '';
   return '<div class="game'+(open?' open':'')+'" id="gc-'+g.id+'"'+click+' style="border-top:3px solid '+(th.color||"#2a3547")+'">'
@@ -1119,6 +1133,13 @@ function gameCard(g){
     +(g.status!=="final"&&g.stadium?'<div class="gfoot">'+g.stadium+'</div>':'')
     +(open?'<div class="detail">'+detailHTML(g)+'</div>':'')
     +'</div>';
+}
+/* Fecha anterior: solo los juegos de la fecha pasada más reciente, no todo lo que no es hoy */
+function prevDateGames(games, t){
+  const past = (games||[]).filter(g=>g.date && g.date < t);
+  if(!past.length) return [];
+  const d = past.map(g=>g.date).sort().pop();
+  return past.filter(g=>g.date===d);
 }
 /* ============ RENDER ============ */
 let leadersTab = "bat";
@@ -1136,10 +1157,12 @@ function renderAll(){
   document.getElementById("dataStamp").textContent = "Datos: " + S.dateLabel;
   document.getElementById("jornadaTitle").textContent = "Jornada de hoy · " + S.dateLabel.split("·")[0].trim();
   document.getElementById("gamesToday").innerHTML = today.map(gameCard).join("") || restDayCard();
-  document.getElementById("gamesNext").innerHTML = S.upcoming.map(gameCard).join("") || '<div class="empty">Sin próximos juegos publicados.</div>';
+  const _upByD = {};
+  S.upcoming.forEach(g=>{ (_upByD[g.date]=_upByD[g.date]||[]).push(g); });
+  document.getElementById("gamesNext").innerHTML = Object.keys(_upByD).sort().map(d=>'<div class="gmeta" style="margin:12px 0 4px">'+fmtDate(d)+'</div>'+_upByD[d].map(gameCard).join("")).join("") || '<div class="empty">Sin próximos juegos publicados.</div>';
   document.getElementById("gamesPrev").innerHTML = S.prev.map(gameCard).join("") || '<div class="empty">Sin datos.</div>';
   const _up0 = S.upcoming[0], _pv0 = S.prev[0];
-  document.getElementById("gamesNextTitle").textContent = _up0 ? "Próximos juegos · "+fmtDate(_up0.date)+(_up0.time?" · "+_up0.time:"") : "Próximos juegos";
+  document.getElementById("gamesNextTitle").textContent = "Próximos juegos";
   document.getElementById("gamesPrevTitle").textContent = _pv0 ? "Fecha anterior · "+fmtDate(_pv0.date) : "Fecha anterior";
   const table = rows => {
     if(!rows.length) return '<div class="empty">Sin datos.</div>';
@@ -1160,7 +1183,7 @@ function renderAll(){
   }).join("");
   document.getElementById("newsList").innerHTML = S.news.map(newsCard).join("")
     + ((S.titulares&&S.titulares.length) ? '<div class="card"><h3>Más titulares</h3><div class="tit-list">'
-      + S.titulares.map(t=>'<div class="tit-row"><span class="tdot"></span><span>'+t.title+'</span></div>').join("")+'</div></div>' : '');
+      + S.titulares.map(t=>'<div class="tit-row"><span class="tdot"></span><span>'+esc(t.title)+'</span></div>').join("")+'</div></div>' : '');
 }
 function renderLeaders(){
   const list = leadersTab==="bat" ? S.leadersBat : leadersTab==="pit" ? S.leadersPit : null;
@@ -1169,13 +1192,14 @@ function renderLeaders(){
   document.getElementById("tabPit").classList.toggle("active", leadersTab==="pit");
   document.getElementById("tabMvp").classList.toggle("active", leadersTab==="mvp");
   if(leadersTab==="mvp"){ renderMvp(); return; }
-  document.getElementById("leadersList").innerHTML = list.map((l,i)=>{
+  document.getElementById("leadersList").innerHTML = (list&&list.length) ? list.map((l,i)=>{
     const t = TEAMS[l.team] || {name:l.team};
     const foto = l.idj
       ? '<img class="leadfoto" src="https://www.beisbolcubano.cu/images/PELOTERO%20SNB/'+l.idj+'.jpg" alt="" loading="lazy" onerror="this.remove()">'
       : '<div class="leadfoto ini">'+esc((l.name||"?").trim()[0]||"?").toUpperCase()+'</div>';
-    return '<div class="lead-card"><div class="pos">'+(i+1)+'</div>'+foto+'<div class="info"><b>'+esc(l.name)+'</b><span>'+esc(t.name)+(l.pos?" · "+esc(l.pos):"")+'</span></div><div><div class="val">'+esc(l.val)+'</div><div class="lbl">'+esc(l.cat)+'</div></div></div>';
-  }).join("");
+    const posTxt = l.pos ? ((l.pos==="Derecho"||l.pos==="Zurdo") ? "Lanzador" : l.pos) : "";
+    return '<div class="lead-card"><div class="pos">'+(i+1)+'</div>'+foto+'<div class="info"><b>'+esc(l.name)+'</b><span>'+esc(t.name)+(posTxt?" · "+esc(posTxt):"")+'</span></div><div><div class="val">'+esc(l.val)+'</div><div class="lbl">'+esc(l.cat)+'</div></div></div>';
+  }).join("") : '<div class="empty">Sin datos de líderes por ahora.</div>';
 }
 /* Votos del MVP: se agregan en el canal y se leen de votes.json (cada 5 min) */
 const VOTES_URLS = ["votes.json","https://tecnobum.github.io/lapelotacubana/votes.json"];
@@ -1363,7 +1387,7 @@ function lockLabel(g){
   return "CIERRA "+h12+":"+String(hm[1]).padStart(2,"0")+" "+ap;
 }
 function pickLocked(g){
-  if(!g || g.status==="final") return true;
+  if(!g || g.status==="final" || gameSuspendido(g)) return true;
   if(!g.date) return false;
   const hp = habanaParts(), d = String(g.date).split("-");
   if(d.length<3) return false;
@@ -1381,12 +1405,16 @@ function getScored(){ try{ return JSON.parse(localStorage.getItem("lpc-picks-sco
 function saveScored(s){ try{ localStorage.setItem("lpc-picks-scored", JSON.stringify(s)); }catch(e){} }
 function scorePick(k, side){
   const scored = getScored();
-  if(scored[k]!=null) return scored[k];
   const g = GAMES_BY_NUM[k];
-  let s = pickScore(g, side);
-  if(s==null && g && g.status==="final" && g.ar!=null && g.hr!=null && g.ar===g.hr) s = 0; /* empate/sellado: 0 pts */
-  if(s!=null){ scored[k]=s; saveScored(scored); }
-  return s;
+  const fresh = pickScore(g, side);
+  if(fresh!=null){
+    /* el juego sigue en los datos: el marcador actual manda (correcciones y reanudaciones) */
+    if(scored[k]!==fresh){ scored[k]=fresh; saveScored(scored); }
+    return fresh;
+  }
+  if(scored[k]!=null) return scored[k];
+  if(g && g.status==="final" && g.ar!=null && g.hr!=null && g.ar===g.hr){ scored[k]=0; saveScored(scored); return 0; } /* empate/sellado: 0 pts */
+  return null;
 }
 /* Medallas ganadas por este teléfono (se reutiliza para publicarlas al ranking) */
 function calcMedals(){
@@ -1400,9 +1428,10 @@ function calcMedals(){
       const s = scorePick(k, pk.side);
       if(s==null) return;
       if(s>0) hits++;
-      scoredList.push({num:+k, s:s, date:pk.date||""});
+      const gd = GAMES_BY_NUM[k];
+    scoredList.push({num:+k, s:s, date:(gd&&gd.date)||pk.date||""});
     });
-    scoredList.sort((a,b)=>a.num-b.num);
+    scoredList.sort((a,b)=>(a.date<b.date?-1:a.date>b.date?1:a.num-b.num));
     let maxStreak=0, cur=0, comeback=false, missRun=0;
     scoredList.forEach(x=>{
       if(x.s>0){ cur++; maxStreak=Math.max(maxStreak,cur); if(missRun>=3) comeback=true; missRun=0; }
@@ -1430,9 +1459,11 @@ function renderPredicciones(){
   const calHoy = ((S.cal||{})[hp.dstr]||[]).map(g=>({id:"j"+g.id, num:g.id, date:hp.dstr, away:g.away, home:g.home, ar:g.ar, hr:g.hr, status:g.status, time:g.time, stadium:g.stadium}));
   const hoy = (S.today&&S.today.length) ? S.today : calHoy;
   const all = (S.games||[]).concat(hoy, S.prev||[], S.upcoming||[]);
-  all.forEach(g=>{ const n = gameNumId(g.id); if(n!=null) GAMES_BY_NUM[n]=g; });
+  all.forEach(g=>{ const n = gameNumId(g.id); if(n==null) return; const cur = GAMES_BY_NUM[n]; if(cur && cur.status==="final" && g.status!=="final") return; GAMES_BY_NUM[n]=g; });
+  /* Respaldo: finales del calendario incrustado (puntuar aunque el juego ya salió de datos.json) */
+  Object.keys(S.cal||{}).forEach(d=>{ (S.cal[d]||[]).forEach(g=>{ if(g.status!=="final" || g.ar==null || g.hr==null) return; const n = +g.id; if(GAMES_BY_NUM[n]) return; GAMES_BY_NUM[n] = {id:"j"+g.id, num:g.id, date:d, away:g.away, home:g.home, ar:g.ar, hr:g.hr, status:"final", time:g.time, stadium:g.stadium}; }); });
   // Juegos pronosticables: los de hoy primero (antes del cierre de cada juego) + próximos
-  const open = hoy.filter(g=>g.status!=="final").concat(S.upcoming||[], (S.games||[]).filter(g=>g.status!=="final"));
+  const open = hoy.filter(g=>g.status!=="final" && !gameSuspendido(g) && g.date>=hp.dstr).concat((S.upcoming||[]).filter(g=>g.status!=="final" && !gameSuspendido(g)), (S.games||[]).filter(g=>g.status!=="final" && !gameSuspendido(g) && g.date>=hp.dstr));
   const seen = {};
   const uniq = open.filter(g=>{ const n=gameNumId(g.id); if(n==null||seen[n]) return false; seen[n]=true; return true; });
   // Carrusel 1: fecha actual (juegos lado a lado, tarjeta VS por juego).
@@ -1494,14 +1525,15 @@ function renderPredicciones(){
   const scoredList=[];
   Object.keys(picks).forEach(k=>{
     const pk = picks[k], g = GAMES_BY_NUM[k];
-    const s = pickScore(g, pk.side);
+    const s = scorePick(k, pk.side);
     if(s==null) return;
     scored++; pts+=s; if(s>0) hits++;
-    scoredList.push({num:+k, s:s, date:pk.date||""});
+    const gd = g || {};
+    scoredList.push({num:+k, s:s, date:(gd.date)||pk.date||""});
     const ta = TEAMS[pk.away]||{name:pk.away}, th = TEAMS[pk.home]||{name:pk.home};
-    const winner = g.ar>g.hr ? ta.name : th.name;
+    const winner = !g ? "resultado guardado" : (g.ar===g.hr ? "Empate "+g.ar+"-"+g.hr : (g.ar>g.hr ? ta.name : th.name)+" "+g.ar+"-"+g.hr);
     rows = '<div class="prow"><div class="teams"><b>'+ta.name+' vs '+th.name+'</b>'
-      +'<small>Juego '+k+' · Tu pick: '+((pk.side==="away"?ta:th).name)+' · Ganó '+winner+' '+g.ar+'-'+g.hr+'</small></div>'
+      +'<small>Juego '+k+' · Tu pick: '+((pk.side==="away"?ta:th).name)+' · '+winner+'</small></div>'
       +'<span class="tag '+(s>0?"hit":"miss")+'">'+(s>0?"ACIERTO":"FALLO")+'</span>'
       +'<span class="pts '+(s>0?"hit":"miss")+'">+'+s+'</span></div>' + rows;
   });
@@ -1911,12 +1943,13 @@ function go(id){
    ranking agregado se lee de ranking.json (publicado cada 5 minutos). */
 const RANKBOT = {token:"8835835836:AAETbs7qAKbc5zXDG2DgtyWBRZ25ccwgNbk", chat:"-1003640679899"};
 const RANK_URLS = ["ranking.json","https://tecnobum.github.io/lapelotacubana/ranking.json"];
+let _uidFallback = null;
 function getUid(){
   try{
     let u = localStorage.getItem("lpc-uid");
     if(!u){ u = "u"+Math.random().toString(16).slice(2,10)+Date.now().toString(36); localStorage.setItem("lpc-uid",u); }
     return u;
-  }catch(e){ return "u-anon"; }
+  }catch(e){ if(!_uidFallback) _uidFallback = "u"+Math.random().toString(16).slice(2,10)+Date.now().toString(36); return _uidFallback; }
 }
 function calcMyPoints(){
   try{
@@ -1950,23 +1983,28 @@ async function syncRank(){
     const team = String(u.team||"").replace(/[^A-Za-z]/g,"").slice(0,8).toUpperCase();
     const myEarned = calcMedals().earned;
     const badges = MEDALS.filter(m=>myEarned[m.id]).map(m=>m.id).join(",");
-    await fetch("https://api.telegram.org/bot"+RANKBOT.token+"/sendMessage",{
+    const r = await fetch("https://api.telegram.org/bot"+RANKBOT.token+"/sendMessage",{
       method:"POST", headers:{"Content-Type":"application/json"},
       body: JSON.stringify({chat_id:RANKBOT.chat, text:"RANK|"+getUid()+"|"+name+"|"+team+"|"+pts+"|"+badges})
     });
+    if(!r.ok) throw new Error("telegram "+r.status);
     localStorage.setItem("lpc-rank-sent", String(pts));
     localStorage.setItem("lpc-rank-sent-t", String(Date.now()));
   }catch(e){}
   rankSyncBusy=false;
 }
+async function fetchJsonTimeout(u, ms){
+  const c = new AbortController();
+  const t = setTimeout(()=>c.abort(), ms);
+  try{ const r = await fetch(u+"?t="+Date.now(),{cache:"no-store", signal:c.signal}); if(!r.ok) return null; return await r.json(); }
+  catch(e){ return null; } finally{ clearTimeout(t); }
+}
 async function loadRank(){
   const el = document.getElementById("rankTable"); if(!el) return;
   let d=null;
   for(const u of RANK_URLS){
-    try{
-      const r = await fetch(u+"?t="+Date.now(),{cache:"no-store"});
-      if(r.ok){ const j=await r.json(); if(j&&j.players){ d=j; break; } }
-    }catch(e){}
+    const j = await fetchJsonTimeout(u, 12000);
+    if(j&&j.players){ d=j; break; }
   }
   if(!d||!d.players.length){
     el.innerHTML = '<div class="empty">'+(!d?"No se pudo cargar el ranking. Revisa tu conexión.":"Sé el primero en aparecer: haz tus predicciones y suma puntos.")+'</div>';
@@ -2005,6 +2043,12 @@ async function loadRank(){
       +'<td><b>'+p.points+'</b></td></tr>';
   }).join("");
   try{ localStorage.setItem("lpc-rank-prev", JSON.stringify(Object.fromEntries(d.players.map((p,i)=>[p.id,i+1])))); }catch(e){}
+  /* Fuera del top: mostrar la fila propia con tus puntos aunque no estés en la tabla */
+  if(!d.players.some(p=>p.id===me)){
+    const myPts = (typeof calcMyPoints==="function") ? calcMyPoints() : 0;
+    const u = getUser()||{};
+    rows += '<tr class="me"><td>200+</td><td style="text-align:left"><b>'+esc(u.name||"Tú")+'</b> <span class="tag">TÚ</span></td><td></td><td><b>'+myPts+'</b></td></tr>';
+  }
   // Hito de cifra cerrada: banner dorado cuando el ranking llega a 50, 100, 200...
   const nJug = d.players.length;
   const hito = nJug>=1000 ? Math.floor(nJug/500)*500 : nJug>=100 ? Math.floor(nJug/100)*100 : nJug>=50 ? 50 : 0;
@@ -2038,6 +2082,7 @@ async function loadConcurso(){
       }catch(e){}
     }
   }
+  if(!CONCURSO){ el.innerHTML = '<div class="empty">No se pudo cargar el concurso. Revisa tu conexión.<br><button class="btn ghost" style="max-width:240px;margin:10px auto 0" onclick="loadConcurso()">Reintentar</button></div>'; return; }
   renderConcurso();
 }
 function cwinHTML(){
@@ -2074,7 +2119,9 @@ function renderConcurso(){
   if(done){
     html += '<div class="cwin"><b>'+(done.score===5?"🎉 ¡Felicidades!":"📝 Tu resultado")+'</b><br>'
       +'Acertaste <b>'+done.score+'/5</b> esta semana.'
-      +(done.entered?'<br><small>Ya participas: el sábado se dan los resultados y los 3 ganadores. ¡Suerte! 🍀</small>':'')+'</div>';
+      +(done.score===5
+        ? (done.entered?'<br><small>Ya participas: el sábado se dan los resultados y los 3 ganadores. ¡Suerte! 🍀</small>':'<br><small>Tu participación no quedó registrada.</small><br><button class="btn primary" style="width:100%;margin-top:8px" onclick="retryConcursoSend()">Reintentar envío</button>')
+        : '<br><button class="btn primary" style="width:100%;margin-top:8px" onclick="retryConcurso()">Intentar de nuevo</button>')+'</div>';
   } else {
     _cans = {};
     html += '<div class="gmeta" style="margin:10px 0">Marca una respuesta en cada pregunta y envía. Con 5/5 participas: el sábado se dan los resultados y los 3 ganadores.</div>'
@@ -2131,6 +2178,26 @@ function retryConcurso(){
   try{ localStorage.removeItem("lpc-concurso-"+CONCURSO.week); }catch(e){}
   renderConcurso();
 }
+async function retryConcursoSend(){
+  const wk = CONCURSO.week;
+  let done = null;
+  try{ done = JSON.parse(localStorage.getItem("lpc-concurso-"+wk)||"null"); }catch(e){}
+  if(!done || done.score!==5) return;
+  const u=getUser()||{};
+  const name=String(u.name||"").replace(/\|/g," ").slice(0,30).trim();
+  if(!name){ openUserModal(true); toast("Pon tu nombre para participar"); return; }
+  try{
+    const r = await fetch("https://api.telegram.org/bot"+RANKBOT.token+"/sendMessage",{
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({chat_id:RANKBOT.chat, text:"CONCURSO|"+getUid()+"|"+name+"|"+wk})
+    });
+    if(!r.ok) throw new Error("telegram "+r.status);
+    done.entered = true;
+    try{ localStorage.setItem("lpc-concurso-"+wk, JSON.stringify(done)); }catch(e){}
+    renderConcurso();
+    toast("¡Ya participas! 🍀");
+  }catch(e){ toast("No se pudo enviar. Revisa tu conexión e inténtalo de nuevo."); }
+}
 async function submitConcurso(){
   const qs = CONCURSO.questions, wk = CONCURSO.week;
   const msg = document.getElementById("cmsg");
@@ -2156,17 +2223,19 @@ async function submitConcurso(){
       const u=getUser()||{};
       const name=String(u.name||"").replace(/\|/g," ").slice(0,30).trim();
       if(name){
-        await fetch("https://api.telegram.org/bot"+RANKBOT.token+"/sendMessage",{
+        const r = await fetch("https://api.telegram.org/bot"+RANKBOT.token+"/sendMessage",{
           method:"POST", headers:{"Content-Type":"application/json"},
           body: JSON.stringify({chat_id:RANKBOT.chat, text:"CONCURSO|"+getUid()+"|"+name+"|"+wk})
         });
-        entered=true;
+        if(r.ok) entered=true;
       }
     }catch(e){}
   }
   try{ localStorage.setItem("lpc-concurso-"+wk, JSON.stringify({score:score, entered:entered})); }catch(e){}
   msg.innerHTML = score===5
-    ? '<div class="cwin"><b>🎉 ¡5/5! Ya participas. El sábado se dan los resultados y los 3 ganadores. ¡Suerte! 🍀</b></div>'
+    ? (entered
+      ? '<div class="cwin"><b>🎉 ¡5/5! Ya participas. El sábado se dan los resultados y los 3 ganadores. ¡Suerte! 🍀</b></div>'
+      : '<div class="empty">¡5/5! No se pudo registrar tu participación. Revisa tu conexión.</div><button class="btn primary" style="width:100%;margin-top:8px" onclick="retryConcursoSend()">Reintentar envío</button>')
     : '<div class="empty">Acertaste '+score+'/5. Las correctas están en verde.</div>'
       +'<button class="btn primary" style="width:100%;margin-top:8px" onclick="retryConcurso()">Intentar de nuevo</button>';
 }
@@ -2297,11 +2366,12 @@ function parseNews(doc){
     const src = abs(img.getAttribute('src')||'').replace(/^http:/,'https:');
     news.push({title:title, text:"", img:src});
   });
-  doc.querySelectorAll('h4 > a[href*="NewsDetails.aspx"]').forEach(a=>{
+  doc.querySelectorAll('h4 > a').forEach(a=>{
     const t = a.textContent.trim().replace(/\s+/g," ");
-    if(t && !seen.has(t)){ seen.add(t); news.push({title:t, text:""}); }
+    const href = a.getAttribute("href")||"";
+    if(t && !seen.has(t) && href.indexOf("category")<0 && t.indexOf("MÁS TITULARES")<0){ seen.add(t); news.push({title:t, text:""}); }
   });
-  doc.querySelectorAll('a.card-text-titulares[href*="NewsDetails.aspx"]').forEach(a=>{
+  doc.querySelectorAll('a.card-text-titulares').forEach(a=>{
     const t = a.textContent.trim().replace(/\s+/g," ");
     if(t && !seen.has(t)){ seen.add(t); titulares.push({title:t}); }
   });
@@ -2337,7 +2407,7 @@ async function pollDatos(){
       if(d.date_label) S.dateLabel = d.date_label;
       S._todayStr = t;
       S.today = GAMES.filter(g=>g.date===t);
-      S.prev = GAMES.filter(g=>g.date!==t);
+      S.prev = prevDateGames(GAMES, t);
       S.live = true; setLive(true);
       renderAll();
       lastPollOk = Date.now();
@@ -2400,7 +2470,7 @@ const _todayStr = habanaParts().dstr;
 S = {
   _todayStr: _todayStr,
   today: GAMES.filter(g=>g.date===_todayStr),
-  prev: GAMES.filter(g=>g.date!==_todayStr),
+  prev: prevDateGames(GAMES, _todayStr),
   upcoming: UPCOMING,
   standings: STANDINGS,
   leadersBat: LEADERS_BAT,
@@ -2426,7 +2496,7 @@ setInterval(()=>{
   if(t !== S._todayStr){
     S._todayStr = t;
     S.today = GAMES.filter(g=>g.date===t);
-    S.prev = GAMES.filter(g=>g.date!==t);
+    S.prev = prevDateGames(GAMES, t);
     S.live = false; setLive(false);
     renderAll();
     refreshLive(true);
