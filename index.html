@@ -1375,6 +1375,19 @@ function pickScore(g, side){
   const win = g.ar>g.hr ? "away" : "home";
   return side===win ? PICK_POINTS : 0;
 }
+/* Puntos persistidos de picks ya finalizados: un juego que sale de los datos
+   (datos.json solo trae ~18 juegos recientes) no debe borrar sus puntos. */
+function getScored(){ try{ return JSON.parse(localStorage.getItem("lpc-picks-scored")||"{}"); }catch(e){ return {}; } }
+function saveScored(s){ try{ localStorage.setItem("lpc-picks-scored", JSON.stringify(s)); }catch(e){} }
+function scorePick(k, side){
+  const scored = getScored();
+  if(scored[k]!=null) return scored[k];
+  const g = GAMES_BY_NUM[k];
+  let s = pickScore(g, side);
+  if(s==null && g && g.status==="final" && g.ar!=null && g.hr!=null && g.ar===g.hr) s = 0; /* empate/sellado: 0 pts */
+  if(s!=null){ scored[k]=s; saveScored(scored); }
+  return s;
+}
 /* Medallas ganadas por este teléfono (se reutiliza para publicarlas al ranking) */
 function calcMedals(){
   const earned0={};
@@ -1383,8 +1396,8 @@ function calcMedals(){
     const scoredList=[];
     let hits=0;
     Object.keys(picks).forEach(k=>{
-      const pk = picks[k], g = GAMES_BY_NUM[k];
-      const s = pickScore(g, pk.side);
+      const pk = picks[k];
+      const s = scorePick(k, pk.side);
       if(s==null) return;
       if(s>0) hits++;
       scoredList.push({num:+k, s:s, date:pk.date||""});
@@ -1916,7 +1929,7 @@ function calcMyPoints(){
     });
     const picks = getPicks(); let pts=0;
     Object.keys(picks).forEach(k=>{
-      const s = pickScore(GAMES_BY_NUM[k], picks[k].side);
+      const s = scorePick(k, picks[k].side);
       if(s!=null) pts+=s;
     });
     return pts;
