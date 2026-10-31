@@ -527,6 +527,9 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
 #playerModal.show{display:flex;}
 #playerModal .dlg{background:var(--bg2);border:1px solid var(--line);border-radius:18px;max-width:420px;width:100%;padding:20px;max-height:85vh;overflow-y:auto;animation:pop .22s ease;}
 #playerModal .dlg h4{margin:14px 0 6px;font-size:14px;}
+.phead{display:flex;gap:12px;align-items:center;margin-bottom:6px;}
+.pclose{flex:none;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--card2);color:var(--text);font-size:15px;cursor:pointer;padding:0;}
+.pclose:active{transform:scale(.94);}
 </style>
 </head>
 <body>
@@ -1412,9 +1415,9 @@ async function openPlayer(name, lead){
   const nm = (p && p.name) || (lead && lead.name) || name;
   const code = (p && p.team) || (lead && lead.team) || "";
   const tm = TEAMS[code] || {name:code};
-  let h = '<button class="btn ghost" style="float:right;padding:6px 14px" onclick="closePlayer()">✕</button>'
-    + '<div style="display:flex;gap:12px;align-items:center;margin-bottom:6px">'+playerFoto(p, lead)
-    + '<div><b style="font-size:17px">'+esc(nm)+'</b><br><span class="gmeta">'+esc(tm.name)+'</span></div></div>';
+  let h = '<div class="phead">'+playerFoto(p, lead)
+    + '<div style="flex:1;min-width:0"><b style="font-size:17px;line-height:1.25">'+esc(nm)+'</b><br><span class="gmeta">'+esc(tm.name)+'</span></div>'
+    + '<button class="pclose" onclick="closePlayer()" aria-label="Cerrar">✕</button></div>';
   if(!p){
     h += '<div class="empty">Ficha completa no disponible para este jugador.</div>';
     if(lead && lead.val!=null) h += '<div class="pstats">'+pstat(lead.val, lead.cat||"")+'</div>';
