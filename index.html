@@ -311,6 +311,13 @@ table.st.rank tr.rankdiv td{text-align:center;color:var(--muted);letter-spacing:
 .fteam{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px;background:var(--card2);}
 .fteam.top{border-color:var(--gold);}
 .fprow{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px;}
+.pbar{height:8px;background:var(--card2);border-radius:99px;overflow:hidden;margin:6px 0 4px}
+.pbar i{display:block;height:100%;background:var(--gold);border-radius:99px}
+.slotempty{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;margin-bottom:8px;background:transparent;border:1.5px dashed var(--line);border-radius:12px;color:var(--muted);font-size:14px;cursor:pointer}
+.slotempty span{font-weight:800;color:var(--gold);border:1px solid var(--line);border-radius:8px;padding:2px 8px;font-size:12px}
+.fslot{display:flex;align-items:center;gap:10px;padding:8px 10px;margin-bottom:8px;background:var(--card2);border:1px solid var(--line);border-radius:12px}
+.posbadge{flex:none;font-weight:800;font-size:11px;color:var(--gold);border:1px solid var(--gold);border-radius:7px;padding:2px 6px;min-width:30px;text-align:center}
+
 
 /* Dinámicas del ranking (30-oct-2026): podio, entrada escalonada y tarjeta Tu competencia */
 table.st.rank tr{animation:rankin .35s ease both;}
@@ -725,7 +732,7 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
   </section>
   <section class="page" id="pg-fantasy">
     <div class="card"><h3><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="10"/><path d="M5.6 5.6c3.2 3.6 3.2 9.2 0 12.8M18.4 5.6c-3.2 3.6-3.2 9.2 0 12.8"/></svg> Fantasy Equipo</h3>
-      <div class="gmeta" style="margin-bottom:10px">Arma tu equipo de ensueño con los jugadores de la Serie: <b>9 bateadores y 1 lanzador</b> con un presupuesto de <b>500</b> monedas (cada jugador cuesta según sus números). Publícalo y que la comunidad vote el mejor equipo.</div>
+      <div class="gmeta" style="margin-bottom:10px">Arma tu alineación <b>por posiciones</b> con TODOS los jugadores de la Serie: receptor, primera, segunda, tercera, torpedero, 3 jardineros, designado y lanzador, con un presupuesto de <b>500</b> monedas (cada jugador cuesta según sus números). Publícalo y que la comunidad vote el mejor equipo.</div>
       <div id="fantasyMine"></div>
     </div>
     <div class="card"><h3><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 0 1-10 0zM7 6H4.5A1.5 1.5 0 0 0 3 7.5C3 9.4 4.6 11 7 11M17 6h2.5A1.5 1.5 0 0 1 21 7.5C21 9.4 19.4 11 17 11"/></svg> Equipos de la comunidad</h3><div id="fantasyList"><div class="empty">Cargando equipos…</div></div></div>
@@ -869,7 +876,7 @@ const LOGOS = {
 const BASE = "https://www.beisbolcubano.cu/";
 function abs(u){ if(!u) return ""; if(/^https?:/i.test(u)) return u; return BASE+u.replace(/^\//,""); }
 /*__LPC_DATA_START__*/
-const DATA_LABEL = "31 de octubre de 2026 · 20:25";
+const DATA_LABEL = "31 de octubre de 2026 · 20:31";
 const GAMES = [{"id": "j169", "date": "2026-10-30", "away": "IND", "home": "ART", "ar": 1, "hr": 9, "status": "final", "num": 169, "stadium": "26 de Julio", "time": null, "live": null, "outs": null}, {"id": "j170", "date": "2026-10-30", "away": "PRI", "home": "IJV", "ar": 8, "hr": 6, "status": "final", "num": 170, "stadium": "Cristóbal Labra", "time": null, "live": null, "outs": null}, {"id": "j171", "date": "2026-10-31", "away": "MTZ", "home": "MAY", "ar": 4, "hr": 5, "status": "final", "num": 171, "stadium": "Nelson Fernández", "time": "13:30", "live": null, "outs": null}, {"id": "j172", "date": "2026-10-30", "away": "CFG", "home": "VCL", "ar": 10, "hr": 0, "status": "final", "num": 172, "stadium": "Augusto César Sandino", "time": null, "live": null, "outs": null}, {"id": "j173", "date": "2026-10-30", "away": "LTU", "home": "SSP", "ar": 11, "hr": 1, "status": "final", "num": 173, "stadium": "José Antonio Huelga", "time": null, "live": null, "outs": null}, {"id": "j174", "date": "2026-10-31", "away": "CAV", "home": "CMG", "ar": 3, "hr": 2, "status": "final", "num": 174, "stadium": "Cándido González", "time": "13:30", "live": null, "outs": null}, {"id": "j175", "date": "2026-10-30", "away": "HOL", "home": "SCU", "ar": 15, "hr": 8, "status": "final", "num": 175, "stadium": "Guillermón Moncada", "time": null, "live": null, "outs": null}, {"id": "j176", "date": "2026-10-30", "away": "GRA", "home": "GTM", "ar": 6, "hr": 11, "status": "final", "num": 176, "stadium": "Nguyen Van Troi", "time": null, "live": null, "outs": null}, {"id": "j177", "date": "2026-10-31", "away": "IND", "home": "ART", "ar": 5, "hr": 2, "status": "final", "num": 177, "stadium": "26 de Julio", "time": "13:30", "live": null, "outs": null}, {"id": "j178", "date": "2026-10-31", "away": "PRI", "home": "IJV", "ar": 6, "hr": 4, "status": "final", "num": 178, "stadium": "Cristóbal Labra", "time": "10:00", "live": null, "outs": null}, {"id": "j179", "date": "2026-10-31", "away": "MTZ", "home": "MAY", "ar": 9, "hr": 2, "status": "final", "num": 179, "stadium": "Nelson Fernández", "time": "10:00", "live": null, "outs": null}, {"id": "j180", "date": "2026-10-31", "away": "CFG", "home": "VCL", "ar": 8, "hr": 3, "status": "final", "num": 180, "stadium": "Augusto César Sandino", "time": "13:30", "live": null, "outs": null}, {"id": "j181", "date": "2026-10-31", "away": "LTU", "home": "SSP", "ar": 8, "hr": 6, "status": "final", "num": 181, "stadium": "José Antonio Huelga", "time": "13:30", "live": null, "outs": null}, {"id": "j182", "date": "2026-10-31", "away": "CAV", "home": "CMG", "ar": 0, "hr": 1, "status": "final", "num": 182, "stadium": "Cándido González", "time": "10:00", "live": null, "outs": null}, {"id": "j183", "date": "2026-10-31", "away": "HOL", "home": "SCU", "ar": 9, "hr": 7, "status": "final", "num": 183, "stadium": "Guillermón Moncada", "time": "13:30", "live": null, "outs": null}, {"id": "j184", "date": "2026-10-31", "away": "GRA", "home": "GTM", "ar": 7, "hr": 1, "status": "final", "num": 184, "stadium": "Nguyen Van Troi", "time": "13:30", "live": null, "outs": null}, {"id": "j186", "date": "2026-10-31", "away": "PRI", "home": "IJV", "ar": 13, "hr": 0, "status": "final", "num": 186, "stadium": "Cristóbal Labra", "time": "13:30", "live": null, "outs": null}];
 const UPCOMING = [{"id": "u185", "date": "2026-11-01", "away": "IND", "home": "ART", "ar": null, "hr": null, "status": "prog", "num": 185, "stadium": "26 de Julio", "time": "13:30"}, {"id": "u187", "date": "2026-11-01", "away": "MTZ", "home": "MAY", "ar": null, "hr": null, "status": "prog", "num": 187, "stadium": "Nelson Fernández", "time": "13:30"}, {"id": "u188", "date": "2026-11-01", "away": "CFG", "home": "VCL", "ar": null, "hr": null, "status": "prog", "num": 188, "stadium": "Augusto César Sandino", "time": "13:30"}, {"id": "u189", "date": "2026-11-01", "away": "LTU", "home": "SSP", "ar": null, "hr": null, "status": "prog", "num": 189, "stadium": "José Antonio Huelga", "time": "13:30"}, {"id": "u190", "date": "2026-11-01", "away": "CAV", "home": "CMG", "ar": null, "hr": null, "status": "prog", "num": 190, "stadium": "Cándido González", "time": "13:30"}, {"id": "u191", "date": "2026-11-01", "away": "HOL", "home": "SCU", "ar": null, "hr": null, "status": "prog", "num": 191, "stadium": "Guillermón Moncada", "time": "13:30"}, {"id": "u192", "date": "2026-11-01", "away": "GRA", "home": "GTM", "ar": null, "hr": null, "status": "prog", "num": 192, "stadium": "Nguyen Van Troi", "time": "13:30"}];
 const STANDINGS = {"occ": [{"t": "PRI", "w": 20, "l": 4, "dif": "-", "pro": ".833", "u10": "(9-1)", "racha": "G-9"}, {"t": "MTZ", "w": 13, "l": 8, "dif": "5.5", "pro": ".619", "u10": "(6-4)", "racha": "P-1"}, {"t": "IND", "w": 13, "l": 8, "dif": "5.5", "pro": ".619", "u10": "(8-2)", "racha": "G-1"}, {"t": "MAY", "w": 11, "l": 11, "dif": "8.0", "pro": ".500", "u10": "(6-4)", "racha": "G-1"}, {"t": "CFG", "w": 11, "l": 12, "dif": "8.5", "pro": ".478", "u10": "(5-5)", "racha": "G-4"}, {"t": "VCL", "w": 8, "l": 12, "dif": "10.0", "pro": ".400", "u10": "(4-6)", "racha": "P-3"}, {"t": "ART", "w": 9, "l": 14, "dif": "10.5", "pro": ".391", "u10": "(3-7)", "racha": "P-1"}, {"t": "IJV", "w": 3, "l": 19, "dif": "16.0", "pro": ".136", "u10": "(1-9)", "racha": "P-9"}], "ori": [{"t": "LTU", "w": 15, "l": 8, "dif": "-", "pro": ".652", "u10": "(9-1)", "racha": "G-4"}, {"t": "HOL", "w": 14, "l": 9, "dif": "1.0", "pro": ".609", "u10": "(8-2)", "racha": "G-2"}, {"t": "SCU", "w": 14, "l": 9, "dif": "1.0", "pro": ".609", "u10": "(6-4)", "racha": "P-2"}, {"t": "GRA", "w": 12, "l": 11, "dif": "3.0", "pro": ".522", "u10": "(4-6)", "racha": "G-1"}, {"t": "CAV", "w": 11, "l": 12, "dif": "4.0", "pro": ".478", "u10": "(3-7)", "racha": "G-1"}, {"t": "SSP", "w": 11, "l": 12, "dif": "4.0", "pro": ".478", "u10": "(3-7)", "racha": "P-4"}, {"t": "CMG", "w": 9, "l": 14, "dif": "6.0", "pro": ".391", "u10": "(5-5)", "racha": "P-1"}, {"t": "GTM", "w": 6, "l": 17, "dif": "9.0", "pro": ".261", "u10": "(2-8)", "racha": "P-1"}]};
@@ -2812,10 +2819,12 @@ async function shareRank(){
 }
 
 /* ============ FANTASY EQUIPO (31-oct-2026) ============ */
-const FANT_BUDGET = 500;
-const FANTASY_URLS = RANK_URLS; /* el fantasy viaja dentro de ranking.json */
-
-/* Iconos SVG de la sección Fantasy (sin emojis) */
+/* Alineación POR POSICIONES con TODOS los jugadores de la Serie (515):
+   C, 1B, 2B, 3B, SS, OF×3, BD (cualquier bateador) y P. Presupuesto 500.
+   La posición principal de cada jugador viene en jugadores.json (pos).
+   Publicación por el canal del ranking: FANTASY|uid|creador|equipo|csv con
+   el csv EN ORDEN DE POSICIÓN (C,1B,2B,3B,SS,OF,OF,OF,BD,P); votos FVOTE|. */
+/* Iconos SVG de la sección (sin emojis) */
 const FI = p => '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;flex:none">'+p+'</svg>';
 const FICON = {
   coin: FI('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/>'),
@@ -2826,220 +2835,291 @@ const FICON = {
   spark: FI('<path d="M12 3l1.9 5.6 5.6 1.9-5.6 1.9L12 18l-1.9-5.6L4.5 10.5l5.6-1.9z"/>'),
   trash: FI('<path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>'),
   pencil: FI('<path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/>'),
-  ball: FI('<circle cx="12" cy="12" r="10"/><path d="M5.6 5.6c3.2 3.6 3.2 9.2 0 12.8M18.4 5.6c-3.2 3.6-3.2 9.2 0 12.8"/>'),
-  trophy: FI('<path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 0 1-10 0zM7 6H4.5A1.5 1.5 0 0 0 3 7.5C3 9.4 4.6 11 7 11M17 6h2.5A1.5 1.5 0 0 1 21 7.5C21 9.4 19.4 11 17 11"/>')
+  ball: FI('<circle cx="12" cy="12" r="10"/><path d="M5.6 5.6c3.2 3.6 3.2 9.2 0 12.8M18.4 5.6c-3.2 3.6-3.2 9.2 0 12.8"/>')
 };
-const FANT_KEY = "lpc-fantasy", FVOTE_KEY = "lpc-fantasy-vote", FPUB_KEY = "lpc-fantasy-pub";
-let FANTASY_DATA = null, FANTASY_T = 0, FANT_EDIT = false;
-let FANT = (function(){ try{ const d = JSON.parse(localStorage.getItem(FANT_KEY)||"null"); if(d && Array.isArray(d.bats)) return {name:d.name||"", bats:d.bats, pit:d.pit||""}; }catch(e){} return {name:"", bats:[], pit:""}; })();
-function saveFantDraft(){ try{ localStorage.setItem(FANT_KEY, JSON.stringify(FANT)); }catch(e){} }
-/* Precios espejo del agregador: 0 = no elegible (muestra mínima: 20 VB / 10 INN) */
-function fantPriceBat(b){ if(!b || !b.g || (b.vb||0)<20) return 0; return Math.max(3, Math.min(60, Math.round((b.ave||0)*1000/12) + (b.hr||0)*3 + Math.floor((b.ci||0)/2))); }
-function fantPricePit(p){ if(!p || !p.g || parseFloat(p.inn_f||0)<10) return 0; return Math.max(3, Math.min(60, 46 - Math.round((p.pcl||0)*6) + Math.floor((p.so||0)/4) + (p.jg||0)*3)); }
-function fantCost(f){
-  if(!JUGADORES || !JUGADORES.players) return 0;
-  let c = 0;
-  (f.bats||[]).forEach(n=>{ const p = JUGADORES.players[n]; if(p) c += fantPriceBat(p.bat); });
-  if(f.pit){ const p = JUGADORES.players[f.pit]; if(p) c += fantPricePit(p.pit); }
-  return c;
+const FANT_BUDGET = 500;
+const FANTASY_URLS = RANK_URLS;
+const FANT_KEY = "lpc-fantasy", FPUB_KEY = "lpc-fantasy-pub", FVOTE_KEY = "lpc-fantasy-vote";
+const FANT_SLOTS = [
+  {k:'C', label:'Receptor'}, {k:'1B', label:'Primera base'}, {k:'2B', label:'Segunda base'},
+  {k:'3B', label:'Tercera base'}, {k:'SS', label:'Torpedero'}, {k:'OF', label:'Jardineros', n:3},
+  {k:'BD', label:'Designado'}, {k:'P', label:'Lanzador'}
+];
+const FANT_ORDER = ['C','1B','2B','3B','SS','OF','OF','OF','BD','P'];
+const FANT_BATPOS = ['C','1B','2B','3B','SS','LF','CF','RF','BD'];
+let FANTASY_DATA = null;
+let FANT_EDIT = false;
+let FANT_PICK = null;
+
+function fantPriceBat(b){ b = b||{}; return Math.max(3, Math.min(60, Math.round((b.ave||0)*1000/12) + (b.hr||0)*3 + Math.floor((b.ci||0)/2))); }
+function fantPricePit(p){ p = p||{}; const inn = parseFloat(p.inn_f||0)||0; if(!p.g || inn < 1) return 0; return Math.max(3, Math.min(60, 46 - Math.round((p.pcl||0)*6) + Math.floor((p.so||0)/4) + (p.jg||0)*3)); }
+function fantSlotPrice(slot, p){ return slot === 'P' ? fantPricePit(p && p.pit) : fantPriceBat(p && p.bat); }
+function fantEligible(slot, p){
+  if(!p) return false;
+  if(slot === 'P') return fantPricePit(p.pit) > 0;
+  if(slot === 'OF') return ['LF','CF','RF'].indexOf(p.pos||'') >= 0;
+  if(slot === 'BD') return FANT_BATPOS.indexOf(p.pos||'') >= 0;
+  return (p.pos||'') === slot;
 }
-function fantStatLine(p, role){
-  if(!p) return "";
-  return role==="pit" ? ('PCL '+fmtPcl(p.pit.pcl)+' · '+p.pit.so+' SO · '+p.pit.jg+' JG')
-                      : ('AVE '+fmtAve(p.bat.ave)+' · '+p.bat.hr+' HR · '+p.bat.ci+' CI');
+function fantCandidates(slot){
+  if(!PLAYERS_DB) return [];
+  return Object.keys(PLAYERS_DB.players).filter(k => fantEligible(slot, PLAYERS_DB.players[k]));
+}
+function fantStatLine(p, slot){
+  if(slot === 'P'){ const q = p.pit||{}; return 'PCL '+(q.pcl||0).toFixed(2)+' · '+esc(q.inn_f||'0')+' INN · '+esc(q.so||0)+' SO'; }
+  const b = p.bat||{}; return 'AVE '+(b.ave||0).toFixed(3).replace(/^0/,'')+' · '+esc(b.hr||0)+' HR · '+esc(b.ci||0)+' CI';
+}
+function fantEmptySlots(){ return {C:'','1B':'','2B':'','3B':'','SS':'',OF:['','',''],BD:'',P:''}; }
+function fantLoadDraft(){
+  try{
+    const d = JSON.parse(localStorage.getItem(FANT_KEY)||'null');
+    if(d && d.slots) return {name: d.name||'', slots: Object.assign(fantEmptySlots(), d.slots), legacy: null};
+    if(d && Array.isArray(d.bats)) return {name: d.name||'', slots: null, legacy: d};
+  }catch(e){}
+  return {name:'', slots: fantEmptySlots(), legacy: null};
+}
+let FANTD = fantLoadDraft();
+let FANT = {name: FANTD.name, slots: FANTD.slots || fantEmptySlots()};
+function saveFantDraft(){ try{ localStorage.setItem(FANT_KEY, JSON.stringify(FANT)); }catch(e){} }
+function fantMigrateLegacy(){
+  // Borrador v1 (9 bateadores libres + lanzador): cada bateador a su posición
+  if(!FANTD.legacy || !PLAYERS_DB) return;
+  const P = PLAYERS_DB.players, used = new Set();
+  const put = (slot, key) => {
+    if(slot === 'OF'){ const i = FANT.slots.OF.findIndex(x => !x); if(i >= 0 && !used.has(key)){ FANT.slots.OF[i] = key; used.add(key); return true; } return false; }
+    if(!FANT.slots[slot] && !used.has(key)){ FANT.slots[slot] = key; used.add(key); return true; }
+    return false;
+  };
+  (FANTD.legacy.bats||[]).forEach(k => {
+    const p = P[k]; if(!p) return;
+    const pos = p.pos||'';
+    if(['C','1B','2B','3B','SS'].indexOf(pos) >= 0) { if(put(pos, k)) return; }
+    if(['LF','CF','RF'].indexOf(pos) >= 0) { if(put('OF', k)) return; }
+    put('BD', k);
+  });
+  if(FANTD.legacy.pit && P[FANTD.legacy.pit]) FANT.slots.P = FANTD.legacy.pit;
+  FANTD.legacy = null;
+  saveFantDraft();
+}
+function fantGet(slot, idx){ return slot === 'OF' ? (FANT.slots.OF[idx||0]||'') : (FANT.slots[slot]||''); }
+function fantSet(slot, idx, key){ if(slot === 'OF') FANT.slots.OF[idx||0] = key; else FANT.slots[slot] = key; }
+function fantUsedKeys(){ return new Set(fantKeysOrdered().filter(Boolean)); }
+function fantKeysOrdered(){
+  const out = []; let ofi = 0;
+  FANT_ORDER.forEach(slot => { out.push(slot === 'OF' ? (FANT.slots.OF[ofi++]||'') : (FANT.slots[slot]||'')); });
+  return out;
+}
+function fantCost(){ if(!PLAYERS_DB) return 0; return fantKeysOrdered().reduce((s, k, i) => s + (k ? fantSlotPrice(FANT_ORDER[i], PLAYERS_DB.players[k]) : 0), 0); }
+function fantFilled(){ return fantKeysOrdered().filter(Boolean).length; }
+function fantMyPublished(){
+  const uid = getUid();
+  if(FANTASY_DATA && FANTASY_DATA.teams){ const t = FANTASY_DATA.teams.find(t => t.id === uid); if(t) return t; }
+  try{ const p = JSON.parse(localStorage.getItem(FPUB_KEY)||'null'); if(p && p.players) return {id: uid, by: (getUser()||{}).name||'', team: p.team, players: p.players, cost: p.cost, votes: 0, pending: true}; }catch(e){}
+  return null;
 }
 async function renderFantasy(){
-  const mine = document.getElementById("fantasyMine"), list = document.getElementById("fantasyList");
-  if(!mine || !list) return;
-  const j = await loadJugadores();
-  if(!j){ mine.innerHTML = '<div class="empty">No se pudo cargar la base de jugadores. Revisa tu conexión.</div>'; return; }
-  let d = FANTASY_DATA;
-  if(!d || Date.now()-FANTASY_T > 60000){
-    d = null;
-    for(const u of FANTASY_URLS){ const jj = await fetchJsonTimeout(u, 12000); if(jj && jj.players){ d = {updated: jj.updated, teams: (jj.fantasy && jj.fantasy.teams) || []}; break; } }
-    if(d){ FANTASY_DATA = d; FANTASY_T = Date.now(); }
-  }
-  renderFantasyMine(d);
-  renderFantasyList(d);
+  const mine = document.getElementById('fantasyMine'); if(!mine) return;
+  if(!PLAYERS_DB){ mine.innerHTML = '<div class="empty">Cargando jugadores de la Serie…</div>'; loadPlayers().then(()=>renderFantasy()); return; }
+  fantMigrateLegacy();
+  const pub = fantMyPublished();
+  if(pub && !FANT_EDIT){ mine.innerHTML = fantSavedHTML(pub); }
+  else mine.innerHTML = fantBuilderHTML();
+  renderFantasyList(FANTASY_DATA);
+  if(!FANTASY_DATA) loadFantData();
 }
-function fantTeamCard(t, pos){
-  const me = getUid();
-  const isMine = t.id === me;
-  let myVote = ""; try{ myVote = localStorage.getItem(FVOTE_KEY)||""; }catch(e){}
-  const voted = myVote === t.id;
-  const players = (t.players||[]).map((n, i)=>{
-    const p = (JUGADORES && JUGADORES.players) ? JUGADORES.players[n] : null;
-    const role = i===9 ? "pit" : "bat";
-    return '<div class="fprow">'+(p?playerFoto(p, null):'')+'<span style="flex:1;min-width:0"><b>'+esc(fmtName(n))+'</b>'+(p?' <small style="color:var(--muted)">'+esc(p.team||'')+'</small>':'')+'</span>'+(i===9?' <span class="tag">LANZADOR</span>':'')+(p?'<small style="color:var(--muted)">'+esc(fantStatLine(p, role))+'</small>':'')+'</div>';
-  }).join("");
-  return '<div class="fteam'+(pos===0 && t.votes>0 ? ' top':'')+'">'
-    + '<div style="display:flex;align-items:center;gap:8px"><b style="font-size:16px;flex:1;min-width:0">'+(pos===0 && t.votes>0 ? FICON.crown+' ':'')+esc(t.team)+'</b><span class="price">'+FICON.coin+' '+t.cost+'</span><span class="price" style="background:rgba(232,96,76,.15);color:#ff8a75;border-color:rgba(232,96,76,.4)">'+FICON.heart+' '+t.votes+'</span></div>'
-    + '<div class="gmeta" style="margin:4px 0 8px">de '+esc(t.by)+(isMine?' · <span class="tag">TU EQUIPO</span>':'')+'</div>'
-    + players
-    + (isMine ? '' : '<button class="btn '+(voted?'ghost':'primary')+'" style="margin-top:10px" onclick="voteFantasy(\''+t.id+'\')">'+(voted?'✓ Tu voto es para este equipo':FICON.heart+' Votar por este equipo')+'</button>')
-    + '</div>';
-}
-function renderFantasyList(d){
-  const el = document.getElementById("fantasyList"); if(!el) return;
-  if(!d){ el.innerHTML = '<div class="empty">No se pudo cargar la comunidad. Revisa tu conexión.</div>'; return; }
-  if(!d.teams.length){ el.innerHTML = '<div class="empty">Todavía no hay equipos publicados. ¡Sé el primero en armar el tuyo!</div>'; return; }
-  el.innerHTML = '<div class="gmeta" style="margin-bottom:8px">'+d.teams.length+' equipo'+(d.teams.length===1?'':'s')+' en competencia · se actualiza cada pocos minutos</div>'
-    + d.teams.map((t, i)=>fantTeamCard(t, i)).join("");
-}
-function renderFantasyMine(server){
-  const el = document.getElementById("fantasyMine"); if(!el) return;
-  const me = getUid();
-  const myTeam = (server && server.teams) ? server.teams.find(t=>t.id===me) : null;
-  if(myTeam && !FANT_EDIT){
-    try{ localStorage.removeItem(FPUB_KEY); }catch(e){}
-    el.innerHTML = '<div class="gmeta" style="margin-bottom:8px">'+FICON.check+' Tu equipo está publicado. La comunidad puede votarlo.</div>'
-      + fantTeamCard(myTeam, server.teams.indexOf(myTeam))
-      + '<button class="btn ghost" onclick="fantEdit()">'+FICON.pencil+' Editar mi equipo</button>';
-    return;
+async function loadFantData(){
+  for(const u of FANTASY_URLS){
+    const j = await fetchJsonTimeout(u, 12000);
+    if(j){ FANTASY_DATA = j.fantasy || {teams: []}; break; }
   }
-  if(!myTeam && !FANT_EDIT){
-    let pub = null; try{ pub = JSON.parse(localStorage.getItem(FPUB_KEY)||"null"); }catch(e){}
-    if(pub){
-      el.innerHTML = '<div class="gmeta" style="margin-bottom:8px">'+FICON.send+' Tu equipo se está publicando… aparecerá en la comunidad en unos minutos.</div>'
-        + fantTeamCard({id:me, by:pub.by, team:pub.team, players:pub.players, cost:pub.cost, votes:0}, -1)
-        + '<button class="btn ghost" onclick="fantEdit()">'+FICON.pencil+' Editar mi equipo</button>';
-      return;
-    }
-  }
-  const cost = fantCost(FANT);
-  const pct = Math.min(100, Math.round(cost/FANT_BUDGET*100));
-  let h = '<input class="uin" id="fantName" maxlength="30" placeholder="Nombre de tu equipo (ej. Los Invencibles)" value="'+esc(FANT.name||"")+'" oninput="FANT.name=this.value;saveFantDraft()">';
-  h += '<div style="display:flex;justify-content:space-between;margin-top:12px"><b>'+FICON.coin+' Presupuesto</b><span>'+cost+' / '+FANT_BUDGET+(cost>FANT_BUDGET?' · <b style="color:#e8604c">¡te pasaste!</b>':' · te quedan '+(FANT_BUDGET-cost))+'</span></div>'
-    + '<div class="fbudget"><div style="width:'+pct+'%" class="'+(cost>FANT_BUDGET?'over':'')+'"></div></div>';
-  h += '<div class="gmeta" style="margin:10px 0 6px">Bateadores ('+FANT.bats.length+'/9)</div>';
-  FANT.bats.forEach((n, i)=>{
-    const p = JUGADORES.players[n]; if(!p) return;
-    h += '<div class="fslot full" onclick="openFantPicker(\'bat\','+i+')">'+playerFoto(p, null)+'<div style="flex:1;min-width:0"><b>'+esc(fmtName(n))+'</b><br><small style="color:var(--muted)">'+esc(fantStatLine(p, "bat"))+'</small></div><span class="price">'+FICON.coin+' '+fantPriceBat(p.bat)+'</span><span class="pclose" style="width:30px;height:30px;font-size:13px;flex:none" onclick="event.stopPropagation();fantRemove(\'bat\','+i+')">✕</span></div>';
+  if(FANTASY_DATA) renderFantasyList(FANTASY_DATA);
+  const pub = fantMyPublished();
+  const mine = document.getElementById('fantasyMine');
+  if(mine && pub && !FANT_EDIT) mine.innerHTML = fantSavedHTML(pub);
+}
+function fantSavedHTML(t){
+  return (t.pending
+    ? '<div class="gmeta" style="margin-bottom:8px">'+FICON.send+' Tu equipo se está publicando… aparecerá en la comunidad en unos minutos.</div>'
+    : '<div class="gmeta" style="margin-bottom:8px">'+FICON.check+' Tu equipo está publicado. La comunidad puede votarlo.</div>')
+    + fantTeamCard(t, 0, true)
+    + '<button class="btn" style="margin-top:10px" onclick="fantEdit()">'+FICON.pencil+' Editar mi equipo</button>';
+}
+function fantSlotRowHTML(slot, idx){
+  const P = PLAYERS_DB.players;
+  const key = fantGet(slot, idx);
+  const def = FANT_SLOTS.find(s => s.k === slot);
+  const label = slot === 'OF' ? 'Jardinero ' + ((idx||0)+1) : def.label;
+  if(!key) return '<button class="slotempty" onclick="openFantPicker(\''+slot+'\','+(idx||0)+')"><span>'+(slot==='OF'?'OF':slot)+'</span> Elegir '+esc(label.toLowerCase())+'…</button>';
+  const p = P[key];
+  return '<div class="fslot">'+playerFoto(p, null)
+    + '<div style="flex:1;min-width:0"><b>'+esc(fmtName(p.name))+'</b><br><small style="color:var(--muted)">'+esc(label)+' · '+esc((TEAMS[p.team]||{name:p.team}).name)+' · '+esc(fantStatLine(p, slot))+'</small></div>'
+    + '<span class="price">'+FICON.coin+' '+fantSlotPrice(slot, p)+'</span>'
+    + '<button class="pclose" onclick="fantRemove(\''+slot+'\','+(idx||0)+')">✕</button></div>';
+}
+function fantBuilderHTML(){
+  const cost = fantCost(), left = FANT_BUDGET - cost, n = fantFilled();
+  let h = '<input class="uin" id="fantName" maxlength="30" placeholder="Nombre de tu equipo (ej. Los Invencibles)" value="'+esc(FANT.name||'')+'" oninput="FANT.name=this.value;saveFantDraft()">'
+    + '<div class="frow" style="justify-content:space-between;margin-top:12px"><b>'+FICON.coin+' Presupuesto</b><span><b style="color:'+(left<0?'#ff8a75':'var(--gold)')+'">'+cost+'</b> / '+FANT_BUDGET+' monedas</span></div>'
+    + '<div class="pbar"><i style="width:'+Math.min(100, cost/FANT_BUDGET*100)+'%"></i></div>';
+  FANT_SLOTS.forEach(def => {
+    h += '<div class="gmeta" style="margin:12px 0 6px">'+esc(def.label.toUpperCase())+'</div>';
+    if(def.n) { for(let i = 0; i < def.n; i++) h += fantSlotRowHTML(def.k, i); }
+    else h += fantSlotRowHTML(def.k, 0);
   });
-  if(FANT.bats.length < 9) h += '<div class="fslot" onclick="openFantPicker(\'bat\',-1)"><span style="flex:1">＋ Añadir bateador</span></div>';
-  h += '<div class="gmeta" style="margin:10px 0 6px">Lanzador</div>';
-  if(FANT.pit && JUGADORES.players[FANT.pit]){
-    const p = JUGADORES.players[FANT.pit];
-    h += '<div class="fslot full" onclick="openFantPicker(\'pit\',-1)">'+playerFoto(p, null)+'<div style="flex:1;min-width:0"><b>'+esc(fmtName(FANT.pit))+'</b><br><small style="color:var(--muted)">'+esc(fantStatLine(p, "pit"))+'</small></div><span class="price">'+FICON.coin+' '+fantPricePit(p.pit)+'</span><span class="pclose" style="width:30px;height:30px;font-size:13px;flex:none" onclick="event.stopPropagation();fantRemove(\'pit\',-1)">✕</span></div>';
-  } else {
-    h += '<div class="fslot" onclick="openFantPicker(\'pit\',-1)"><span style="flex:1">＋ Añadir lanzador</span></div>';
-  }
-  const missing = (9 - FANT.bats.length) + (FANT.pit ? 0 : 1);
-  h += '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" style="flex:1" onclick="fantAuto()">'+FICON.spark+' Automático</button><button class="btn ghost" style="flex:1" onclick="fantClear()">'+FICON.trash+' Limpiar</button></div>'
-    + '<button class="btn primary" style="margin-top:8px" onclick="publishFantasy()">'+FICON.send+' Publicar mi equipo</button>'
-    + '<div class="gmeta" style="margin-top:6px">'+(missing ? 'Te faltan '+missing+' jugador'+(missing===1?'':'es')+' para publicar.' : 'Equipo completo: listo para publicar. Si republicas, conservas tus votos.')+'</div>'
-    + (FANT_EDIT ? '<button class="btn ghost" onclick="FANT_EDIT=false;renderFantasy()">Cancelar edición</button>' : '');
-  el.innerHTML = h;
+  h += '<div class="frow" style="margin-top:12px"><button class="btn ghost" onclick="fantAuto()">'+FICON.spark+' Automático</button>'
+    + '<button class="btn ghost" onclick="fantClear()">'+FICON.trash+' Limpiar</button></div>'
+    + '<button class="btn" style="width:100%;margin-top:10px" onclick="publishFantasy()">'+FICON.send+' Publicar mi equipo</button>'
+    + (n < 10 ? '<div class="gmeta" style="margin-top:8px">Te faltan '+(10-n)+' jugador'+(10-n===1?'':'es')+' para completar la alineación.</div>' : '');
+  return h;
 }
 function fantEdit(){
-  const me = getUid();
-  const t = ((FANTASY_DATA && FANTASY_DATA.teams) || []).find(x=>x.id===me);
-  let pub = null; try{ pub = JSON.parse(localStorage.getItem(FPUB_KEY)||"null"); }catch(e){}
-  const srcT = t || pub;
-  if(srcT){ FANT = {name: srcT.team || "", bats: (srcT.players||[]).slice(0,9), pit: (srcT.players||[])[9] || ""}; saveFantDraft(); }
-  FANT_EDIT = true; renderFantasy();
+  const t = fantMyPublished(); if(!t) return;
+  const s = fantEmptySlots(); let ofi = 0;
+  (t.players||[]).forEach((k, i) => { const slot = FANT_ORDER[i]; if(slot === 'OF') s.OF[ofi++] = k; else s[slot] = k; });
+  FANT = {name: t.team || FANT.name || '', slots: s};
+  saveFantDraft(); FANT_EDIT = true; renderFantasy();
 }
-function fantClear(){ FANT = {name: FANT.name, bats: [], pit: ""}; saveFantDraft(); renderFantasy(); }
-function fantRemove(role, idx){ if(role==="pit") FANT.pit = ""; else FANT.bats.splice(idx, 1); saveFantDraft(); renderFantasy(); }
+function fantClear(){ FANT.slots = fantEmptySlots(); saveFantDraft(); renderFantasy(); }
+function fantRemove(slot, idx){ fantSet(slot, idx, ''); saveFantDraft(); renderFantasy(); }
+function fantValue(p, slot){
+  if(slot === 'P'){ const q = p.pit||{}; return (46 - (q.pcl||0)*6) + (q.so||0)/4 + (q.jg||0)*3; }
+  const b = p.bat||{}; return (b.ave||0)*1000 + (b.hr||0)*10 + (b.ci||0);
+}
 function fantAuto(){
-  if(!JUGADORES || !JUGADORES.players) return;
-  const pits = Object.entries(JUGADORES.players).map(([n,p])=>({n:n, pr:fantPricePit(p.pit), sc:(40-Math.min(40, p.pit.pcl||9))*8 + (p.pit.so||0)})).filter(x=>x.pr>0 && x.pr<=45).sort((a,b)=> (b.sc/b.pr) - (a.sc/a.pr));
-  const bats = Object.entries(JUGADORES.players).map(([n,p])=>({n:n, pr:fantPriceBat(p.bat), sc:(p.bat.ave||0)*1000 + (p.bat.hr||0)*12 + (p.bat.ci||0)*2})).filter(x=>x.pr>0).sort((a,b)=> (b.sc/b.pr) - (a.sc/a.pr));
-  let cost = 0, pit = "";
-  if(pits.length){ pit = pits[0].n; cost = pits[0].pr; }
-  const chosen = [];
-  for(const b of bats){ if(chosen.length>=9) break; if(cost + b.pr <= FANT_BUDGET){ chosen.push(b.n); cost += b.pr; } }
-  if(chosen.length < 9){
-    const cheap = bats.slice().sort((a,b)=>a.pr-b.pr);
-    for(const b of cheap){ if(chosen.length>=9) break; if(!chosen.includes(b.n) && cost + b.pr <= FANT_BUDGET){ chosen.push(b.n); cost += b.pr; } }
-  }
-  /* Mejora: con lo que sobra, sube el nivel cambiando jugadores por otros mejores */
-  let rest = FANT_BUDGET - cost;
-  for(let round=0; round<3 && rest>0; round++){
-    let mejorado = false;
-    for(let i=0; i<chosen.length; i++){
-      const cur = bats.find(b=>b.n===chosen[i]); if(!cur) continue;
-      const cand = bats.filter(b=> !chosen.includes(b.n) && b.sc > cur.sc && (b.pr - cur.pr) <= rest).sort((a,b)=> b.sc - a.sc)[0];
-      if(cand){ rest -= (cand.pr - cur.pr); chosen[i] = cand.n; mejorado = true; }
+  if(!PLAYERS_DB) return;
+  const P = PLAYERS_DB.players;
+  const tasks = [{slot:'C',id:'C'},{slot:'SS',id:'SS'},{slot:'3B',id:'3B'},{slot:'2B',id:'2B'},{slot:'1B',id:'1B'},
+                 {slot:'OF',id:'OF0'},{slot:'OF',id:'OF1'},{slot:'OF',id:'OF2'},{slot:'BD',id:'BD'},{slot:'P',id:'P'}];
+  const used = new Set(); const pick = {}; let budget = FANT_BUDGET;
+  const minCost = (slot, extra) => { let m = Infinity; fantCandidates(slot).forEach(k => { if(used.has(k) || (extra && extra.has(k))) return; const pr = fantSlotPrice(slot, P[k]); if(pr < m) m = pr; }); return m === Infinity ? 0 : m; };
+  tasks.forEach((t, i) => {
+    const rest = tasks.slice(i+1);
+    let reserve = 0; const tmp = new Set(used);
+    rest.forEach(r => { reserve += minCost(r.slot, tmp); });
+    const cands = fantCandidates(t.slot).filter(k => !used.has(k))
+      .map(k => ({k, pr: fantSlotPrice(t.slot, P[k]), val: fantValue(P[k], t.slot)}))
+      .sort((a, b) => (b.val/Math.max(1,b.pr)) - (a.val/Math.max(1,a.pr)) || b.val - a.val);
+    let chosen = cands.find(c => c.pr <= budget - reserve) || cands.slice().sort((a, b) => a.pr - b.pr)[0];
+    if(!chosen) return;
+    pick[t.id] = chosen.k; used.add(chosen.k); budget -= chosen.pr;
+  });
+  // Pase de mejora: gastar lo que sobre en subir nivel donde se pueda
+  let improved = true;
+  while(improved){
+    improved = false;
+    for(const t of tasks){
+      const cur = pick[t.id]; if(!cur) continue;
+      const curPr = fantSlotPrice(t.slot, P[cur]);
+      const better = fantCandidates(t.slot).filter(k => !used.has(k))
+        .map(k => ({k, pr: fantSlotPrice(t.slot, P[k]), val: fantValue(P[k], t.slot)}))
+        .filter(c => c.val > fantValue(P[cur], t.slot) && c.pr <= curPr + budget)
+        .sort((a, b) => b.val - a.val)[0];
+      if(better){ used.delete(cur); used.add(better.k); budget -= (better.pr - curPr); pick[t.id] = better.k; improved = true; }
     }
-    if(!mejorado) break;
   }
-  cost = FANT_BUDGET - rest;
-  FANT.bats = chosen; FANT.pit = pit; saveFantDraft(); renderFantasy();
-  toast("Equipo automático listo · costo " + cost + " de " + FANT_BUDGET);
+  const s = fantEmptySlots();
+  tasks.forEach(t => { if(t.slot === 'OF') s.OF[parseInt(t.id.slice(2), 10)] = pick[t.id] || ''; else s[t.slot] = pick[t.id] || ''; });
+  FANT.slots = s; saveFantDraft(); renderFantasy();
+  toast('Equipo automático listo · costo ' + fantCost() + ' de ' + FANT_BUDGET);
 }
-let FANT_PICK = {role:"bat", idx:-1};
-function openFantPicker(role, idx){
-  FANT_PICK = {role: role, idx: idx};
-  document.getElementById("fantDlg").innerHTML = '<div class="phead"><div style="flex:1;min-width:0"><b style="font-size:16px">'+(role==="pit"?"Elige tu lanzador":"Elige un bateador")+'</b><br><span class="gmeta">El precio sale de sus números de la temporada</span></div><button class="pclose" onclick="closeFantPicker()" aria-label="Cerrar">✕</button></div>'
-    + '<input class="uin" id="fantQ" placeholder="Buscar jugador…" autocomplete="off" oninput="renderFantList()">'
-    + '<div id="fantList" style="margin-top:10px"></div>';
-  document.getElementById("fantModal").classList.add("show");
-  renderFantList();
+function openFantPicker(slot, idx){
+  if(!PLAYERS_DB) return;
+  FANT_PICK = {slot, idx: idx||0};
+  const def = FANT_SLOTS.find(s => s.k === slot);
+  document.getElementById('fantPickTitle').textContent = 'Elegir ' + (slot === 'OF' ? 'jardinero ' + ((idx||0)+1) : def.label.toLowerCase());
+  const inp = document.getElementById('fantPickSearch'); if(inp) inp.value = '';
+  renderFantPickList('');
+  document.getElementById('fantPickModal').classList.add('open');
 }
-function closeFantPicker(){ document.getElementById("fantModal").classList.remove("show"); }
-function renderFantList(){
-  const box = document.getElementById("fantList"); if(!box || !JUGADORES) return;
-  const q = ((document.getElementById("fantQ")||{}).value || "");
-  const toks = normName(q).split(" ").filter(Boolean);
-  const role = FANT_PICK.role;
-  const inTeam = {}; FANT.bats.forEach(n=>{ inTeam[n]=1; }); if(FANT.pit) inTeam[FANT.pit]=1;
-  const cur = FANT_PICK.idx>=0 ? FANT.bats[FANT_PICK.idx] : (role==="pit" ? FANT.pit : "");
-  if(cur) delete inTeam[cur];
-  let curPrice = 0;
-  if(cur && JUGADORES.players[cur]) curPrice = role==="pit" ? fantPricePit(JUGADORES.players[cur].pit) : fantPriceBat(JUGADORES.players[cur].bat);
-  const othersCost = fantCost(FANT) - curPrice;
-  const cands = Object.entries(JUGADORES.players)
-    .map(([n,p])=>({n:n, p:p, price: role==="pit" ? fantPricePit(p.pit) : fantPriceBat(p.bat)}))
-    .filter(x=> x.price>0)
-    .filter(x=> !toks.length || toks.every(t=>normName(x.n).indexOf(t)>=0))
-    .sort((a,b)=> b.price - a.price);
-  box.innerHTML = cands.slice(0, 40).map(x=>{
-    const dis = !!inTeam[x.n] || (othersCost + x.price > FANT_BUDGET);
-    return '<div class="lead-card" style="margin-bottom:8px;'+(dis?'opacity:.45':'cursor:pointer')+'"'+(dis?'':' onclick="fantPickPlayer(\''+esc(x.n).replace(/\'/g,"\\'")+'\')"')+'>'+playerFoto(x.p, null)+'<div class="info"><b>'+esc(fmtName(x.n))+'</b><span>'+esc((TEAMS[x.p.team]||{name:x.p.team}).name)+' · '+esc(fantStatLine(x.p, role))+'</span></div><span class="price">'+FICON.coin+' '+x.price+'</span></div>';
-  }).join("") || '<div class="empty">Sin jugadores para ese criterio.</div>';
+function fantClosePicker(){ const m = document.getElementById('fantPickModal'); if(m) m.classList.remove('open'); FANT_PICK = null; }
+function renderFantPickList(q){
+  const box = document.getElementById('fantPickList'); if(!box || !FANT_PICK) return;
+  const P = PLAYERS_DB.players, slot = FANT_PICK.slot;
+  const used = fantUsedKeys();
+  const curKey = fantGet(slot, FANT_PICK.idx);
+  const left = FANT_BUDGET - fantCost() + (curKey ? fantSlotPrice(slot, P[curKey]) : 0);
+  const qn = (q||'').trim().toLowerCase();
+  const list = fantCandidates(slot)
+    .map(k => ({k, p: P[k], price: fantSlotPrice(slot, P[k])}))
+    .filter(x => !qn || fmtName(x.p.name).toLowerCase().includes(qn) || x.p.name.toLowerCase().includes(qn))
+    .sort((a, b) => b.price - a.price || fmtName(a.p.name).localeCompare(fmtName(b.p.name)));
+  if(!list.length){ box.innerHTML = '<div class="empty">Sin jugadores para esta posición con ese criterio.</div>'; return; }
+  box.innerHTML = list.map(x => {
+    const dis = (used.has(x.k) && x.k !== curKey) || (x.price > left && x.k !== curKey);
+    return '<div class="lead-card" style="margin-bottom:8px;'+(dis?'opacity:.45':'cursor:pointer')+'"'+(dis?'':' onclick="fantPickPlayer(\''+esc(x.k).replace(/'/g,"\\'")+'\')"')+'>'
+      + playerFoto(x.p, null)
+      + '<div class="info"><b>'+esc(fmtName(x.p.name))+'</b><span>'+esc(x.p.pos||slot)+' · '+esc((TEAMS[x.p.team]||{name:x.p.team}).name)+' · '+esc(fantStatLine(x.p, slot))+'</span></div>'
+      + '<span class="price">'+FICON.coin+' '+x.price+'</span></div>';
+  }).join('');
 }
-function fantPickPlayer(name){
-  if(FANT_PICK.role === "pit") FANT.pit = name;
-  else if(FANT_PICK.idx >= 0) FANT.bats[FANT_PICK.idx] = name;
-  else if(FANT.bats.length < 9 && !FANT.bats.includes(name)) FANT.bats.push(name);
-  saveFantDraft(); closeFantPicker(); renderFantasy();
+function fantPickPlayer(key){
+  if(!FANT_PICK) return;
+  fantSet(FANT_PICK.slot, FANT_PICK.idx, key);
+  saveFantDraft(); fantClosePicker(); renderFantasy();
 }
 async function publishFantasy(){
   if(!accountComplete()){ openUserModal(true); return; }
-  const name = (FANT.name||"").trim();
-  if(!name){ toast("Ponle nombre a tu equipo"); return; }
-  if(FANT.bats.length !== 9 || !FANT.pit){ toast("Completa los 9 bateadores y el lanzador"); return; }
-  const cost = fantCost(FANT);
-  if(cost > FANT_BUDGET){ toast("Te pasas del presupuesto: " + cost + " / " + FANT_BUDGET + " monedas"); return; }
+  const nameEl = document.getElementById('fantName');
+  const tname = ((nameEl ? nameEl.value : FANT.name) || '').trim();
+  if(!tname){ toast('Ponle un nombre a tu equipo'); return; }
+  if(fantFilled() < 10){ toast('Completa las 10 posiciones para publicar'); return; }
+  const cost = fantCost();
+  if(cost > FANT_BUDGET){ toast('Te pasas del presupuesto: ' + cost + ' / ' + FANT_BUDGET + ' monedas'); return; }
   const u = getUser() || {};
-  const creator = String(u.name || "Jugador").replace(/\|/g, " ").slice(0, 30);
-  const csv = FANT.bats.concat([FANT.pit]).join(",");
+  const csv = fantKeysOrdered().join(',');
+  try{ localStorage.setItem(FPUB_KEY, JSON.stringify({team: tname, players: fantKeysOrdered(), cost, ts: Date.now()})); }catch(e){}
+  FANT_EDIT = false;
   try{
-    const r = await fetch("https://api.telegram.org/bot"+RANKBOT.token+"/sendMessage",{method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({chat_id:RANKBOT.chat, text:"FANTASY|"+getUid()+"|"+creator+"|"+name.replace(/\|/g, " ").slice(0, 30)+"|"+csv})});
-    if(!r.ok) throw new Error("telegram " + r.status);
-  }catch(e){ toast("No se pudo publicar. Revisa tu conexión."); return; }
-  try{ localStorage.setItem(FPUB_KEY, JSON.stringify({team:name, by:creator, players:FANT.bats.concat([FANT.pit]), cost:cost, ts:Date.now()})); }catch(e){}
-  FANT_EDIT = false; FANTASY_DATA = null;
-  toast("¡Equipo publicado! Aparecerá en la comunidad en unos minutos");
+    await fetch('https://api.telegram.org/bot'+RANKBOT.token+'/sendMessage', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({chat_id: RANKBOT.chat, text: 'FANTASY|'+getUid()+'|'+(u.name||'')+'|'+tname+'|'+csv})});
+  }catch(e){}
+  toast('¡Equipo publicado! Aparecerá en la comunidad en unos minutos');
   renderFantasy();
+}
+function renderFantasyList(d){
+  const box = document.getElementById('fantasyList'); if(!box) return;
+  const cnt = document.getElementById('fantasyCount');
+  const teams = (d && d.teams) || [];
+  if(cnt) cnt.textContent = teams.length ? teams.length + (teams.length === 1 ? ' equipo publicado' : ' equipos publicados') : '';
+  if(!teams.length){ box.innerHTML = '<div class="empty">Todavía no hay equipos publicados. ¡Sé el primero en armar el tuyo!</div>'; return; }
+  let myVote = ''; try{ myVote = localStorage.getItem(FVOTE_KEY)||''; }catch(e){}
+  box.innerHTML = teams.map((t, i) => fantTeamCard(t, i, t.id === getUid(), myVote)).join('');
+}
+function fantTeamCard(t, pos, isMine, myVote){
+  const P = PLAYERS_DB ? PLAYERS_DB.players : {};
+  const voted = myVote && myVote === t.id;
+  const badges = ['C','1B','2B','3B','SS',null,null,null,'BD','P'];
+  const rows = (t.players||[]).map((key, i) => {
+    const p = P[key]; const slot = FANT_ORDER[i];
+    const badge = badges[i] || (p && p.pos ? p.pos : 'OF');
+    return '<div class="fprow"><span class="posbadge">'+esc(badge)+'</span>'+(p?playerFoto(p, null):'')
+      + '<span style="flex:1;min-width:0"><b>'+esc(p ? fmtName(p.name) : key)+'</b> <small style="color:var(--muted)">'+esc(p ? (TEAMS[p.team]||{name:p.team}).name : '')+'</small><br>'
+      + (p ? '<small style="color:var(--muted)">'+esc(fantStatLine(p, slot))+'</small>' : '') + '</span>'
+      + (p ? '<span class="price">'+FICON.coin+' '+fantSlotPrice(slot, p)+'</span>' : '') + '</div>';
+  }).join('');
+  return '<div class="fteam'+(pos===0 && t.votes>0 ? ' top':'')+'">'
+    + '<div style="display:flex;align-items:center;gap:8px"><b style="font-size:16px;flex:1;min-width:0">'+(pos===0 && t.votes>0 ? FICON.crown+' ':'')+esc(t.team)+'</b>'
+    + '<span class="price">'+FICON.coin+' '+t.cost+'</span><span class="price" style="background:rgba(232,96,76,.15);color:#ff8a75;border-color:rgba(232,96,76,.4)">'+FICON.heart+' '+t.votes+'</span></div>'
+    + '<div class="gmeta" style="margin:2px 0 8px">por '+esc(t.by)+(isMine ? ' · <b style="color:var(--gold)">TU EQUIPO</b>' : '')+'</div>'
+    + rows
+    + (isMine ? '' : '<button class="btn ghost" style="width:100%;margin-top:8px" onclick="voteFantasy(\''+t.id+'\')">'+(voted ? '✓ Tu voto es para este equipo' : FICON.heart+' Votar por este equipo')+'</button>')
+    + '</div>';
 }
 async function voteFantasy(tid){
   if(!accountComplete()){ openUserModal(true); return; }
-  if(tid === getUid()){ toast("No puedes votar por tu propio equipo"); return; }
-  let cur = ""; try{ cur = localStorage.getItem(FVOTE_KEY)||""; }catch(e){}
-  if(cur === tid){ toast("Ya votaste por este equipo"); return; }
+  if(tid === getUid()){ toast('No puedes votar por tu propio equipo'); return; }
+  let cur = ''; try{ cur = localStorage.getItem(FVOTE_KEY)||''; }catch(e){}
+  if(cur === tid){ toast('Ya votaste por este equipo'); return; }
   try{ localStorage.setItem(FVOTE_KEY, tid); }catch(e){}
   if(FANTASY_DATA && FANTASY_DATA.teams){
-    FANTASY_DATA.teams.forEach(t=>{ if(t.id===cur) t.votes = Math.max(0, t.votes-1); if(t.id===tid) t.votes++; });
-    FANTASY_DATA.teams.sort((a,b)=> b.votes - a.votes);
+    FANTASY_DATA.teams.forEach(t => { if(t.id === cur) t.votes = Math.max(0, t.votes-1); if(t.id === tid) t.votes++; });
+    FANTASY_DATA.teams.sort((a, b) => b.votes - a.votes);
   }
   try{
-    await fetch("https://api.telegram.org/bot"+RANKBOT.token+"/sendMessage",{method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({chat_id:RANKBOT.chat, text:"FVOTE|"+getUid()+"|"+tid})});
+    await fetch('https://api.telegram.org/bot'+RANKBOT.token+'/sendMessage', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({chat_id: RANKBOT.chat, text: 'FVOTE|'+getUid()+'|'+tid})});
   }catch(e){}
-  toast("Voto registrado");
+  toast('Voto registrado');
   renderFantasyList(FANTASY_DATA);
 }
 async function loadRank(){
