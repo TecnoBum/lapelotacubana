@@ -298,6 +298,19 @@ table.st.rank td:nth-child(2){overflow-wrap:break-word;}
 #teamModal .dlg h4,#cmpModal .dlg h4{margin:14px 0 6px;font-size:14px;}
 table.st.rank tr.rankdiv td{text-align:center;color:var(--muted);letter-spacing:4px;padding:2px;}
 .cmpwin{color:var(--gold);font-weight:800;}
+/* Fantasy Equipo (31-oct-2026) */
+#fantModal{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.62);display:none;align-items:center;justify-content:center;padding:20px;}
+#fantModal.show{display:flex;}
+#fantModal .dlg{background:var(--bg2);border:1px solid var(--line);border-radius:18px;max-width:420px;width:100%;padding:20px;max-height:85vh;overflow-y:auto;animation:pop .22s ease;}
+.fslot{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px dashed var(--line);border-radius:12px;margin-bottom:8px;cursor:pointer;}
+.fslot.full{border-style:solid;background:var(--card2);}
+.price{margin-left:auto;background:rgba(255,196,0,.15);color:var(--gold);border:1px solid rgba(255,196,0,.4);padding:2px 8px;border-radius:20px;font-size:12px;font-weight:800;white-space:nowrap;flex:none;}
+.fbudget{height:10px;border-radius:6px;background:var(--card2);overflow:hidden;margin:6px 0 4px;}
+.fbudget>div{height:100%;background:var(--gold);border-radius:6px;transition:width .3s;}
+.fbudget>div.over{background:#e8604c;}
+.fteam{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px;background:var(--card2);}
+.fteam.top{border-color:var(--gold);}
+.fprow{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px;}
 
 /* Dinámicas del ranking (30-oct-2026): podio, entrada escalonada y tarjeta Tu competencia */
 table.st.rank tr{animation:rankin .35s ease both;}
@@ -710,6 +723,13 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
       <div id="concursoBox"><div class="empty">Cargando concurso…</div></div>
     </div>
   </section>
+  <section class="page" id="pg-fantasy">
+    <div class="card"><h3>🧢 Fantasy Equipo</h3>
+      <div class="gmeta" style="margin-bottom:10px">Arma tu equipo de ensueño con los jugadores de la Serie: <b>9 bateadores y 1 lanzador</b> con un presupuesto de 💰 <b>420</b> (cada jugador cuesta según sus números). Publícalo y que la comunidad vote el mejor equipo.</div>
+      <div id="fantasyMine"></div>
+    </div>
+    <div class="card"><h3>🏆 Equipos de la comunidad</h3><div id="fantasyList"><div class="empty">Cargando equipos…</div></div></div>
+  </section>
   <section class="page" id="pg-grupos">
     <div class="card"><h3>Grupos y canales</h3><div id="canalList"></div></div>
   </section>
@@ -766,6 +786,9 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
 </div>
 <div id="cmpModal" onclick="if(event.target===this)closeCompare()">
   <div class="dlg" id="cmpDlg"></div>
+</div>
+<div id="fantModal" onclick="if(event.target===this)closeFantPicker()">
+  <div class="dlg" id="fantDlg"></div>
 </div>
 <div id="waModal">
   <div class="dlg">
@@ -846,7 +869,7 @@ const LOGOS = {
 const BASE = "https://www.beisbolcubano.cu/";
 function abs(u){ if(!u) return ""; if(/^https?:/i.test(u)) return u; return BASE+u.replace(/^\//,""); }
 /*__LPC_DATA_START__*/
-const DATA_LABEL = "31 de octubre de 2026 · 20:10";
+const DATA_LABEL = "31 de octubre de 2026 · 20:14";
 const GAMES = [{"id": "j169", "date": "2026-10-30", "away": "IND", "home": "ART", "ar": 1, "hr": 9, "status": "final", "num": 169, "stadium": "26 de Julio", "time": null, "live": null, "outs": null}, {"id": "j170", "date": "2026-10-30", "away": "PRI", "home": "IJV", "ar": 8, "hr": 6, "status": "final", "num": 170, "stadium": "Cristóbal Labra", "time": null, "live": null, "outs": null}, {"id": "j171", "date": "2026-10-31", "away": "MTZ", "home": "MAY", "ar": 4, "hr": 5, "status": "final", "num": 171, "stadium": "Nelson Fernández", "time": "13:30", "live": null, "outs": null}, {"id": "j172", "date": "2026-10-30", "away": "CFG", "home": "VCL", "ar": 10, "hr": 0, "status": "final", "num": 172, "stadium": "Augusto César Sandino", "time": null, "live": null, "outs": null}, {"id": "j173", "date": "2026-10-30", "away": "LTU", "home": "SSP", "ar": 11, "hr": 1, "status": "final", "num": 173, "stadium": "José Antonio Huelga", "time": null, "live": null, "outs": null}, {"id": "j174", "date": "2026-10-31", "away": "CAV", "home": "CMG", "ar": 3, "hr": 2, "status": "final", "num": 174, "stadium": "Cándido González", "time": "13:30", "live": null, "outs": null}, {"id": "j175", "date": "2026-10-30", "away": "HOL", "home": "SCU", "ar": 15, "hr": 8, "status": "final", "num": 175, "stadium": "Guillermón Moncada", "time": null, "live": null, "outs": null}, {"id": "j176", "date": "2026-10-30", "away": "GRA", "home": "GTM", "ar": 6, "hr": 11, "status": "final", "num": 176, "stadium": "Nguyen Van Troi", "time": null, "live": null, "outs": null}, {"id": "j177", "date": "2026-10-31", "away": "IND", "home": "ART", "ar": 5, "hr": 2, "status": "final", "num": 177, "stadium": "26 de Julio", "time": "13:30", "live": null, "outs": null}, {"id": "j178", "date": "2026-10-31", "away": "PRI", "home": "IJV", "ar": 6, "hr": 4, "status": "final", "num": 178, "stadium": "Cristóbal Labra", "time": "10:00", "live": null, "outs": null}, {"id": "j179", "date": "2026-10-31", "away": "MTZ", "home": "MAY", "ar": 9, "hr": 2, "status": "final", "num": 179, "stadium": "Nelson Fernández", "time": "10:00", "live": null, "outs": null}, {"id": "j180", "date": "2026-10-31", "away": "CFG", "home": "VCL", "ar": 8, "hr": 3, "status": "final", "num": 180, "stadium": "Augusto César Sandino", "time": "13:30", "live": null, "outs": null}, {"id": "j181", "date": "2026-10-31", "away": "LTU", "home": "SSP", "ar": 8, "hr": 6, "status": "final", "num": 181, "stadium": "José Antonio Huelga", "time": "13:30", "live": null, "outs": null}, {"id": "j182", "date": "2026-10-31", "away": "CAV", "home": "CMG", "ar": 0, "hr": 1, "status": "final", "num": 182, "stadium": "Cándido González", "time": "10:00", "live": null, "outs": null}, {"id": "j183", "date": "2026-10-31", "away": "HOL", "home": "SCU", "ar": 9, "hr": 7, "status": "final", "num": 183, "stadium": "Guillermón Moncada", "time": "13:30", "live": null, "outs": null}, {"id": "j184", "date": "2026-10-31", "away": "GRA", "home": "GTM", "ar": 7, "hr": 1, "status": "final", "num": 184, "stadium": "Nguyen Van Troi", "time": "13:30", "live": null, "outs": null}, {"id": "j186", "date": "2026-10-31", "away": "PRI", "home": "IJV", "ar": 13, "hr": 0, "status": "final", "num": 186, "stadium": "Cristóbal Labra", "time": "13:30", "live": null, "outs": null}];
 const UPCOMING = [{"id": "u185", "date": "2026-11-01", "away": "IND", "home": "ART", "ar": null, "hr": null, "status": "prog", "num": 185, "stadium": "26 de Julio", "time": "13:30"}, {"id": "u187", "date": "2026-11-01", "away": "MTZ", "home": "MAY", "ar": null, "hr": null, "status": "prog", "num": 187, "stadium": "Nelson Fernández", "time": "13:30"}, {"id": "u188", "date": "2026-11-01", "away": "CFG", "home": "VCL", "ar": null, "hr": null, "status": "prog", "num": 188, "stadium": "Augusto César Sandino", "time": "13:30"}, {"id": "u189", "date": "2026-11-01", "away": "LTU", "home": "SSP", "ar": null, "hr": null, "status": "prog", "num": 189, "stadium": "José Antonio Huelga", "time": "13:30"}, {"id": "u190", "date": "2026-11-01", "away": "CAV", "home": "CMG", "ar": null, "hr": null, "status": "prog", "num": 190, "stadium": "Cándido González", "time": "13:30"}, {"id": "u191", "date": "2026-11-01", "away": "HOL", "home": "SCU", "ar": null, "hr": null, "status": "prog", "num": 191, "stadium": "Guillermón Moncada", "time": "13:30"}, {"id": "u192", "date": "2026-11-01", "away": "GRA", "home": "GTM", "ar": null, "hr": null, "status": "prog", "num": 192, "stadium": "Nguyen Van Troi", "time": "13:30"}];
 const STANDINGS = {"occ": [{"t": "PRI", "w": 20, "l": 4, "dif": "-", "pro": ".833", "u10": "(9-1)", "racha": "G-9"}, {"t": "MTZ", "w": 13, "l": 8, "dif": "5.5", "pro": ".619", "u10": "(6-4)", "racha": "P-1"}, {"t": "IND", "w": 13, "l": 8, "dif": "5.5", "pro": ".619", "u10": "(8-2)", "racha": "G-1"}, {"t": "MAY", "w": 11, "l": 11, "dif": "8.0", "pro": ".500", "u10": "(6-4)", "racha": "G-1"}, {"t": "CFG", "w": 11, "l": 12, "dif": "8.5", "pro": ".478", "u10": "(5-5)", "racha": "G-4"}, {"t": "VCL", "w": 8, "l": 12, "dif": "10.0", "pro": ".400", "u10": "(4-6)", "racha": "P-3"}, {"t": "ART", "w": 9, "l": 14, "dif": "10.5", "pro": ".391", "u10": "(3-7)", "racha": "P-1"}, {"t": "IJV", "w": 3, "l": 19, "dif": "16.0", "pro": ".136", "u10": "(1-9)", "racha": "P-9"}], "ori": [{"t": "LTU", "w": 15, "l": 8, "dif": "-", "pro": ".652", "u10": "(9-1)", "racha": "G-4"}, {"t": "HOL", "w": 14, "l": 9, "dif": "1.0", "pro": ".609", "u10": "(8-2)", "racha": "G-2"}, {"t": "SCU", "w": 14, "l": 9, "dif": "1.0", "pro": ".609", "u10": "(6-4)", "racha": "P-2"}, {"t": "GRA", "w": 12, "l": 11, "dif": "3.0", "pro": ".522", "u10": "(4-6)", "racha": "G-1"}, {"t": "CAV", "w": 11, "l": 12, "dif": "4.0", "pro": ".478", "u10": "(3-7)", "racha": "G-1"}, {"t": "SSP", "w": 11, "l": 12, "dif": "4.0", "pro": ".478", "u10": "(3-7)", "racha": "P-4"}, {"t": "CMG", "w": 9, "l": 14, "dif": "6.0", "pro": ".391", "u10": "(5-5)", "racha": "P-1"}, {"t": "GTM", "w": 6, "l": 17, "dif": "9.0", "pro": ".261", "u10": "(2-8)", "racha": "P-1"}]};
@@ -2476,6 +2499,7 @@ const PAGES = [
   {id:"predicciones", label:"Predicciones", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0V4z"/><path d="M7 6H4a1 1 0 00-1 1c0 2.5 2 4 4 4M17 6h3a1 1 0 011 1c0 2.5-2 4-4 4"/></svg>'},
   {id:"ranking", label:"Ranking", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M8.5 13L7 22l5-3 5 3-1.5-9"/></svg>'},
   {id:"concurso", label:"Concurso", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7c-1.5 0-4.2-.3-5.2-2C6 3.6 7 2.5 8.3 2.7 10 3 12 7 12 7zm0 0c1.5 0 4.2-.3 5.2-2 .8-1.4-.2-2.5-1.5-2.3C14 3 12 7 12 7z"/></svg>'},
+  {id:"fantasy", label:"Fantasy Equipo", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M5.6 5.6c3.2 3.6 3.2 9.2 0 12.8M18.4 5.6c-3.2 3.6-3.2 9.2 0 12.8"/></svg>'},
   {id:"grupos", label:"Grupos y canales", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>'},
   {id:"donaciones", label:"Donaciones", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 00-7.8 7.8l1 1L12 21.2l7.8-7.8 1-1a5.5 5.5 0 000-7.8z"/></svg>'}
 ];
@@ -2500,6 +2524,7 @@ function go(id){
   if(id==="predicciones"){ renderUserChip(); renderPredicciones(); renderMission(); }
   if(id==="ranking"){ loadRank(); syncRank(); }
   if(id==="concurso") loadConcurso();
+  if(id==="fantasy") renderFantasy();
   if(id==="grupos") renderCanales();
   if(id==="calendario") renderCalendario();
   if(id==="miequipo") renderMiEquipo();
@@ -2784,6 +2809,223 @@ async function shareRank(){
     : "🏆 Estoy compitiendo en el ranking de La Pelota Cubana ⚾ ¡Únete y pronostica conmigo!\n📲 Descarga la app: https://apklis.cu/application/la.pelota.cubana.hoy";
   if(navigator.share){ try{ await navigator.share({text:txt}); return; }catch(e){} }
   window.open("https://wa.me/?text="+encodeURIComponent(txt), "_blank");
+}
+
+/* ============ FANTASY EQUIPO (31-oct-2026) ============ */
+const FANT_BUDGET = 420;
+const FANTASY_URLS = RANK_URLS; /* el fantasy viaja dentro de ranking.json */
+const FANT_KEY = "lpc-fantasy", FVOTE_KEY = "lpc-fantasy-vote", FPUB_KEY = "lpc-fantasy-pub";
+let FANTASY_DATA = null, FANTASY_T = 0, FANT_EDIT = false;
+let FANT = (function(){ try{ const d = JSON.parse(localStorage.getItem(FANT_KEY)||"null"); if(d && Array.isArray(d.bats)) return {name:d.name||"", bats:d.bats, pit:d.pit||""}; }catch(e){} return {name:"", bats:[], pit:""}; })();
+function saveFantDraft(){ try{ localStorage.setItem(FANT_KEY, JSON.stringify(FANT)); }catch(e){} }
+/* Precios espejo del agregador: 0 = no elegible (muestra mínima: 20 VB / 10 INN) */
+function fantPriceBat(b){ if(!b || !b.g || (b.vb||0)<20) return 0; return Math.max(3, Math.min(60, Math.round((b.ave||0)*1000/12) + (b.hr||0)*3 + Math.floor((b.ci||0)/2))); }
+function fantPricePit(p){ if(!p || !p.g || parseFloat(p.inn_f||0)<10) return 0; return Math.max(3, Math.min(60, 46 - Math.round((p.pcl||0)*6) + Math.floor((p.so||0)/4) + (p.jg||0)*3)); }
+function fantCost(f){
+  if(!JUGADORES || !JUGADORES.players) return 0;
+  let c = 0;
+  (f.bats||[]).forEach(n=>{ const p = JUGADORES.players[n]; if(p) c += fantPriceBat(p.bat); });
+  if(f.pit){ const p = JUGADORES.players[f.pit]; if(p) c += fantPricePit(p.pit); }
+  return c;
+}
+function fantStatLine(p, role){
+  if(!p) return "";
+  return role==="pit" ? ('PCL '+fmtPcl(p.pit.pcl)+' · '+p.pit.so+' SO · '+p.pit.jg+' JG')
+                      : ('AVE '+fmtAve(p.bat.ave)+' · '+p.bat.hr+' HR · '+p.bat.ci+' CI');
+}
+async function renderFantasy(){
+  const mine = document.getElementById("fantasyMine"), list = document.getElementById("fantasyList");
+  if(!mine || !list) return;
+  const j = await loadJugadores();
+  if(!j){ mine.innerHTML = '<div class="empty">No se pudo cargar la base de jugadores. Revisa tu conexión.</div>'; return; }
+  let d = FANTASY_DATA;
+  if(!d || Date.now()-FANTASY_T > 60000){
+    d = null;
+    for(const u of FANTASY_URLS){ const jj = await fetchJsonTimeout(u, 12000); if(jj && jj.players){ d = {updated: jj.updated, teams: (jj.fantasy && jj.fantasy.teams) || []}; break; } }
+    if(d){ FANTASY_DATA = d; FANTASY_T = Date.now(); }
+  }
+  renderFantasyMine(d);
+  renderFantasyList(d);
+}
+function fantTeamCard(t, pos){
+  const me = getUid();
+  const isMine = t.id === me;
+  let myVote = ""; try{ myVote = localStorage.getItem(FVOTE_KEY)||""; }catch(e){}
+  const voted = myVote === t.id;
+  const players = (t.players||[]).map((n, i)=>{
+    const p = (JUGADORES && JUGADORES.players) ? JUGADORES.players[n] : null;
+    const role = i===9 ? "pit" : "bat";
+    return '<div class="fprow"><span>'+(i===9?'⚾':'🏏')+'</span><span style="flex:1;min-width:0"><b>'+esc(fmtName(n))+'</b>'+(p?' <small style="color:var(--muted)">'+esc(p.team||'')+'</small>':'')+'</span>'+(p?'<small style="color:var(--muted)">'+esc(fantStatLine(p, role))+'</small>':'')+'</div>';
+  }).join("");
+  return '<div class="fteam'+(pos===0 && t.votes>0 ? ' top':'')+'">'
+    + '<div style="display:flex;align-items:center;gap:8px"><b style="font-size:16px;flex:1;min-width:0">'+(pos===0 && t.votes>0 ? '👑 ':'')+esc(t.team)+'</b><span class="price">💰 '+t.cost+'</span><span class="price" style="background:rgba(232,96,76,.15);color:#ff8a75;border-color:rgba(232,96,76,.4)">❤️ '+t.votes+'</span></div>'
+    + '<div class="gmeta" style="margin:4px 0 8px">de '+esc(t.by)+(isMine?' · <span class="tag">TU EQUIPO</span>':'')+'</div>'
+    + players
+    + (isMine ? '' : '<button class="btn '+(voted?'ghost':'primary')+'" style="margin-top:10px" onclick="voteFantasy(\''+t.id+'\')">'+(voted?'✓ Tu voto es para este equipo':'🗳️ Votar por este equipo')+'</button>')
+    + '</div>';
+}
+function renderFantasyList(d){
+  const el = document.getElementById("fantasyList"); if(!el) return;
+  if(!d){ el.innerHTML = '<div class="empty">No se pudo cargar la comunidad. Revisa tu conexión.</div>'; return; }
+  if(!d.teams.length){ el.innerHTML = '<div class="empty">Todavía no hay equipos publicados. ¡Sé el primero en armar el tuyo! 🧢</div>'; return; }
+  el.innerHTML = '<div class="gmeta" style="margin-bottom:8px">'+d.teams.length+' equipo'+(d.teams.length===1?'':'s')+' en competencia · se actualiza cada pocos minutos</div>'
+    + d.teams.map((t, i)=>fantTeamCard(t, i)).join("");
+}
+function renderFantasyMine(server){
+  const el = document.getElementById("fantasyMine"); if(!el) return;
+  const me = getUid();
+  const myTeam = (server && server.teams) ? server.teams.find(t=>t.id===me) : null;
+  if(myTeam && !FANT_EDIT){
+    try{ localStorage.removeItem(FPUB_KEY); }catch(e){}
+    el.innerHTML = '<div class="gmeta" style="margin-bottom:8px">✅ Tu equipo está publicado. La comunidad puede votarlo.</div>'
+      + fantTeamCard(myTeam, server.teams.indexOf(myTeam))
+      + '<button class="btn ghost" onclick="fantEdit()">✏️ Editar mi equipo</button>';
+    return;
+  }
+  if(!myTeam && !FANT_EDIT){
+    let pub = null; try{ pub = JSON.parse(localStorage.getItem(FPUB_KEY)||"null"); }catch(e){}
+    if(pub){
+      el.innerHTML = '<div class="gmeta" style="margin-bottom:8px">🚀 Tu equipo se está publicando… aparecerá en la comunidad en unos minutos.</div>'
+        + fantTeamCard({id:me, by:pub.by, team:pub.team, players:pub.players, cost:pub.cost, votes:0}, -1)
+        + '<button class="btn ghost" onclick="fantEdit()">✏️ Editar mi equipo</button>';
+      return;
+    }
+  }
+  const cost = fantCost(FANT);
+  const pct = Math.min(100, Math.round(cost/FANT_BUDGET*100));
+  let h = '<input class="uin" id="fantName" maxlength="30" placeholder="Nombre de tu equipo (ej. Los Invencibles)" value="'+esc(FANT.name||"")+'" oninput="FANT.name=this.value;saveFantDraft()">';
+  h += '<div style="display:flex;justify-content:space-between;margin-top:12px"><b>💰 Presupuesto</b><span>'+cost+' / '+FANT_BUDGET+(cost>FANT_BUDGET?' · <b style="color:#e8604c">¡te pasaste!</b>':' · te quedan '+(FANT_BUDGET-cost))+'</span></div>'
+    + '<div class="fbudget"><div style="width:'+pct+'%" class="'+(cost>FANT_BUDGET?'over':'')+'"></div></div>';
+  h += '<div class="gmeta" style="margin:10px 0 6px">🏏 Bateadores ('+FANT.bats.length+'/9)</div>';
+  FANT.bats.forEach((n, i)=>{
+    const p = JUGADORES.players[n]; if(!p) return;
+    h += '<div class="fslot full" onclick="openFantPicker(\'bat\','+i+')">'+playerFoto(p, null)+'<div style="flex:1;min-width:0"><b>'+esc(fmtName(n))+'</b><br><small style="color:var(--muted)">'+esc(fantStatLine(p, "bat"))+'</small></div><span class="price">💰 '+fantPriceBat(p.bat)+'</span><span class="pclose" style="width:30px;height:30px;font-size:13px;flex:none" onclick="event.stopPropagation();fantRemove(\'bat\','+i+')">✕</span></div>';
+  });
+  if(FANT.bats.length < 9) h += '<div class="fslot" onclick="openFantPicker(\'bat\',-1)"><span style="flex:1">＋ Añadir bateador</span></div>';
+  h += '<div class="gmeta" style="margin:10px 0 6px">⚾ Lanzador</div>';
+  if(FANT.pit && JUGADORES.players[FANT.pit]){
+    const p = JUGADORES.players[FANT.pit];
+    h += '<div class="fslot full" onclick="openFantPicker(\'pit\',-1)">'+playerFoto(p, null)+'<div style="flex:1;min-width:0"><b>'+esc(fmtName(FANT.pit))+'</b><br><small style="color:var(--muted)">'+esc(fantStatLine(p, "pit"))+'</small></div><span class="price">💰 '+fantPricePit(p.pit)+'</span><span class="pclose" style="width:30px;height:30px;font-size:13px;flex:none" onclick="event.stopPropagation();fantRemove(\'pit\',-1)">✕</span></div>';
+  } else {
+    h += '<div class="fslot" onclick="openFantPicker(\'pit\',-1)"><span style="flex:1">＋ Añadir lanzador</span></div>';
+  }
+  const missing = (9 - FANT.bats.length) + (FANT.pit ? 0 : 1);
+  h += '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" style="flex:1" onclick="fantAuto()">✨ Automático</button><button class="btn ghost" style="flex:1" onclick="fantClear()">🗑 Limpiar</button></div>'
+    + '<button class="btn primary" style="margin-top:8px" onclick="publishFantasy()">🚀 Publicar mi equipo</button>'
+    + '<div class="gmeta" style="margin-top:6px">'+(missing ? 'Te faltan '+missing+' jugador'+(missing===1?'':'es')+' para publicar.' : 'Equipo completo: listo para publicar. Si republicas, conservas tus votos.')+'</div>'
+    + (FANT_EDIT ? '<button class="btn ghost" onclick="FANT_EDIT=false;renderFantasy()">Cancelar edición</button>' : '');
+  el.innerHTML = h;
+}
+function fantEdit(){
+  const me = getUid();
+  const t = ((FANTASY_DATA && FANTASY_DATA.teams) || []).find(x=>x.id===me);
+  let pub = null; try{ pub = JSON.parse(localStorage.getItem(FPUB_KEY)||"null"); }catch(e){}
+  const srcT = t || pub;
+  if(srcT){ FANT = {name: srcT.team || "", bats: (srcT.players||[]).slice(0,9), pit: (srcT.players||[])[9] || ""}; saveFantDraft(); }
+  FANT_EDIT = true; renderFantasy();
+}
+function fantClear(){ FANT = {name: FANT.name, bats: [], pit: ""}; saveFantDraft(); renderFantasy(); }
+function fantRemove(role, idx){ if(role==="pit") FANT.pit = ""; else FANT.bats.splice(idx, 1); saveFantDraft(); renderFantasy(); }
+function fantAuto(){
+  if(!JUGADORES || !JUGADORES.players) return;
+  const pits = Object.entries(JUGADORES.players).map(([n,p])=>({n:n, pr:fantPricePit(p.pit), sc:(40-Math.min(40, p.pit.pcl||9))*8 + (p.pit.so||0)})).filter(x=>x.pr>0 && x.pr<=45).sort((a,b)=> (b.sc/b.pr) - (a.sc/a.pr));
+  const bats = Object.entries(JUGADORES.players).map(([n,p])=>({n:n, pr:fantPriceBat(p.bat), sc:(p.bat.ave||0)*1000 + (p.bat.hr||0)*12 + (p.bat.ci||0)*2})).filter(x=>x.pr>0).sort((a,b)=> (b.sc/b.pr) - (a.sc/a.pr));
+  let cost = 0, pit = "";
+  if(pits.length){ pit = pits[0].n; cost = pits[0].pr; }
+  const chosen = [];
+  for(const b of bats){ if(chosen.length>=9) break; if(cost + b.pr <= FANT_BUDGET){ chosen.push(b.n); cost += b.pr; } }
+  if(chosen.length < 9){
+    const cheap = bats.slice().sort((a,b)=>a.pr-b.pr);
+    for(const b of cheap){ if(chosen.length>=9) break; if(!chosen.includes(b.n) && cost + b.pr <= FANT_BUDGET){ chosen.push(b.n); cost += b.pr; } }
+  }
+  /* Mejora: con lo que sobra, sube el nivel cambiando jugadores por otros mejores */
+  let rest = FANT_BUDGET - cost;
+  for(let round=0; round<3 && rest>0; round++){
+    let mejorado = false;
+    for(let i=0; i<chosen.length; i++){
+      const cur = bats.find(b=>b.n===chosen[i]); if(!cur) continue;
+      const cand = bats.filter(b=> !chosen.includes(b.n) && b.sc > cur.sc && (b.pr - cur.pr) <= rest).sort((a,b)=> b.sc - a.sc)[0];
+      if(cand){ rest -= (cand.pr - cur.pr); chosen[i] = cand.n; mejorado = true; }
+    }
+    if(!mejorado) break;
+  }
+  cost = FANT_BUDGET - rest;
+  FANT.bats = chosen; FANT.pit = pit; saveFantDraft(); renderFantasy();
+  toast("✨ Equipo automático listo · 💰 " + cost);
+}
+let FANT_PICK = {role:"bat", idx:-1};
+function openFantPicker(role, idx){
+  FANT_PICK = {role: role, idx: idx};
+  document.getElementById("fantDlg").innerHTML = '<div class="phead"><div style="flex:1;min-width:0"><b style="font-size:16px">'+(role==="pit"?"Elige tu lanzador":"Elige un bateador")+'</b><br><span class="gmeta">El precio sale de sus números de la temporada</span></div><button class="pclose" onclick="closeFantPicker()" aria-label="Cerrar">✕</button></div>'
+    + '<input class="uin" id="fantQ" placeholder="Buscar jugador…" autocomplete="off" oninput="renderFantList()">'
+    + '<div id="fantList" style="margin-top:10px"></div>';
+  document.getElementById("fantModal").classList.add("show");
+  renderFantList();
+}
+function closeFantPicker(){ document.getElementById("fantModal").classList.remove("show"); }
+function renderFantList(){
+  const box = document.getElementById("fantList"); if(!box || !JUGADORES) return;
+  const q = ((document.getElementById("fantQ")||{}).value || "");
+  const toks = normName(q).split(" ").filter(Boolean);
+  const role = FANT_PICK.role;
+  const inTeam = {}; FANT.bats.forEach(n=>{ inTeam[n]=1; }); if(FANT.pit) inTeam[FANT.pit]=1;
+  const cur = FANT_PICK.idx>=0 ? FANT.bats[FANT_PICK.idx] : (role==="pit" ? FANT.pit : "");
+  if(cur) delete inTeam[cur];
+  let curPrice = 0;
+  if(cur && JUGADORES.players[cur]) curPrice = role==="pit" ? fantPricePit(JUGADORES.players[cur].pit) : fantPriceBat(JUGADORES.players[cur].bat);
+  const othersCost = fantCost(FANT) - curPrice;
+  const cands = Object.entries(JUGADORES.players)
+    .map(([n,p])=>({n:n, p:p, price: role==="pit" ? fantPricePit(p.pit) : fantPriceBat(p.bat)}))
+    .filter(x=> x.price>0)
+    .filter(x=> !toks.length || toks.every(t=>normName(x.n).indexOf(t)>=0))
+    .sort((a,b)=> b.price - a.price);
+  box.innerHTML = cands.slice(0, 40).map(x=>{
+    const dis = !!inTeam[x.n] || (othersCost + x.price > FANT_BUDGET);
+    return '<div class="lead-card" style="margin-bottom:8px;'+(dis?'opacity:.45':'cursor:pointer')+'"'+(dis?'':' onclick="fantPickPlayer(\''+esc(x.n).replace(/\'/g,"\\'")+'\')"')+'>'+playerFoto(x.p, null)+'<div class="info"><b>'+esc(fmtName(x.n))+'</b><span>'+esc((TEAMS[x.p.team]||{name:x.p.team}).name)+' · '+esc(fantStatLine(x.p, role))+'</span></div><span class="price">💰 '+x.price+'</span></div>';
+  }).join("") || '<div class="empty">Sin jugadores para ese criterio.</div>';
+}
+function fantPickPlayer(name){
+  if(FANT_PICK.role === "pit") FANT.pit = name;
+  else if(FANT_PICK.idx >= 0) FANT.bats[FANT_PICK.idx] = name;
+  else if(FANT.bats.length < 9 && !FANT.bats.includes(name)) FANT.bats.push(name);
+  saveFantDraft(); closeFantPicker(); renderFantasy();
+}
+async function publishFantasy(){
+  if(!accountComplete()){ openUserModal(true); return; }
+  const name = (FANT.name||"").trim();
+  if(!name){ toast("Ponle nombre a tu equipo"); return; }
+  if(FANT.bats.length !== 9 || !FANT.pit){ toast("Completa los 9 bateadores y el lanzador"); return; }
+  const cost = fantCost(FANT);
+  if(cost > FANT_BUDGET){ toast("Te pasas del presupuesto: 💰 " + cost + " / " + FANT_BUDGET); return; }
+  const u = getUser() || {};
+  const creator = String(u.name || "Jugador").replace(/\|/g, " ").slice(0, 30);
+  const csv = FANT.bats.concat([FANT.pit]).join(",");
+  try{
+    const r = await fetch("https://api.telegram.org/bot"+RANKBOT.token+"/sendMessage",{method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({chat_id:RANKBOT.chat, text:"FANTASY|"+getUid()+"|"+creator+"|"+name.replace(/\|/g, " ").slice(0, 30)+"|"+csv})});
+    if(!r.ok) throw new Error("telegram " + r.status);
+  }catch(e){ toast("No se pudo publicar. Revisa tu conexión."); return; }
+  try{ localStorage.setItem(FPUB_KEY, JSON.stringify({team:name, by:creator, players:FANT.bats.concat([FANT.pit]), cost:cost, ts:Date.now()})); }catch(e){}
+  FANT_EDIT = false; FANTASY_DATA = null;
+  toast("🚀 ¡Equipo publicado! Aparecerá en la comunidad en unos minutos");
+  renderFantasy();
+}
+async function voteFantasy(tid){
+  if(!accountComplete()){ openUserModal(true); return; }
+  if(tid === getUid()){ toast("No puedes votar por tu propio equipo"); return; }
+  let cur = ""; try{ cur = localStorage.getItem(FVOTE_KEY)||""; }catch(e){}
+  if(cur === tid){ toast("Ya votaste por este equipo"); return; }
+  try{ localStorage.setItem(FVOTE_KEY, tid); }catch(e){}
+  if(FANTASY_DATA && FANTASY_DATA.teams){
+    FANTASY_DATA.teams.forEach(t=>{ if(t.id===cur) t.votes = Math.max(0, t.votes-1); if(t.id===tid) t.votes++; });
+    FANTASY_DATA.teams.sort((a,b)=> b.votes - a.votes);
+  }
+  try{
+    await fetch("https://api.telegram.org/bot"+RANKBOT.token+"/sendMessage",{method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({chat_id:RANKBOT.chat, text:"FVOTE|"+getUid()+"|"+tid})});
+  }catch(e){}
+  toast("🗳️ Voto registrado");
+  renderFantasyList(FANTASY_DATA);
 }
 async function loadRank(){
   const el = document.getElementById("rankTable"); if(!el) return;
@@ -3295,7 +3537,7 @@ document.querySelector('[data-pg="inicio"]').classList.add("active");
 /* Enlaces directos: ?s=ranking abre la app en esa sección (31-oct-2026) */
 try{
   const _qs = new URLSearchParams(location.search).get("s");
-  const _ok = ["inicio","jornada","posiciones","calendario","lideres","equipos","miequipo","noticias","envivo","predicciones","ranking","concurso","grupos"];
+  const _ok = ["inicio","jornada","posiciones","calendario","lideres","equipos","miequipo","noticias","envivo","predicciones","ranking","concurso","fantasy","grupos"];
   if(_qs && _ok.indexOf(_qs)>=0 && _qs!=="inicio") setTimeout(()=>go(_qs), 350);
 }catch(e){}
 /* Normalizar estado inicial: "hoy" es la fecha real de Cuba, no la última fecha con datos */
