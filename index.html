@@ -724,11 +724,11 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
     </div>
   </section>
   <section class="page" id="pg-fantasy">
-    <div class="card"><h3>🧢 Fantasy Equipo</h3>
-      <div class="gmeta" style="margin-bottom:10px">Arma tu equipo de ensueño con los jugadores de la Serie: <b>9 bateadores y 1 lanzador</b> con un presupuesto de 💰 <b>420</b> (cada jugador cuesta según sus números). Publícalo y que la comunidad vote el mejor equipo.</div>
+    <div class="card"><h3><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="10"/><path d="M5.6 5.6c3.2 3.6 3.2 9.2 0 12.8M18.4 5.6c-3.2 3.6-3.2 9.2 0 12.8"/></svg> Fantasy Equipo</h3>
+      <div class="gmeta" style="margin-bottom:10px">Arma tu equipo de ensueño con los jugadores de la Serie: <b>9 bateadores y 1 lanzador</b> con un presupuesto de <b>500</b> monedas (cada jugador cuesta según sus números). Publícalo y que la comunidad vote el mejor equipo.</div>
       <div id="fantasyMine"></div>
     </div>
-    <div class="card"><h3>🏆 Equipos de la comunidad</h3><div id="fantasyList"><div class="empty">Cargando equipos…</div></div></div>
+    <div class="card"><h3><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 0 1-10 0zM7 6H4.5A1.5 1.5 0 0 0 3 7.5C3 9.4 4.6 11 7 11M17 6h2.5A1.5 1.5 0 0 1 21 7.5C21 9.4 19.4 11 17 11"/></svg> Equipos de la comunidad</h3><div id="fantasyList"><div class="empty">Cargando equipos…</div></div></div>
   </section>
   <section class="page" id="pg-grupos">
     <div class="card"><h3>Grupos y canales</h3><div id="canalList"></div></div>
@@ -869,7 +869,7 @@ const LOGOS = {
 const BASE = "https://www.beisbolcubano.cu/";
 function abs(u){ if(!u) return ""; if(/^https?:/i.test(u)) return u; return BASE+u.replace(/^\//,""); }
 /*__LPC_DATA_START__*/
-const DATA_LABEL = "31 de octubre de 2026 · 20:19";
+const DATA_LABEL = "31 de octubre de 2026 · 20:25";
 const GAMES = [{"id": "j169", "date": "2026-10-30", "away": "IND", "home": "ART", "ar": 1, "hr": 9, "status": "final", "num": 169, "stadium": "26 de Julio", "time": null, "live": null, "outs": null}, {"id": "j170", "date": "2026-10-30", "away": "PRI", "home": "IJV", "ar": 8, "hr": 6, "status": "final", "num": 170, "stadium": "Cristóbal Labra", "time": null, "live": null, "outs": null}, {"id": "j171", "date": "2026-10-31", "away": "MTZ", "home": "MAY", "ar": 4, "hr": 5, "status": "final", "num": 171, "stadium": "Nelson Fernández", "time": "13:30", "live": null, "outs": null}, {"id": "j172", "date": "2026-10-30", "away": "CFG", "home": "VCL", "ar": 10, "hr": 0, "status": "final", "num": 172, "stadium": "Augusto César Sandino", "time": null, "live": null, "outs": null}, {"id": "j173", "date": "2026-10-30", "away": "LTU", "home": "SSP", "ar": 11, "hr": 1, "status": "final", "num": 173, "stadium": "José Antonio Huelga", "time": null, "live": null, "outs": null}, {"id": "j174", "date": "2026-10-31", "away": "CAV", "home": "CMG", "ar": 3, "hr": 2, "status": "final", "num": 174, "stadium": "Cándido González", "time": "13:30", "live": null, "outs": null}, {"id": "j175", "date": "2026-10-30", "away": "HOL", "home": "SCU", "ar": 15, "hr": 8, "status": "final", "num": 175, "stadium": "Guillermón Moncada", "time": null, "live": null, "outs": null}, {"id": "j176", "date": "2026-10-30", "away": "GRA", "home": "GTM", "ar": 6, "hr": 11, "status": "final", "num": 176, "stadium": "Nguyen Van Troi", "time": null, "live": null, "outs": null}, {"id": "j177", "date": "2026-10-31", "away": "IND", "home": "ART", "ar": 5, "hr": 2, "status": "final", "num": 177, "stadium": "26 de Julio", "time": "13:30", "live": null, "outs": null}, {"id": "j178", "date": "2026-10-31", "away": "PRI", "home": "IJV", "ar": 6, "hr": 4, "status": "final", "num": 178, "stadium": "Cristóbal Labra", "time": "10:00", "live": null, "outs": null}, {"id": "j179", "date": "2026-10-31", "away": "MTZ", "home": "MAY", "ar": 9, "hr": 2, "status": "final", "num": 179, "stadium": "Nelson Fernández", "time": "10:00", "live": null, "outs": null}, {"id": "j180", "date": "2026-10-31", "away": "CFG", "home": "VCL", "ar": 8, "hr": 3, "status": "final", "num": 180, "stadium": "Augusto César Sandino", "time": "13:30", "live": null, "outs": null}, {"id": "j181", "date": "2026-10-31", "away": "LTU", "home": "SSP", "ar": 8, "hr": 6, "status": "final", "num": 181, "stadium": "José Antonio Huelga", "time": "13:30", "live": null, "outs": null}, {"id": "j182", "date": "2026-10-31", "away": "CAV", "home": "CMG", "ar": 0, "hr": 1, "status": "final", "num": 182, "stadium": "Cándido González", "time": "10:00", "live": null, "outs": null}, {"id": "j183", "date": "2026-10-31", "away": "HOL", "home": "SCU", "ar": 9, "hr": 7, "status": "final", "num": 183, "stadium": "Guillermón Moncada", "time": "13:30", "live": null, "outs": null}, {"id": "j184", "date": "2026-10-31", "away": "GRA", "home": "GTM", "ar": 7, "hr": 1, "status": "final", "num": 184, "stadium": "Nguyen Van Troi", "time": "13:30", "live": null, "outs": null}, {"id": "j186", "date": "2026-10-31", "away": "PRI", "home": "IJV", "ar": 13, "hr": 0, "status": "final", "num": 186, "stadium": "Cristóbal Labra", "time": "13:30", "live": null, "outs": null}];
 const UPCOMING = [{"id": "u185", "date": "2026-11-01", "away": "IND", "home": "ART", "ar": null, "hr": null, "status": "prog", "num": 185, "stadium": "26 de Julio", "time": "13:30"}, {"id": "u187", "date": "2026-11-01", "away": "MTZ", "home": "MAY", "ar": null, "hr": null, "status": "prog", "num": 187, "stadium": "Nelson Fernández", "time": "13:30"}, {"id": "u188", "date": "2026-11-01", "away": "CFG", "home": "VCL", "ar": null, "hr": null, "status": "prog", "num": 188, "stadium": "Augusto César Sandino", "time": "13:30"}, {"id": "u189", "date": "2026-11-01", "away": "LTU", "home": "SSP", "ar": null, "hr": null, "status": "prog", "num": 189, "stadium": "José Antonio Huelga", "time": "13:30"}, {"id": "u190", "date": "2026-11-01", "away": "CAV", "home": "CMG", "ar": null, "hr": null, "status": "prog", "num": 190, "stadium": "Cándido González", "time": "13:30"}, {"id": "u191", "date": "2026-11-01", "away": "HOL", "home": "SCU", "ar": null, "hr": null, "status": "prog", "num": 191, "stadium": "Guillermón Moncada", "time": "13:30"}, {"id": "u192", "date": "2026-11-01", "away": "GRA", "home": "GTM", "ar": null, "hr": null, "status": "prog", "num": 192, "stadium": "Nguyen Van Troi", "time": "13:30"}];
 const STANDINGS = {"occ": [{"t": "PRI", "w": 20, "l": 4, "dif": "-", "pro": ".833", "u10": "(9-1)", "racha": "G-9"}, {"t": "MTZ", "w": 13, "l": 8, "dif": "5.5", "pro": ".619", "u10": "(6-4)", "racha": "P-1"}, {"t": "IND", "w": 13, "l": 8, "dif": "5.5", "pro": ".619", "u10": "(8-2)", "racha": "G-1"}, {"t": "MAY", "w": 11, "l": 11, "dif": "8.0", "pro": ".500", "u10": "(6-4)", "racha": "G-1"}, {"t": "CFG", "w": 11, "l": 12, "dif": "8.5", "pro": ".478", "u10": "(5-5)", "racha": "G-4"}, {"t": "VCL", "w": 8, "l": 12, "dif": "10.0", "pro": ".400", "u10": "(4-6)", "racha": "P-3"}, {"t": "ART", "w": 9, "l": 14, "dif": "10.5", "pro": ".391", "u10": "(3-7)", "racha": "P-1"}, {"t": "IJV", "w": 3, "l": 19, "dif": "16.0", "pro": ".136", "u10": "(1-9)", "racha": "P-9"}], "ori": [{"t": "LTU", "w": 15, "l": 8, "dif": "-", "pro": ".652", "u10": "(9-1)", "racha": "G-4"}, {"t": "HOL", "w": 14, "l": 9, "dif": "1.0", "pro": ".609", "u10": "(8-2)", "racha": "G-2"}, {"t": "SCU", "w": 14, "l": 9, "dif": "1.0", "pro": ".609", "u10": "(6-4)", "racha": "P-2"}, {"t": "GRA", "w": 12, "l": 11, "dif": "3.0", "pro": ".522", "u10": "(4-6)", "racha": "G-1"}, {"t": "CAV", "w": 11, "l": 12, "dif": "4.0", "pro": ".478", "u10": "(3-7)", "racha": "G-1"}, {"t": "SSP", "w": 11, "l": 12, "dif": "4.0", "pro": ".478", "u10": "(3-7)", "racha": "P-4"}, {"t": "CMG", "w": 9, "l": 14, "dif": "6.0", "pro": ".391", "u10": "(5-5)", "racha": "P-1"}, {"t": "GTM", "w": 6, "l": 17, "dif": "9.0", "pro": ".261", "u10": "(2-8)", "racha": "P-1"}]};
@@ -2812,8 +2812,23 @@ async function shareRank(){
 }
 
 /* ============ FANTASY EQUIPO (31-oct-2026) ============ */
-const FANT_BUDGET = 420;
+const FANT_BUDGET = 500;
 const FANTASY_URLS = RANK_URLS; /* el fantasy viaja dentro de ranking.json */
+
+/* Iconos SVG de la sección Fantasy (sin emojis) */
+const FI = p => '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;flex:none">'+p+'</svg>';
+const FICON = {
+  coin: FI('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/>'),
+  heart: FI('<path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3.4 1-4.5 2.5C10.9 4 9.3 3 7.5 3A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7z"/>'),
+  crown: FI('<path d="M3 17.5h18M3.5 17L2 8.5 8 12l4-7 4 7 6-3.5L20.5 17z"/>'),
+  check: FI('<path d="M20 6L9 17l-5-5"/>'),
+  send: FI('<path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/>'),
+  spark: FI('<path d="M12 3l1.9 5.6 5.6 1.9-5.6 1.9L12 18l-1.9-5.6L4.5 10.5l5.6-1.9z"/>'),
+  trash: FI('<path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>'),
+  pencil: FI('<path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/>'),
+  ball: FI('<circle cx="12" cy="12" r="10"/><path d="M5.6 5.6c3.2 3.6 3.2 9.2 0 12.8M18.4 5.6c-3.2 3.6-3.2 9.2 0 12.8"/>'),
+  trophy: FI('<path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 0 1-10 0zM7 6H4.5A1.5 1.5 0 0 0 3 7.5C3 9.4 4.6 11 7 11M17 6h2.5A1.5 1.5 0 0 1 21 7.5C21 9.4 19.4 11 17 11"/>')
+};
 const FANT_KEY = "lpc-fantasy", FVOTE_KEY = "lpc-fantasy-vote", FPUB_KEY = "lpc-fantasy-pub";
 let FANTASY_DATA = null, FANTASY_T = 0, FANT_EDIT = false;
 let FANT = (function(){ try{ const d = JSON.parse(localStorage.getItem(FANT_KEY)||"null"); if(d && Array.isArray(d.bats)) return {name:d.name||"", bats:d.bats, pit:d.pit||""}; }catch(e){} return {name:"", bats:[], pit:""}; })();
@@ -2855,19 +2870,19 @@ function fantTeamCard(t, pos){
   const players = (t.players||[]).map((n, i)=>{
     const p = (JUGADORES && JUGADORES.players) ? JUGADORES.players[n] : null;
     const role = i===9 ? "pit" : "bat";
-    return '<div class="fprow"><span>'+(i===9?'⚾':'🏏')+'</span><span style="flex:1;min-width:0"><b>'+esc(fmtName(n))+'</b>'+(p?' <small style="color:var(--muted)">'+esc(p.team||'')+'</small>':'')+'</span>'+(p?'<small style="color:var(--muted)">'+esc(fantStatLine(p, role))+'</small>':'')+'</div>';
+    return '<div class="fprow">'+(p?playerFoto(p, null):'')+'<span style="flex:1;min-width:0"><b>'+esc(fmtName(n))+'</b>'+(p?' <small style="color:var(--muted)">'+esc(p.team||'')+'</small>':'')+'</span>'+(i===9?' <span class="tag">LANZADOR</span>':'')+(p?'<small style="color:var(--muted)">'+esc(fantStatLine(p, role))+'</small>':'')+'</div>';
   }).join("");
   return '<div class="fteam'+(pos===0 && t.votes>0 ? ' top':'')+'">'
-    + '<div style="display:flex;align-items:center;gap:8px"><b style="font-size:16px;flex:1;min-width:0">'+(pos===0 && t.votes>0 ? '👑 ':'')+esc(t.team)+'</b><span class="price">💰 '+t.cost+'</span><span class="price" style="background:rgba(232,96,76,.15);color:#ff8a75;border-color:rgba(232,96,76,.4)">❤️ '+t.votes+'</span></div>'
+    + '<div style="display:flex;align-items:center;gap:8px"><b style="font-size:16px;flex:1;min-width:0">'+(pos===0 && t.votes>0 ? FICON.crown+' ':'')+esc(t.team)+'</b><span class="price">'+FICON.coin+' '+t.cost+'</span><span class="price" style="background:rgba(232,96,76,.15);color:#ff8a75;border-color:rgba(232,96,76,.4)">'+FICON.heart+' '+t.votes+'</span></div>'
     + '<div class="gmeta" style="margin:4px 0 8px">de '+esc(t.by)+(isMine?' · <span class="tag">TU EQUIPO</span>':'')+'</div>'
     + players
-    + (isMine ? '' : '<button class="btn '+(voted?'ghost':'primary')+'" style="margin-top:10px" onclick="voteFantasy(\''+t.id+'\')">'+(voted?'✓ Tu voto es para este equipo':'🗳️ Votar por este equipo')+'</button>')
+    + (isMine ? '' : '<button class="btn '+(voted?'ghost':'primary')+'" style="margin-top:10px" onclick="voteFantasy(\''+t.id+'\')">'+(voted?'✓ Tu voto es para este equipo':FICON.heart+' Votar por este equipo')+'</button>')
     + '</div>';
 }
 function renderFantasyList(d){
   const el = document.getElementById("fantasyList"); if(!el) return;
   if(!d){ el.innerHTML = '<div class="empty">No se pudo cargar la comunidad. Revisa tu conexión.</div>'; return; }
-  if(!d.teams.length){ el.innerHTML = '<div class="empty">Todavía no hay equipos publicados. ¡Sé el primero en armar el tuyo! 🧢</div>'; return; }
+  if(!d.teams.length){ el.innerHTML = '<div class="empty">Todavía no hay equipos publicados. ¡Sé el primero en armar el tuyo!</div>'; return; }
   el.innerHTML = '<div class="gmeta" style="margin-bottom:8px">'+d.teams.length+' equipo'+(d.teams.length===1?'':'s')+' en competencia · se actualiza cada pocos minutos</div>'
     + d.teams.map((t, i)=>fantTeamCard(t, i)).join("");
 }
@@ -2877,41 +2892,41 @@ function renderFantasyMine(server){
   const myTeam = (server && server.teams) ? server.teams.find(t=>t.id===me) : null;
   if(myTeam && !FANT_EDIT){
     try{ localStorage.removeItem(FPUB_KEY); }catch(e){}
-    el.innerHTML = '<div class="gmeta" style="margin-bottom:8px">✅ Tu equipo está publicado. La comunidad puede votarlo.</div>'
+    el.innerHTML = '<div class="gmeta" style="margin-bottom:8px">'+FICON.check+' Tu equipo está publicado. La comunidad puede votarlo.</div>'
       + fantTeamCard(myTeam, server.teams.indexOf(myTeam))
-      + '<button class="btn ghost" onclick="fantEdit()">✏️ Editar mi equipo</button>';
+      + '<button class="btn ghost" onclick="fantEdit()">'+FICON.pencil+' Editar mi equipo</button>';
     return;
   }
   if(!myTeam && !FANT_EDIT){
     let pub = null; try{ pub = JSON.parse(localStorage.getItem(FPUB_KEY)||"null"); }catch(e){}
     if(pub){
-      el.innerHTML = '<div class="gmeta" style="margin-bottom:8px">🚀 Tu equipo se está publicando… aparecerá en la comunidad en unos minutos.</div>'
+      el.innerHTML = '<div class="gmeta" style="margin-bottom:8px">'+FICON.send+' Tu equipo se está publicando… aparecerá en la comunidad en unos minutos.</div>'
         + fantTeamCard({id:me, by:pub.by, team:pub.team, players:pub.players, cost:pub.cost, votes:0}, -1)
-        + '<button class="btn ghost" onclick="fantEdit()">✏️ Editar mi equipo</button>';
+        + '<button class="btn ghost" onclick="fantEdit()">'+FICON.pencil+' Editar mi equipo</button>';
       return;
     }
   }
   const cost = fantCost(FANT);
   const pct = Math.min(100, Math.round(cost/FANT_BUDGET*100));
   let h = '<input class="uin" id="fantName" maxlength="30" placeholder="Nombre de tu equipo (ej. Los Invencibles)" value="'+esc(FANT.name||"")+'" oninput="FANT.name=this.value;saveFantDraft()">';
-  h += '<div style="display:flex;justify-content:space-between;margin-top:12px"><b>💰 Presupuesto</b><span>'+cost+' / '+FANT_BUDGET+(cost>FANT_BUDGET?' · <b style="color:#e8604c">¡te pasaste!</b>':' · te quedan '+(FANT_BUDGET-cost))+'</span></div>'
+  h += '<div style="display:flex;justify-content:space-between;margin-top:12px"><b>'+FICON.coin+' Presupuesto</b><span>'+cost+' / '+FANT_BUDGET+(cost>FANT_BUDGET?' · <b style="color:#e8604c">¡te pasaste!</b>':' · te quedan '+(FANT_BUDGET-cost))+'</span></div>'
     + '<div class="fbudget"><div style="width:'+pct+'%" class="'+(cost>FANT_BUDGET?'over':'')+'"></div></div>';
-  h += '<div class="gmeta" style="margin:10px 0 6px">🏏 Bateadores ('+FANT.bats.length+'/9)</div>';
+  h += '<div class="gmeta" style="margin:10px 0 6px">Bateadores ('+FANT.bats.length+'/9)</div>';
   FANT.bats.forEach((n, i)=>{
     const p = JUGADORES.players[n]; if(!p) return;
-    h += '<div class="fslot full" onclick="openFantPicker(\'bat\','+i+')">'+playerFoto(p, null)+'<div style="flex:1;min-width:0"><b>'+esc(fmtName(n))+'</b><br><small style="color:var(--muted)">'+esc(fantStatLine(p, "bat"))+'</small></div><span class="price">💰 '+fantPriceBat(p.bat)+'</span><span class="pclose" style="width:30px;height:30px;font-size:13px;flex:none" onclick="event.stopPropagation();fantRemove(\'bat\','+i+')">✕</span></div>';
+    h += '<div class="fslot full" onclick="openFantPicker(\'bat\','+i+')">'+playerFoto(p, null)+'<div style="flex:1;min-width:0"><b>'+esc(fmtName(n))+'</b><br><small style="color:var(--muted)">'+esc(fantStatLine(p, "bat"))+'</small></div><span class="price">'+FICON.coin+' '+fantPriceBat(p.bat)+'</span><span class="pclose" style="width:30px;height:30px;font-size:13px;flex:none" onclick="event.stopPropagation();fantRemove(\'bat\','+i+')">✕</span></div>';
   });
   if(FANT.bats.length < 9) h += '<div class="fslot" onclick="openFantPicker(\'bat\',-1)"><span style="flex:1">＋ Añadir bateador</span></div>';
-  h += '<div class="gmeta" style="margin:10px 0 6px">⚾ Lanzador</div>';
+  h += '<div class="gmeta" style="margin:10px 0 6px">Lanzador</div>';
   if(FANT.pit && JUGADORES.players[FANT.pit]){
     const p = JUGADORES.players[FANT.pit];
-    h += '<div class="fslot full" onclick="openFantPicker(\'pit\',-1)">'+playerFoto(p, null)+'<div style="flex:1;min-width:0"><b>'+esc(fmtName(FANT.pit))+'</b><br><small style="color:var(--muted)">'+esc(fantStatLine(p, "pit"))+'</small></div><span class="price">💰 '+fantPricePit(p.pit)+'</span><span class="pclose" style="width:30px;height:30px;font-size:13px;flex:none" onclick="event.stopPropagation();fantRemove(\'pit\',-1)">✕</span></div>';
+    h += '<div class="fslot full" onclick="openFantPicker(\'pit\',-1)">'+playerFoto(p, null)+'<div style="flex:1;min-width:0"><b>'+esc(fmtName(FANT.pit))+'</b><br><small style="color:var(--muted)">'+esc(fantStatLine(p, "pit"))+'</small></div><span class="price">'+FICON.coin+' '+fantPricePit(p.pit)+'</span><span class="pclose" style="width:30px;height:30px;font-size:13px;flex:none" onclick="event.stopPropagation();fantRemove(\'pit\',-1)">✕</span></div>';
   } else {
     h += '<div class="fslot" onclick="openFantPicker(\'pit\',-1)"><span style="flex:1">＋ Añadir lanzador</span></div>';
   }
   const missing = (9 - FANT.bats.length) + (FANT.pit ? 0 : 1);
-  h += '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" style="flex:1" onclick="fantAuto()">✨ Automático</button><button class="btn ghost" style="flex:1" onclick="fantClear()">🗑 Limpiar</button></div>'
-    + '<button class="btn primary" style="margin-top:8px" onclick="publishFantasy()">🚀 Publicar mi equipo</button>'
+  h += '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" style="flex:1" onclick="fantAuto()">'+FICON.spark+' Automático</button><button class="btn ghost" style="flex:1" onclick="fantClear()">'+FICON.trash+' Limpiar</button></div>'
+    + '<button class="btn primary" style="margin-top:8px" onclick="publishFantasy()">'+FICON.send+' Publicar mi equipo</button>'
     + '<div class="gmeta" style="margin-top:6px">'+(missing ? 'Te faltan '+missing+' jugador'+(missing===1?'':'es')+' para publicar.' : 'Equipo completo: listo para publicar. Si republicas, conservas tus votos.')+'</div>'
     + (FANT_EDIT ? '<button class="btn ghost" onclick="FANT_EDIT=false;renderFantasy()">Cancelar edición</button>' : '');
   el.innerHTML = h;
@@ -2951,7 +2966,7 @@ function fantAuto(){
   }
   cost = FANT_BUDGET - rest;
   FANT.bats = chosen; FANT.pit = pit; saveFantDraft(); renderFantasy();
-  toast("✨ Equipo automático listo · 💰 " + cost);
+  toast("Equipo automático listo · costo " + cost + " de " + FANT_BUDGET);
 }
 let FANT_PICK = {role:"bat", idx:-1};
 function openFantPicker(role, idx){
@@ -2981,7 +2996,7 @@ function renderFantList(){
     .sort((a,b)=> b.price - a.price);
   box.innerHTML = cands.slice(0, 40).map(x=>{
     const dis = !!inTeam[x.n] || (othersCost + x.price > FANT_BUDGET);
-    return '<div class="lead-card" style="margin-bottom:8px;'+(dis?'opacity:.45':'cursor:pointer')+'"'+(dis?'':' onclick="fantPickPlayer(\''+esc(x.n).replace(/\'/g,"\\'")+'\')"')+'>'+playerFoto(x.p, null)+'<div class="info"><b>'+esc(fmtName(x.n))+'</b><span>'+esc((TEAMS[x.p.team]||{name:x.p.team}).name)+' · '+esc(fantStatLine(x.p, role))+'</span></div><span class="price">💰 '+x.price+'</span></div>';
+    return '<div class="lead-card" style="margin-bottom:8px;'+(dis?'opacity:.45':'cursor:pointer')+'"'+(dis?'':' onclick="fantPickPlayer(\''+esc(x.n).replace(/\'/g,"\\'")+'\')"')+'>'+playerFoto(x.p, null)+'<div class="info"><b>'+esc(fmtName(x.n))+'</b><span>'+esc((TEAMS[x.p.team]||{name:x.p.team}).name)+' · '+esc(fantStatLine(x.p, role))+'</span></div><span class="price">'+FICON.coin+' '+x.price+'</span></div>';
   }).join("") || '<div class="empty">Sin jugadores para ese criterio.</div>';
 }
 function fantPickPlayer(name){
@@ -2996,7 +3011,7 @@ async function publishFantasy(){
   if(!name){ toast("Ponle nombre a tu equipo"); return; }
   if(FANT.bats.length !== 9 || !FANT.pit){ toast("Completa los 9 bateadores y el lanzador"); return; }
   const cost = fantCost(FANT);
-  if(cost > FANT_BUDGET){ toast("Te pasas del presupuesto: 💰 " + cost + " / " + FANT_BUDGET); return; }
+  if(cost > FANT_BUDGET){ toast("Te pasas del presupuesto: " + cost + " / " + FANT_BUDGET + " monedas"); return; }
   const u = getUser() || {};
   const creator = String(u.name || "Jugador").replace(/\|/g, " ").slice(0, 30);
   const csv = FANT.bats.concat([FANT.pit]).join(",");
@@ -3007,7 +3022,7 @@ async function publishFantasy(){
   }catch(e){ toast("No se pudo publicar. Revisa tu conexión."); return; }
   try{ localStorage.setItem(FPUB_KEY, JSON.stringify({team:name, by:creator, players:FANT.bats.concat([FANT.pit]), cost:cost, ts:Date.now()})); }catch(e){}
   FANT_EDIT = false; FANTASY_DATA = null;
-  toast("🚀 ¡Equipo publicado! Aparecerá en la comunidad en unos minutos");
+  toast("¡Equipo publicado! Aparecerá en la comunidad en unos minutos");
   renderFantasy();
 }
 async function voteFantasy(tid){
@@ -3024,7 +3039,7 @@ async function voteFantasy(tid){
     await fetch("https://api.telegram.org/bot"+RANKBOT.token+"/sendMessage",{method:"POST", headers:{"Content-Type":"application/json"},
       body: JSON.stringify({chat_id:RANKBOT.chat, text:"FVOTE|"+getUid()+"|"+tid})});
   }catch(e){}
-  toast("🗳️ Voto registrado");
+  toast("Voto registrado");
   renderFantasyList(FANTASY_DATA);
 }
 async function loadRank(){
