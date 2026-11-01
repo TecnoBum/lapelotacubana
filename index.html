@@ -627,6 +627,7 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
     <div id="jugadorDiaBox"></div>
     <div id="retoDiaBox"></div>
     <div id="expressBox"></div>
+    <div id="inviteBox"></div>
     <div id="resumenBox"></div>
     <div id="curiosoBox"></div>
     <div class="card"><h3 id="homeGamesTitle">Juegos de hoy</h3><div id="homeGames"></div></div>
@@ -722,7 +723,7 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
       <div id="penaBox"></div>
       <div id="rankTable"><div class="skel" style="height:64px"></div><div class="skel" style="height:44px"></div><div class="skel" style="height:44px"></div><div class="skel" style="height:44px"></div><div class="skel" style="height:44px"></div></div>
       <button class="btn ghost" id="rankMoreBtn" style="display:none" onclick="rankShowAll()">Ver todos</button>
-      <button class="btn ghost" onclick="shareRank()">📤 Compartir mi ranking</button>
+      <button class="btn ghost" onclick="shareRank()">Compartir mi ranking</button>
     </div>
   </section>
   <section class="page" id="pg-concurso">
@@ -783,6 +784,7 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
     <h3>Crea tu cuenta</h3>
     <p class="sub" id="uSub">Tu nombre aparece en el ranking global. El nombre y el equipo son obligatorios para jugar.</p>
     <input id="uName" class="uin" type="text" maxlength="20" placeholder="Tu nombre" autocomplete="off">
+    <input id="uRef" class="uin" type="text" maxlength="14" placeholder="Código de invitación (opcional)" autocomplete="off" style="text-transform:uppercase">
     <div class="uteams" id="uTeams"></div>
     <button class="btn primary" id="uSaveBtn" onclick="saveUser()">Guardar</button>
   </div>
@@ -878,7 +880,7 @@ const LOGOS = {
 const BASE = "https://www.beisbolcubano.cu/";
 function abs(u){ if(!u) return ""; if(/^https?:/i.test(u)) return u; return BASE+u.replace(/^\//,""); }
 /*__LPC_DATA_START__*/
-const DATA_LABEL = "1 de noviembre de 2026 · 09:34";
+const DATA_LABEL = "1 de noviembre de 2026 · 09:39";
 const GAMES = [{"id": "j171", "date": "2026-10-31", "away": "MTZ", "home": "MAY", "ar": 4, "hr": 5, "status": "final", "num": 171, "stadium": "Nelson Fernández", "time": null, "live": null, "outs": null}, {"id": "j174", "date": "2026-10-31", "away": "CAV", "home": "CMG", "ar": 3, "hr": 2, "status": "final", "num": 174, "stadium": "Cándido González", "time": null, "live": null, "outs": null}, {"id": "j177", "date": "2026-10-31", "away": "IND", "home": "ART", "ar": 5, "hr": 2, "status": "final", "num": 177, "stadium": "26 de Julio", "time": null, "live": null, "outs": null}, {"id": "j178", "date": "2026-10-31", "away": "PRI", "home": "IJV", "ar": 6, "hr": 4, "status": "final", "num": 178, "stadium": "Cristóbal Labra", "time": null, "live": null, "outs": null}, {"id": "j179", "date": "2026-10-31", "away": "MTZ", "home": "MAY", "ar": 9, "hr": 2, "status": "final", "num": 179, "stadium": "Nelson Fernández", "time": null, "live": null, "outs": null}, {"id": "j180", "date": "2026-10-31", "away": "CFG", "home": "VCL", "ar": 8, "hr": 3, "status": "final", "num": 180, "stadium": "Augusto César Sandino", "time": null, "live": null, "outs": null}, {"id": "j181", "date": "2026-10-31", "away": "LTU", "home": "SSP", "ar": 8, "hr": 6, "status": "final", "num": 181, "stadium": "José Antonio Huelga", "time": null, "live": null, "outs": null}, {"id": "j182", "date": "2026-10-31", "away": "CAV", "home": "CMG", "ar": 0, "hr": 1, "status": "final", "num": 182, "stadium": "Cándido González", "time": null, "live": null, "outs": null}, {"id": "j183", "date": "2026-10-31", "away": "HOL", "home": "SCU", "ar": 9, "hr": 7, "status": "final", "num": 183, "stadium": "Guillermón Moncada", "time": null, "live": null, "outs": null}, {"id": "j184", "date": "2026-10-31", "away": "GRA", "home": "GTM", "ar": 7, "hr": 1, "status": "final", "num": 184, "stadium": "Nguyen Van Troi", "time": null, "live": null, "outs": null}, {"id": "j185", "date": "2026-11-01", "away": "IND", "home": "ART", "ar": null, "hr": null, "status": "prog", "num": 185, "stadium": "26 de Julio", "time": "13:30", "live": null, "outs": null}, {"id": "j186", "date": "2026-10-31", "away": "PRI", "home": "IJV", "ar": 13, "hr": 0, "status": "final", "num": 186, "stadium": "Cristóbal Labra", "time": null, "live": null, "outs": null}, {"id": "j187", "date": "2026-11-01", "away": "MTZ", "home": "MAY", "ar": null, "hr": null, "status": "prog", "num": 187, "stadium": "Nelson Fernández", "time": "13:30", "live": null, "outs": null}, {"id": "j188", "date": "2026-11-01", "away": "CFG", "home": "VCL", "ar": null, "hr": null, "status": "prog", "num": 188, "stadium": "Augusto César Sandino", "time": "13:30", "live": null, "outs": null}, {"id": "j189", "date": "2026-11-01", "away": "LTU", "home": "SSP", "ar": null, "hr": null, "status": "prog", "num": 189, "stadium": "José Antonio Huelga", "time": "13:30", "live": null, "outs": null}, {"id": "j190", "date": "2026-11-01", "away": "CAV", "home": "CMG", "ar": null, "hr": null, "status": "prog", "num": 190, "stadium": "Cándido González", "time": "13:30", "live": null, "outs": null}, {"id": "j191", "date": "2026-11-01", "away": "HOL", "home": "SCU", "ar": null, "hr": null, "status": "prog", "num": 191, "stadium": "Guillermón Moncada", "time": "13:30", "live": null, "outs": null}, {"id": "j192", "date": "2026-11-01", "away": "GRA", "home": "GTM", "ar": null, "hr": null, "status": "prog", "num": 192, "stadium": "Nguyen Van Troi", "time": "13:30", "live": null, "outs": null}];
 const UPCOMING = [{"id": "u193", "date": "2026-11-03", "away": "MAY", "home": "PRI", "ar": null, "hr": null, "status": "prog", "num": 193, "stadium": "Capitán San Luis", "time": "13:30"}, {"id": "u194", "date": "2026-11-03", "away": "VCL", "home": "IND", "ar": null, "hr": null, "status": "prog", "num": 194, "stadium": "Latinoamericano", "time": "13:30"}, {"id": "u195", "date": "2026-11-03", "away": "ART", "home": "MTZ", "ar": null, "hr": null, "status": "prog", "num": 195, "stadium": "Victoria de Girón", "time": "13:30"}, {"id": "u196", "date": "2026-11-03", "away": "IJV", "home": "CFG", "ar": null, "hr": null, "status": "prog", "num": 196, "stadium": "5 de Septiembre", "time": "13:30"}, {"id": "u197", "date": "2026-11-03", "away": "GRA", "home": "SSP", "ar": null, "hr": null, "status": "prog", "num": 197, "stadium": "José Antonio Huelga", "time": "13:30"}, {"id": "u198", "date": "2026-11-03", "away": "HOL", "home": "CAV", "ar": null, "hr": null, "status": "prog", "num": 198, "stadium": "José Ramón Cepero", "time": "13:30"}, {"id": "u199", "date": "2026-11-03", "away": "SCU", "home": "CMG", "ar": null, "hr": null, "status": "prog", "num": 199, "stadium": "Cándido González", "time": "13:30"}, {"id": "u200", "date": "2026-11-03", "away": "GTM", "home": "LTU", "ar": null, "hr": null, "status": "prog", "num": 200, "stadium": "Julio Antonio Mella", "time": "13:30"}];
 const STANDINGS = {"occ": [{"t": "PRI", "w": 20, "l": 4, "dif": "-", "pro": ".833", "u10": "(9-1)", "racha": "G-9"}, {"t": "MTZ", "w": 13, "l": 8, "dif": "5.5", "pro": ".619", "u10": "(6-4)", "racha": "P-1"}, {"t": "IND", "w": 13, "l": 8, "dif": "5.5", "pro": ".619", "u10": "(8-2)", "racha": "G-1"}, {"t": "MAY", "w": 11, "l": 11, "dif": "8.0", "pro": ".500", "u10": "(6-4)", "racha": "G-1"}, {"t": "CFG", "w": 11, "l": 12, "dif": "8.5", "pro": ".478", "u10": "(5-5)", "racha": "G-4"}, {"t": "VCL", "w": 8, "l": 12, "dif": "10.0", "pro": ".400", "u10": "(4-6)", "racha": "P-3"}, {"t": "ART", "w": 9, "l": 14, "dif": "10.5", "pro": ".391", "u10": "(3-7)", "racha": "P-1"}, {"t": "IJV", "w": 3, "l": 19, "dif": "16.0", "pro": ".136", "u10": "(1-9)", "racha": "P-9"}], "ori": [{"t": "LTU", "w": 15, "l": 8, "dif": "-", "pro": ".652", "u10": "(9-1)", "racha": "G-4"}, {"t": "HOL", "w": 14, "l": 9, "dif": "1.0", "pro": ".609", "u10": "(8-2)", "racha": "G-2"}, {"t": "SCU", "w": 14, "l": 9, "dif": "1.0", "pro": ".609", "u10": "(6-4)", "racha": "P-2"}, {"t": "GRA", "w": 12, "l": 11, "dif": "3.0", "pro": ".522", "u10": "(4-6)", "racha": "G-1"}, {"t": "CAV", "w": 11, "l": 12, "dif": "4.0", "pro": ".478", "u10": "(3-7)", "racha": "G-1"}, {"t": "SSP", "w": 11, "l": 12, "dif": "4.0", "pro": ".478", "u10": "(3-7)", "racha": "P-4"}, {"t": "CMG", "w": 9, "l": 14, "dif": "6.0", "pro": ".391", "u10": "(5-5)", "racha": "P-1"}, {"t": "GTM", "w": 6, "l": 17, "dif": "9.0", "pro": ".261", "u10": "(2-8)", "racha": "P-1"}]};
@@ -1332,7 +1334,7 @@ function renderAll(){
   renderJugadorDia();
   renderReto();
   renderMiEquipo();
-  renderExpress(); renderResumen(); renderCurioso(); paintMineFilters();
+  renderExpress(); renderResumen(); renderCurioso(); paintMineFilters(); renderInvite();
   const rec = {}; [...S.standings.occ, ...S.standings.ori].forEach(r=>rec[r.t]=r.w+"-"+r.l);
   document.getElementById("teamsGrid").innerHTML = Object.keys(TEAMS).map(c=>{
     const t = TEAMS[c];
@@ -2169,6 +2171,10 @@ function openUserModal(forced){
   const u = getUser();
   _uphoto = (u && u.photo) || null; _uteam = (u && u.team) || null;
   document.getElementById("uName").value = (u && u.name) || "";
+  const _rfEl = document.getElementById("uRef");
+  if(_rfEl){ let _by = ""; try{ _by = localStorage.getItem("lpc-ref-by") || ""; }catch(e){}
+    _rfEl.value = _by ? (_by.length > 8 ? "LPC-" + _by.slice(-6).toUpperCase() : _by.toUpperCase()) : "";
+    try{ _rfEl.disabled = !!localStorage.getItem("lpc-ref-sent"); }catch(e){} }
   renderUTeams(); renderUAvatar();
   const sub = document.getElementById("uSub"), btn = document.getElementById("uSaveBtn");
   if(forced){
@@ -2198,6 +2204,12 @@ function saveUser(){
   if(!name){ toast("Escribe tu nombre"); return; }
   if(!_uteam || !TEAMS[_uteam]){ toast("Elige tu equipo favorito"); return; }
   try{ localStorage.setItem("lpc-user", JSON.stringify({name:name, photo:_uphoto, team:_uteam})); }catch(e){ toast("No se pudo guardar la foto, prueba con otra"); return; }
+  const _rfIn = document.getElementById("uRef");
+  if(_rfIn && !localStorage.getItem("lpc-ref-sent")){
+    let _code = String(_rfIn.value || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if(_code.indexOf("LPC") === 0 && _code.length > 6) _code = _code.slice(3);
+    if(_code) try{ localStorage.setItem("lpc-ref-by", _code); }catch(e){}
+  }
   try{ localStorage.removeItem("lpc-user-skipped"); }catch(e){}
   document.getElementById("userModal").classList.remove("show");
   renderUserChip();
@@ -2593,6 +2605,13 @@ async function syncRank(){
     if(!r.ok) throw new Error("telegram "+r.status);
     localStorage.setItem("lpc-rank-sent", pts+"|"+pena);
     localStorage.setItem("lpc-rank-sent-t", String(Date.now()));
+    const _refBy = localStorage.getItem("lpc-ref-by") || "";
+    if(_refBy && !localStorage.getItem("lpc-ref-sent")){
+      try{
+        const _rr = await fetch("https://api.telegram.org/bot"+RANKBOT.token+"/sendMessage",{method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({chat_id:RANKBOT.chat, text:"REF|"+getUid()+"|"+_refBy})});
+        if(_rr.ok) localStorage.setItem("lpc-ref-sent", _refBy);
+      }catch(e){}
+    }
   }catch(e){}
   rankSyncBusy=false;
 }
@@ -2734,6 +2753,7 @@ function rankCompeteHtml(d, prevPos, hasPrev, me){
       +'<button class="btn primary" style="margin-top:10px" onclick="go(\'predicciones\')">Pronosticar ahora</button></div>';
   }
   const mp = d.players[myIdx], mpos = myIdx+1, pp = prevPos[me];
+  const refsLine = (mp.refs > 0) ? '<div class="comp-rival"><span>Referidos: <b>'+mp.refs+'</b> amigo'+(mp.refs===1?'':'s')+' jugando por tu invitación · <b>+'+(mp.refs*10)+' pts</b> en tu total</span></div>' : "";
   let delta = "";
   if(hasPrev && pp!==undefined && pp!==mpos){
     delta = pp>mpos
@@ -2753,7 +2773,7 @@ function rankCompeteHtml(d, prevPos, hasPrev, me){
     rival = '<div class="comp-rival"><span>👑 Lideras el ranking'+(rv2?' · <b>'+esc(rv2.name)+'</b> te sigue a '+(mp.points-rv2.points)+' pts':'')+'</span></div>';
   }
   return '<div class="compete"><div class="comp-head"><div><div class="comp-pos">#'+mpos+'</div><div class="comp-de">de '+nJug+' jugadores</div></div>'
-    +'<div class="comp-pts"><b>'+mp.points+'</b><span>tus puntos</span></div></div>'+delta+rival+'</div>';
+    +'<div class="comp-pts"><b>'+mp.points+'</b><span>tus puntos</span></div></div>'+delta+rival+refsLine+'</div>';
 }
 function renderPenaBox(d){
   const box = document.getElementById("penaBox"); if(!box) return;
@@ -2804,6 +2824,37 @@ function invitePena(){
   const txt = "👥 Únete a mi peña «"+name+"» en La Pelota Cubana ⚾\nCódigo: "+code+"\nEntra en Ranking → Mi peña y escribe el código.\n📲 Descarga la app: https://apklis.cu/application/la.pelota.cubana.hoy";
   window.open("https://wa.me/?text="+encodeURIComponent(txt), "_blank");
 }
+
+/* ============ COMPARTIR Y REFERIDOS (1-nov-2026) ============ */
+/* Mensajes SIN emojis a propósito: en varios teléfonos salían rotos («�»).
+   Código del usuario: LPC- + últimos 6 de su uid. El invitado entra por el
+   enlace ?ref=<uid> o escribe el código al crear la cuenta; tras su primer
+   RANK la app manda REF|uid|codigo y el servidor da +10 pts al invitador
+   (máx 10) cuando el invitado suma sus primeros puntos jugando. */
+const REF_BY_KEY = "lpc-ref-by", REF_SENT_KEY = "lpc-ref-sent";
+function myRefCode(){ return "LPC-" + String(getUid()).slice(-6).toUpperCase(); }
+function refShareText(){
+  return "Entra con mi código " + myRefCode() + ": https://tecnobum.github.io/lapelotacubana/?ref=" + getUid()
+    + "\nO descarga la app en Apklis: https://apklis.cu/application/la.pelota.cubana.hoy";
+}
+async function shareTextOut(txt){
+  if(navigator.share){ try{ await navigator.share({text: txt}); return; }catch(e){} }
+  window.open("https://wa.me/?text=" + encodeURIComponent(txt), "_blank");
+}
+function inviteShare(){
+  shareTextOut("Te invito a jugar en La Pelota Cubana: pronostica los juegos de la Serie Nacional, compite en el ranking y arma tu equipo en el Fantasy.\n" + refShareText());
+}
+function renderInvite(){
+  const box = document.getElementById("inviteBox"); if(!box) return;
+  box.innerHTML = '<div class="card"><h3>Invita a tus amigos</h3><div class="gmeta" style="margin-bottom:10px">Gana <b style="color:var(--gold)">+10 pts</b> en el ranking por cada amigo que entre con tu código y haga sus primeros pronósticos. Tu código: <b style="color:var(--gold)">' + myRefCode() + '</b></div><button class="btn" style="width:100%" onclick="inviteShare()">Compartir mi invitación</button></div>';
+}
+function captureRef(){
+  try{
+    const r = new URLSearchParams(location.search).get("ref");
+    if(r && !localStorage.getItem(REF_SENT_KEY) && !localStorage.getItem(REF_BY_KEY))
+      localStorage.setItem(REF_BY_KEY, String(r).replace(/[^A-Za-z0-9]/g, "").slice(0, 40));
+  }catch(e){}
+}
 async function shareRank(){
   const d = RANK_DATA, me = getUid();
   let pos = 0, pts = 0, total = 0;
@@ -2814,11 +2865,11 @@ async function shareRank(){
     else pts = (typeof calcMyPoints==="function") ? calcMyPoints() : 0;
   }
   const txt = pos
-    ? "🏆 Voy #"+pos+" de "+total+" en el ranking de La Pelota Cubana con "+pts+" pts ⚾ ¿Te atreves a superarme?\n📲 Descarga la app: https://apklis.cu/application/la.pelota.cubana.hoy"
-    : "🏆 Estoy compitiendo en el ranking de La Pelota Cubana ⚾ ¡Únete y pronostica conmigo!\n📲 Descarga la app: https://apklis.cu/application/la.pelota.cubana.hoy";
-  if(navigator.share){ try{ await navigator.share({text:txt}); return; }catch(e){} }
-  window.open("https://wa.me/?text="+encodeURIComponent(txt), "_blank");
+    ? "Voy #"+pos+" de "+total+" en el ranking de La Pelota Cubana con "+pts+" pts. ¿Te atreves a superarme?\n"+refShareText()
+    : "Estoy compitiendo en el ranking de La Pelota Cubana. ¡Únete y pronostica conmigo!\n"+refShareText();
+  shareTextOut(txt);
 }
+
 
 /* ============ FANTASY EQUIPO (31-oct-2026) ============ */
 /* Alineación POR POSICIONES con TODOS los jugadores de la Serie (515):
@@ -3637,6 +3688,7 @@ function closeApkModal(){
 document.querySelector('[data-pg="inicio"]').classList.add("active");
 /* Enlaces directos: ?s=ranking abre la app en esa sección (31-oct-2026) */
 try{
+  captureRef();
   const _qs = new URLSearchParams(location.search).get("s");
   const _ok = ["inicio","jornada","posiciones","calendario","lideres","equipos","miequipo","noticias","envivo","predicciones","ranking","concurso","fantasy","grupos"];
   if(_qs && _ok.indexOf(_qs)>=0 && _qs!=="inicio") setTimeout(()=>go(_qs), 350);
