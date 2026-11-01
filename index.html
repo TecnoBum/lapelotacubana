@@ -2862,8 +2862,8 @@ function fantEligible(slot, p){
   return (p.pos||'') === slot;
 }
 function fantCandidates(slot){
-  if(!PLAYERS_DB) return [];
-  return Object.keys(PLAYERS_DB.players).filter(k => fantEligible(slot, PLAYERS_DB.players[k]));
+  if(!JUGADORES) return [];
+  return Object.keys(JUGADORES.players).filter(k => fantEligible(slot, JUGADORES.players[k]));
 }
 function fantStatLine(p, slot){
   if(slot === 'P'){ const q = p.pit||{}; return 'PCL '+(q.pcl||0).toFixed(2)+' · '+esc(q.inn_f||'0')+' INN · '+esc(q.so||0)+' SO'; }
@@ -2883,8 +2883,8 @@ let FANT = {name: FANTD.name, slots: FANTD.slots || fantEmptySlots()};
 function saveFantDraft(){ try{ localStorage.setItem(FANT_KEY, JSON.stringify(FANT)); }catch(e){} }
 function fantMigrateLegacy(){
   // Borrador v1 (9 bateadores libres + lanzador): cada bateador a su posición
-  if(!FANTD.legacy || !PLAYERS_DB) return;
-  const P = PLAYERS_DB.players, used = new Set();
+  if(!FANTD.legacy || !JUGADORES) return;
+  const P = JUGADORES.players, used = new Set();
   const put = (slot, key) => {
     if(slot === 'OF'){ const i = FANT.slots.OF.findIndex(x => !x); if(i >= 0 && !used.has(key)){ FANT.slots.OF[i] = key; used.add(key); return true; } return false; }
     if(!FANT.slots[slot] && !used.has(key)){ FANT.slots[slot] = key; used.add(key); return true; }
@@ -2909,7 +2909,7 @@ function fantKeysOrdered(){
   FANT_ORDER.forEach(slot => { out.push(slot === 'OF' ? (FANT.slots.OF[ofi++]||'') : (FANT.slots[slot]||'')); });
   return out;
 }
-function fantCost(){ if(!PLAYERS_DB) return 0; return fantKeysOrdered().reduce((s, k, i) => s + (k ? fantSlotPrice(FANT_ORDER[i], PLAYERS_DB.players[k]) : 0), 0); }
+function fantCost(){ if(!JUGADORES) return 0; return fantKeysOrdered().reduce((s, k, i) => s + (k ? fantSlotPrice(FANT_ORDER[i], JUGADORES.players[k]) : 0), 0); }
 function fantFilled(){ return fantKeysOrdered().filter(Boolean).length; }
 function fantMyPublished(){
   const uid = getUid();
@@ -2919,7 +2919,7 @@ function fantMyPublished(){
 }
 async function renderFantasy(){
   const mine = document.getElementById('fantasyMine'); if(!mine) return;
-  if(!PLAYERS_DB){ mine.innerHTML = '<div class="empty">Cargando jugadores de la Serie…</div>'; loadPlayers().then(()=>renderFantasy()); return; }
+  if(!JUGADORES){ mine.innerHTML = '<div class="empty">Cargando jugadores de la Serie…</div>'; loadJugadores().then(()=>renderFantasy()); return; }
   fantMigrateLegacy();
   const pub = fantMyPublished();
   if(pub && !FANT_EDIT){ mine.innerHTML = fantSavedHTML(pub); }
@@ -2945,7 +2945,7 @@ function fantSavedHTML(t){
     + '<button class="btn" style="margin-top:10px" onclick="fantEdit()">'+FICON.pencil+' Editar mi equipo</button>';
 }
 function fantSlotRowHTML(slot, idx){
-  const P = PLAYERS_DB.players;
+  const P = JUGADORES.players;
   const key = fantGet(slot, idx);
   const def = FANT_SLOTS.find(s => s.k === slot);
   const label = slot === 'OF' ? 'Jardinero ' + ((idx||0)+1) : def.label;
@@ -2986,8 +2986,8 @@ function fantValue(p, slot){
   const b = p.bat||{}; return (b.ave||0)*1000 + (b.hr||0)*10 + (b.ci||0);
 }
 function fantAuto(){
-  if(!PLAYERS_DB) return;
-  const P = PLAYERS_DB.players;
+  if(!JUGADORES) return;
+  const P = JUGADORES.players;
   const tasks = [{slot:'C',id:'C'},{slot:'SS',id:'SS'},{slot:'3B',id:'3B'},{slot:'2B',id:'2B'},{slot:'1B',id:'1B'},
                  {slot:'OF',id:'OF0'},{slot:'OF',id:'OF1'},{slot:'OF',id:'OF2'},{slot:'BD',id:'BD'},{slot:'P',id:'P'}];
   const used = new Set(); const pick = {}; let budget = FANT_BUDGET;
@@ -3023,7 +3023,7 @@ function fantAuto(){
   toast('Equipo automático listo · costo ' + fantCost() + ' de ' + FANT_BUDGET);
 }
 function openFantPicker(slot, idx){
-  if(!PLAYERS_DB) return;
+  if(!JUGADORES) return;
   FANT_PICK = {slot, idx: idx||0};
   const def = FANT_SLOTS.find(s => s.k === slot);
   document.getElementById('fantPickTitle').textContent = 'Elegir ' + (slot === 'OF' ? 'jardinero ' + ((idx||0)+1) : def.label.toLowerCase());
@@ -3034,7 +3034,7 @@ function openFantPicker(slot, idx){
 function fantClosePicker(){ const m = document.getElementById('fantPickModal'); if(m) m.classList.remove('open'); FANT_PICK = null; }
 function renderFantPickList(q){
   const box = document.getElementById('fantPickList'); if(!box || !FANT_PICK) return;
-  const P = PLAYERS_DB.players, slot = FANT_PICK.slot;
+  const P = JUGADORES.players, slot = FANT_PICK.slot;
   const used = fantUsedKeys();
   const curKey = fantGet(slot, FANT_PICK.idx);
   const left = FANT_BUDGET - fantCost() + (curKey ? fantSlotPrice(slot, P[curKey]) : 0);
@@ -3086,7 +3086,7 @@ function renderFantasyList(d){
   box.innerHTML = teams.map((t, i) => fantTeamCard(t, i, t.id === getUid(), myVote)).join('');
 }
 function fantTeamCard(t, pos, isMine, myVote){
-  const P = PLAYERS_DB ? PLAYERS_DB.players : {};
+  const P = JUGADORES ? JUGADORES.players : {};
   const voted = myVote && myVote === t.id;
   const badges = ['C','1B','2B','3B','SS',null,null,null,'BD','P'];
   const rows = (t.players||[]).map((key, i) => {
