@@ -2672,6 +2672,7 @@ function go(id){
   if(id==="opiniones") loadOpiniones();
   if(id==="reportes") loadReportes();
   if(id==="predicciones") loadAyerTicker();
+  if(Date.now()-lastPollOk > 30000) pollDatos(); /* al entrar a una sección, datos frescos si el último sondeo tiene +30 s */
   if(id==="grupos") renderCanales();
   if(id==="calendario") renderCalendario();
   if(id==="miequipo") renderMiEquipo();
@@ -3309,7 +3310,7 @@ async function voteFantasy(tid){
 async function loadRank(){
   const el = document.getElementById("rankTable"); if(!el) return;
   let d = RANK_DATA;
-  if(!d || Date.now()-RANK_DATA_T > 120000){
+  if(!d || Date.now()-RANK_DATA_T > 60000){
     d = null;
     for(const u of RANK_URLS){
       const j = await fetchJsonTimeout(u, 12000);
@@ -3983,7 +3984,7 @@ function renderAyerTicker(){
 }
 async function loadAyerTicker(){
   renderAyerTicker();
-  if(typeof RANK_DATA!=="undefined" && RANK_DATA && Date.now()-RANK_DATA_T<120000) return;
+  if(typeof RANK_DATA!=="undefined" && RANK_DATA && Date.now()-RANK_DATA_T<60000) return;
   for(const u of RANK_URLS){
     try{ const r=await fetch(u+"?t="+Date.now(),{cache:"no-store"}); if(r.ok){ RANK_DATA=await r.json(); RANK_DATA_T=Date.now(); break; } }catch(e){}
   }
