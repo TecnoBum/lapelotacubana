@@ -388,6 +388,17 @@ table.st.rank tr.rankdiv td{text-align:center;color:var(--muted);letter-spacing:
 .opcomment span{font-size:11.5px;color:var(--mut);margin-left:6px}
 .opcomment p{font-size:14px;line-height:1.5;margin-top:2px;white-space:pre-wrap;word-break:break-word}
 .oppend{border:1px dashed var(--gold,#e8b64c);color:var(--gold,#e8b64c);border-radius:12px;padding:10px 12px;font-size:13.5px;margin-bottom:10px;line-height:1.5}
+
+/* Reportes (5-nov-2026) */
+.reptipo{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.05em;border-radius:99px;padding:3px 9px;vertical-align:2px}
+.reptipo.error{background:rgba(230,51,41,.16);color:#ff8a75}
+.reptipo.sugerencia{background:rgba(232,182,76,.18);color:var(--gold,#e8b64c)}
+.represp{margin-top:9px;border:1px solid rgba(232,182,76,.45);border-radius:12px;padding:10px 12px;background:rgba(232,182,76,.07)}
+.represp b{color:var(--gold,#e8b64c);font-size:12.5px;text-transform:uppercase;letter-spacing:.05em}
+.represp p{font-size:14px;line-height:1.55;margin-top:3px;white-space:pre-wrap;word-break:break-word}
+.repseg{display:flex;gap:8px;margin-bottom:10px}
+.repseg button{flex:1;padding:11px;border-radius:12px;border:1px solid var(--line);background:var(--card2);color:var(--text);font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
+.repseg button.on{border-color:var(--rojo,#e63329);background:rgba(230,51,41,.14)}
 textarea.uin{resize:vertical;min-height:88px;font-family:inherit}
 .newtag{margin-left:auto;background:var(--gold);color:#171106;font-size:10px;font-weight:800;letter-spacing:.07em;border-radius:99px;padding:3px 9px;flex:none}
 #fantModal .dlg{background:var(--bg2);border:1px solid var(--line);border-radius:18px;max-width:420px;width:100%;padding:20px;max-height:85vh;overflow-y:auto;animation:pop .22s ease;}
@@ -850,6 +861,25 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
     <div class="card"><h3>Opiniones de la comunidad</h3>
       <div class="gmeta" id="opListMeta" style="margin-bottom:8px"></div>
       <div id="opList"><div class="empty">Cargando opiniones\u2026</div></div>
+    </div>
+  </section>
+  <section class="page" id="pg-reportes">
+    <div class="card"><h3>Reportes</h3>
+      <div class="gmeta" style="margin-bottom:10px">Esta sección es para <b>reportar errores</b> de la aplicación y enviar <b>sugerencias</b> al equipo de desarrollo. Cuéntanos qué pasó o qué te gustaría ver: el equipo lee cada reporte y puede responderte aquí mismo.</div>
+      <div class="repseg">
+        <button id="repTipoError" class="on" onclick="repSetTipo('error')">Reportar un error</button>
+        <button id="repTipoSug" onclick="repSetTipo('sugerencia')">Sugerencia</button>
+      </div>
+      <textarea id="repText" class="uin" maxlength="800" placeholder="Describe el error o tu sugerencia con detalle..." oninput="document.getElementById('repCount').textContent=this.value.length"></textarea>
+      <div class="gmeta" style="text-align:right;margin-top:-6px"><span id="repCount">0</span>/800</div>
+      <button class="btn" onclick="submitReporte()">Enviar reporte</button>
+    </div>
+    <div class="card"><h3>Mis reportes</h3>
+      <div id="repMine"><div class="empty">Todavía no has enviado reportes.</div></div>
+    </div>
+    <div class="card"><h3>Reportes y respuestas</h3>
+      <div class="gmeta" style="margin-bottom:8px">Lo que la comunidad ha reportado y las respuestas del equipo de desarrollo.</div>
+      <div id="repList"><div class="empty">Cargando reportes\u2026</div></div>
     </div>
   </section>
   <section class="page" id="pg-grupos">
@@ -2646,6 +2676,7 @@ const PAGES = [
   {id:"concurso", label:"Concurso", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7c-1.5 0-4.2-.3-5.2-2C6 3.6 7 2.5 8.3 2.7 10 3 12 7 12 7zm0 0c1.5 0 4.2-.3 5.2-2 .8-1.4-.2-2.5-1.5-2.3C14 3 12 7 12 7z"/></svg>'},
   {id:"fantasy", label:"Fantasy Equipo", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M5.6 5.6c3.2 3.6 3.2 9.2 0 12.8M18.4 5.6c-3.2 3.6-3.2 9.2 0 12.8"/></svg>'},
   {id:"opiniones", label:"Opiniones y Debate", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>'},
+  {id:"reportes", label:"Reportes", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V4"/><path d="M4 4h13l-2.5 4L17 12H4"/></svg>'},
   {id:"grupos", label:"Grupos y canales", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>'},
   {id:"donaciones", label:"Donaciones", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 00-7.8 7.8l1 1L12 21.2l7.8-7.8 1-1a5.5 5.5 0 000-7.8z"/></svg>'}
 ];
@@ -2691,6 +2722,7 @@ function go(id){
   if(id==="concurso") loadConcurso();
   if(id==="fantasy") renderFantasy();
   if(id==="opiniones") loadOpiniones();
+  if(id==="reportes") loadReportes();
   if(id==="grupos") renderCanales();
   if(id==="calendario") renderCalendario();
   if(id==="miequipo") renderMiEquipo();
@@ -4184,13 +4216,81 @@ async function submitOpComment(oid){
   }catch(e){ toast("No se pudo enviar. Revisa tu conexi\u00f3n."); }
 }
 
+/* ============ REPORTES (5-nov-2026) ============
+   Errores y sugerencias al equipo de desarrollo: REPORTE| por el canal
+   del ranking. El reporte nace privado (solo lo ve el admin); el equipo
+   puede publicarlo y responder con REP_R| desde el panel, y la respuesta
+   se ve aquí junto al reporte. */
+const REP_URLS = ["reportes.json","https://tecnobum.github.io/lapelotacubana/reportes.json"];
+let REP_DATA = null; let REP_TIPO = "error";
+function repSetTipo(t){
+  REP_TIPO = t;
+  const e = document.getElementById("repTipoError"), s = document.getElementById("repTipoSug");
+  if(e) e.classList.toggle("on", t==="error");
+  if(s) s.classList.toggle("on", t==="sugerencia");
+  const x = document.getElementById("repText");
+  if(x) x.placeholder = t==="error" ? "Describe el error con detalle: qu\u00e9 hac\u00edas, qu\u00e9 pas\u00f3 y en qu\u00e9 secci\u00f3n..." : "Cu\u00e9ntanos tu sugerencia: qu\u00e9 te gustar\u00eda ver en la aplicaci\u00f3n...";
+}
+function repMyIds(){ try{ return JSON.parse(localStorage.getItem("lpcpro-my-reports")||"[]"); }catch(e){ return []; } }
+function repSaveMy(id){ try{ const a = repMyIds(); if(a.indexOf(id)<0){ a.push(id); localStorage.setItem("lpcpro-my-reports", JSON.stringify(a.slice(-30))); } }catch(e){} }
+function repFecha(ts){ try{ return new Date(ts*1000).toLocaleDateString("es",{timeZone:"America/Havana",day:"numeric",month:"short"}); }catch(e){ return ""; } }
+async function loadReportes(){
+  renderReportes();
+  for(const u of REP_URLS){
+    try{ const r = await fetch(u+"?t="+Date.now(),{cache:"no-store"}); if(r.ok){ REP_DATA = await r.json(); break; } }catch(e){}
+  }
+  renderReportes();
+}
+function repCard(r, mine){
+  const tipo = r.tipo==="sugerencia" ? '<span class="reptipo sugerencia">SUGERENCIA</span>' : '<span class="reptipo error">ERROR</span>';
+  let h = '<div class="opcard"><div class="ophead"><div class="opava">'+esc((r.name||"?").trim().charAt(0).toUpperCase())+'</div><div class="opwho"><b>'+esc(r.name||"")+'</b><span>'+esc(repFecha(r.ts))+'</span></div><span style="margin-left:auto">'+tipo+'</span></div>';
+  h += '<div class="optext">'+esc(r.text||"")+'</div>';
+  if(r.response) h += '<div class="represp"><b>Respuesta del equipo de desarrollo</b><p>'+esc(r.response)+'</p></div>';
+  else if(mine) h += '<div class="gmeta" style="margin-top:8px">Sin respuesta todav\u00eda. El equipo lo est\u00e1 revisando.</div>';
+  return h + '</div>';
+}
+function renderReportes(){
+  const list = document.getElementById("repList"); if(!list) return;
+  const mineBox = document.getElementById("repMine");
+  const pubs = (REP_DATA && REP_DATA.reports) || [];
+  const byId = {}; pubs.forEach(r=>{ byId[r.id]=r; });
+  const myIds = repMyIds();
+  if(mineBox){
+    if(!myIds.length) mineBox.innerHTML = '<div class="empty">Todavía no has enviado reportes.</div>';
+    else mineBox.innerHTML = myIds.slice().reverse().map(id=>{
+      const r = byId[id];
+      if(r) return repCard(r, true);
+      return '<div class="oppend">Tu reporte está <b>recibido y en revisión</b> por el equipo de desarrollo. Cuando se publique o reciba respuesta, lo verás aquí con tu nombre.</div>';
+    }).join("");
+  }
+  if(!REP_DATA){ list.innerHTML = '<div class="empty">Cargando reportes\u2026</div>'; return; }
+  if(!pubs.length){ list.innerHTML = '<div class="empty">Todavía no hay reportes publicados. Si encuentras un error o tienes una idea, envíala arriba.</div>'; return; }
+  list.innerHTML = pubs.map(r=>repCard(r, false)).join("");
+}
+async function submitReporte(){
+  if(!accountComplete()){ openUserModal(true); return; }
+  const xEl = document.getElementById("repText");
+  const text = String(xEl.value||"").replace(/\|/g," ").trim().slice(0,800);
+  if(text.length < 5){ toast("Describe un poco más el reporte"); return; }
+  const u = getUser()||{};
+  const name = opClean(u.name||"An\u00f3nimo", 30), team = String(u.team||"").replace(/[^A-Za-z]/g,"").slice(0,8).toUpperCase();
+  const id = "r"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+  try{
+    const ok = await opSend("REPORTE|"+id+"|"+getUid()+"|"+name+"|"+team+"|"+REP_TIPO+"|"+text.replace(/\n+/g," "));
+    if(!ok) throw 0;
+    repSaveMy(id); xEl.value=""; document.getElementById("repCount").textContent="0";
+    toast("Reporte enviado. El equipo de desarrollo lo revisará.");
+    renderReportes();
+  }catch(e){ toast("No se pudo enviar. Revisa tu conexi\u00f3n."); }
+}
+
 /* ============ ARRANQUE ============ */
 document.querySelector('[data-pg="inicio"]').classList.add("active");
 /* Enlaces directos: ?s=ranking abre la app en esa sección (31-oct-2026) */
 try{
   captureRef();
   const _qs = new URLSearchParams(location.search).get("s");
-  const _ok = ["inicio","jornada","posiciones","calendario","lideres","equipos","miequipo","noticias","envivo","predicciones","ranking","concurso","fantasy","opiniones","grupos"];
+  const _ok = ["inicio","jornada","posiciones","calendario","lideres","equipos","miequipo","noticias","envivo","predicciones","ranking","concurso","fantasy","opiniones","reportes","grupos"];
   if(_qs && _ok.indexOf(_qs)>=0 && _qs!=="inicio") setTimeout(()=>go(_qs), 350);
 }catch(e){}
 /* Normalizar estado inicial: "hoy" es la fecha real de Cuba, no la última fecha con datos */

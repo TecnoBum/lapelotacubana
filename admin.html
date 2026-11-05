@@ -162,6 +162,7 @@
       <button class="tab" data-tab="publicar">Publicar</button>
       <button class="tab" data-tab="comunidad">Comunidad</button>
       <button class="tab" data-tab="opiniones">Opiniones</button>
+      <button class="tab" data-tab="reportes">Reportes</button>
       <button class="tab" data-tab="metricas">Métricas</button>
       <button class="tab" data-tab="web">Web y APK</button>
       <button class="tab" data-tab="ajustes">Ajustes</button>
@@ -310,6 +311,24 @@
     </div>
   </div>
 
+  <!-- ============ REPORTES ============ -->
+  <div class="tabpage" id="pg-reportes">
+    <div class="panel">
+      <h2><span class="ico">🛠️</span> Reportes · Errores y sugerencias</h2>
+      <div id="repResumen"><p class="estado">Cargando…</p></div>
+      <div class="nota">Los reportes llegan privados: solo tú los ves aquí. <b>Responder</b> publica el reporte junto con tu respuesta (el autor la ve en su sección Reportes, en «Mis reportes»). <b>Publicar</b> lo muestra sin respuesta y <b>Borrar</b> lo descarta. Cada botón copia el comando para pegarlo en tu <b>canal privado de Telegram</b>.</div>
+      <div class="cmdbox" id="repCmd" style="display:none"></div>
+    </div>
+    <div class="panel">
+      <h2><span class="ico">📥</span> Reportes recibidos</h2>
+      <div id="repPend"><p class="estado">Cargando…</p></div>
+    </div>
+    <div class="panel">
+      <h2><span class="ico">🌐</span> Publicados y respondidos</h2>
+      <div id="repPub"><p class="estado">Cargando…</p></div>
+    </div>
+  </div>
+
   <!-- ============ MÉTRICAS ============ -->
   <div class="tabpage" id="pg-metricas">
     <div class="panel">
@@ -389,7 +408,7 @@ var SECCIONES = [
   ['inicio','Inicio'], ['jornada','Jornada'], ['posiciones','Posiciones'],
   ['calendario','Calendario'], ['lideres','Líderes'], ['equipos','Equipos'],
   ['noticias','Noticias'], ['envivo','En Vivo'], ['predicciones','Predicciones'],
-  ['ranking','Ranking'], ['concurso','Concurso'], ['opiniones','Opiniones'], ['grupos','Grupos y canales'],
+  ['ranking','Ranking'], ['concurso','Concurso'], ['opiniones','Opiniones'], ['reportes','Reportes'], ['grupos','Grupos y canales'],
   ['donaciones','Donaciones']
 ];
 var NOMBRES_CINT = { 0: 'desactivado', 1: 'Jornada de hoy', 2: 'Actualiza la aplicación', 3: 'Canal de WhatsApp' };
@@ -402,6 +421,7 @@ var timerAuto = null;
 document.getElementById('tabs').addEventListener('click', function (e) {
   var b = e.target.closest('.tab'); if (!b) return;
   if (b.dataset.tab === 'opiniones') cargarOpiniones();
+  if (b.dataset.tab === 'reportes') cargarReportes();
   if (b.dataset.tab === 'publicar') cargarOrden();
   document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('on', t === b); });
   document.querySelectorAll('.tabpage').forEach(function (p) { p.classList.toggle('on', p.id === 'pg-' + b.dataset.tab); });
@@ -422,7 +442,7 @@ function desbloqueado() { try { return sessionStorage.getItem('lpcAdmin') === '1
 function mostrarPanel() {
   document.getElementById('lock').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  cargar(); aplicarAuto(); estadoPublicar(); estadoBannerTema(); cargarComunidad(); cargarOpiniones(); cargarOrden();
+  cargar(); aplicarAuto(); estadoPublicar(); estadoBannerTema(); cargarComunidad(); cargarOpiniones(); cargarOrden(); cargarReportes();
 }
 function intentarClave() {
   var inp = document.getElementById('lockInput');
@@ -476,7 +496,7 @@ document.getElementById('cfgReset').addEventListener('click', function () {
 function aplicarAuto() {
   if (timerAuto) { clearInterval(timerAuto); timerAuto = null; }
   var s = cfg().auto;
-  if (s > 0) timerAuto = setInterval(function () { cargar(); cargarComunidad(); cargarOpiniones(); cargarOrden(); }, s * 1000);
+  if (s > 0) timerAuto = setInterval(function () { cargar(); cargarComunidad(); cargarOpiniones(); cargarOrden(); cargarReportes(); }, s * 1000);
 }
 
 /* ---------- utilidades ---------- */
@@ -1027,8 +1047,8 @@ function cargarOpiniones() {
 document.getElementById('btnOpAll').addEventListener('click', function () { opComando('OP_ALL', 'Comando copiado: OP_ALL — aprueba todas las opiniones y comentarios pendientes al pegarlo en tu canal de Telegram.'); });
 
 /* ---------- Orden de las secciones ---------- */
-var ORDEN_LABELS = { inicio: 'Inicio', jornada: 'Jornada', posiciones: 'Posiciones', calendario: 'Calendario', lideres: 'Líderes', equipos: 'Equipos', miequipo: 'Mi equipo', noticias: 'Noticias', envivo: 'En Vivo', internacional: 'Internacional (solo Pro)', predicciones: 'Predicciones', ranking: 'Ranking', concurso: 'Concurso', fantasy: 'Fantasy Equipo', opiniones: 'Opiniones y Debate', grupos: 'Grupos y canales', donaciones: 'Donaciones' };
-var ORDEN_DEFAULT = ['inicio','jornada','posiciones','calendario','lideres','equipos','miequipo','noticias','envivo','internacional','predicciones','ranking','concurso','fantasy','opiniones','grupos','donaciones'];
+var ORDEN_LABELS = { inicio: 'Inicio', jornada: 'Jornada', posiciones: 'Posiciones', calendario: 'Calendario', lideres: 'Líderes', equipos: 'Equipos', miequipo: 'Mi equipo', noticias: 'Noticias', envivo: 'En Vivo', internacional: 'Internacional (solo Pro)', predicciones: 'Predicciones', ranking: 'Ranking', concurso: 'Concurso', fantasy: 'Fantasy Equipo', opiniones: 'Opiniones y Debate', reportes: 'Reportes', grupos: 'Grupos y canales', donaciones: 'Donaciones' };
+var ORDEN_DEFAULT = ['inicio','jornada','posiciones','calendario','lideres','equipos','miequipo','noticias','envivo','internacional','predicciones','ranking','concurso','fantasy','opiniones','reportes','grupos','donaciones'];
 var ordenActual = ORDEN_DEFAULT.slice();
 function pintarOrden() {
   document.getElementById('ordenList').innerHTML = ordenActual.map(function (id, i) {
@@ -1066,6 +1086,46 @@ document.getElementById('btnOrdenReset').addEventListener('click', function () {
   box.style.display = 'block'; box.textContent = cmd;
   copiarTexto(cmd, 'Comando copiado: orden restablecido. Pégalo en tu canal de Telegram.');
 });
+
+/* ---------- Reportes: responder / publicar / borrar ---------- */
+function repComando(cmd, msg) {
+  var box = document.getElementById('repCmd');
+  box.style.display = 'block'; box.textContent = cmd;
+  copiarTexto(cmd, msg || ('Comando copiado: ' + cmd + ' — Pégalo en tu canal de Telegram.'));
+}
+function repResponder(id) {
+  var el = document.getElementById('repResp-' + id);
+  var txt = (el && el.value || '').trim();
+  if (txt.length < 2) { alert('Escribe primero la respuesta.'); return; }
+  repComando('REP_R|' + id + '|' + txt.replace(/\|/g, ' '), 'Comando copiado: respuesta lista. Pégalo en tu canal de Telegram y el reporte se publicará con tu respuesta.');
+}
+function cargarReportes() {
+  leerJSON('./reportes_admin.json').then(function (a) {
+    var res = document.getElementById('repResumen'), pd = document.getElementById('repPend'), pb = document.getElementById('repPub');
+    if (!a) { res.innerHTML = '<p class="estado">Sin datos todavía (reportes_admin.json no existe o no cargó).</p>'; pd.innerHTML = pb.innerHTML = ''; return; }
+    var c = a.counts || {};
+    res.innerHTML = '<p class="estado">Recibidos sin atender: <b>' + (c.pending || 0) + '</b> · Publicados/respondidos: <b>' + (c.published || 0) + '</b> (respondidos: ' + (c.answered || 0) + ') · Actualizado: ' + esc(a.updated || '—') + '</p>';
+    var pend = a.pending || [];
+    pd.innerHTML = pend.length ? pend.map(function (r) {
+      var tipo = r.tipo === 'sugerencia' ? '💡 SUGERENCIA' : '🐞 ERROR';
+      return '<div class="opitem"><b>' + tipo + '</b><div class="tx">' + esc(r.text || '') + '</div>' +
+        '<div class="meta">' + esc(r.name || '') + (r.team ? ' · ' + esc(r.team) : '') + ' · ' + opFecha(r.ts) + ' · id ' + esc(r.id) + '</div>' +
+        '<div class="fld" style="margin:10px 0 0"><label>Tu respuesta (se publica con el reporte)</label>' +
+        '<textarea id="repResp-' + esc(r.id) + '" placeholder="Escribe la respuesta del equipo de desarrollo..."></textarea></div>' +
+        '<div class="minirow"><button onclick="repResponder(\'' + esc(r.id) + '\')">↩ Responder y publicar</button>' +
+        '<button class="ghost" onclick="repComando(\'REP_OK|' + esc(r.id) + '\')">Publicar sin responder</button>' +
+        '<button class="ghost" onclick="repComando(\'REP_DEL|' + esc(r.id) + '\')">🗑 Borrar</button></div></div>';
+    }).join('') : '<p class="estado">No hay reportes sin atender.</p>';
+    var pub = a.answered || [];
+    pb.innerHTML = pub.length ? pub.map(function (r) {
+      var tipo = r.tipo === 'sugerencia' ? '💡 SUGERENCIA' : '🐞 ERROR';
+      return '<div class="opitem"><b>' + tipo + '</b><div class="tx">' + esc(r.text || '') + '</div>' +
+        (r.response ? '<div class="tx" style="color:var(--dorado)">↩ ' + esc(r.response) + '</div>' : '<div class="meta">Publicado sin respuesta</div>') +
+        '<div class="meta">' + esc(r.name || '') + ' · ' + opFecha(r.ts) + '</div>' +
+        '<div class="minirow"><button class="ghost" onclick="repComando(\'REP_DEL|' + esc(r.id) + '\')">🗑 Borrar</button></div></div>';
+    }).join('') : '<p class="estado">Todavía no hay reportes publicados.</p>';
+  });
+}
 
 document.getElementById('btn').addEventListener('click', function () { cargar(); cargarComunidad(); cargarOpiniones(); cargarOrden(); estadoPublicar(); estadoBannerTema(); });
 pintarCfg();
