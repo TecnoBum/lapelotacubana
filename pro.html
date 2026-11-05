@@ -3149,6 +3149,7 @@ function fantSlotRowHTML(slot, idx){
   const label = slot === 'OF' ? 'Jardinero ' + ((idx||0)+1) : def.label;
   if(!key) return '<button class="slotempty" onclick="openFantPicker(\''+slot+'\','+(idx||0)+')"><span>'+(slot==='OF'?'OF':slot)+'</span> Elegir '+esc(label.toLowerCase())+'…</button>';
   const p = P[key];
+  if(!p) return '<div class="fslot"><div style="flex:1;min-width:0"><b>'+esc(fmtName(key))+'</b><br><small style="color:var(--muted)">'+esc(label)+' · Sin datos en la base de hoy</small></div><button class="pclose" onclick="fantRemove(\''+slot+'\','+(idx||0)+')">✕</button></div>';
   return '<div class="fslot">'+playerFoto(p, null)
     + '<div style="flex:1;min-width:0"><b>'+esc(fmtName(p.name))+'</b><br><small style="color:var(--muted)">'+esc(label)+' · '+esc((TEAMS[p.team]||{name:p.team}).name)+' · '+esc(fantStatLine(p, slot))+'</small></div>'
     + '<span class="price">'+FICON.coin+' '+fantSlotPrice(slot, p)+'</span>'
