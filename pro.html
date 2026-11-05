@@ -665,6 +665,11 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
 .jd-row b{display:block;font-size:15px;color:#fff;}
 .jd-row span{font-size:12px;color:#d8c98f;}
 .jd-tag{display:inline-block;font-size:10px;font-weight:800;color:#1a1a1a;background:var(--gold);border-radius:10px;padding:2px 8px;margin-bottom:4px;}
+.tickwrap{display:flex;align-items:center;gap:8px;background:linear-gradient(90deg,#3a2c00,#241b02);border:1px solid rgba(232,182,76,.45);border-radius:12px;padding:8px 10px;margin-bottom:12px;overflow:hidden}
+.ticklabel{flex:0 0 auto;font-size:11px;font-weight:900;letter-spacing:.05em;color:var(--gold,#e8b64c)}
+.tickview{flex:1;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)}
+.ticktrack{display:inline-block;white-space:nowrap;font-size:13.5px;font-weight:600;color:#f5e9c8;animation-name:tickmove;animation-timing-function:linear;animation-iteration-count:infinite;will-change:transform}
+@keyframes tickmove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 .reto-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px;}
 .reto-card.done{border-color:var(--gold);background:linear-gradient(135deg,#4a3600,#241b02);}
 .reto-card.done b,.reto-card.done .gmeta{color:#f5e9c8;}
@@ -801,6 +806,7 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
   </section>
 
   <section class="page" id="pg-predicciones">
+    <div class="tickwrap" id="ayerTick" style="display:none"><span class="ticklabel">🏆 AYER</span><div class="tickview"><div class="ticktrack" id="ayerTickTrack"></div></div></div>
     <div class="hero">
       <div class="uchip" id="uChip"></div>
       <div class="big">Mis puntos</div>
@@ -1022,7 +1028,7 @@ const LOGOS = {
 const BASE = "https://www.beisbolcubano.cu/";
 function abs(u){ if(!u) return ""; if(/^https?:/i.test(u)) return u; return BASE+u.replace(/^\//,""); }
 /*__LPC_DATA_START__*/
-const DATA_LABEL = "5 de noviembre de 2026 · 08:14";
+const DATA_LABEL = "5 de noviembre de 2026 · 08:20";
 const GAMES = [{"id": "j201", "date": "2026-11-04", "away": "MAY", "home": "PRI", "ar": 5, "hr": 4, "status": "final", "num": 201, "stadium": "Capitán San Luis", "time": null, "live": null, "outs": null}, {"id": "j202", "date": "2026-11-04", "away": "VCL", "home": "IND", "ar": 8, "hr": 3, "status": "final", "num": 202, "stadium": "Latinoamericano", "time": null, "live": null, "outs": null}, {"id": "j203", "date": "2026-11-04", "away": "ART", "home": "MTZ", "ar": 3, "hr": 4, "status": "final", "num": 203, "stadium": "Victoria de Girón", "time": null, "live": null, "outs": null}, {"id": "j204", "date": "2026-11-04", "away": "IJV", "home": "CFG", "ar": 8, "hr": 9, "status": "final", "num": 204, "stadium": "5 de Septiembre", "time": null, "live": null, "outs": null}, {"id": "j205", "date": "2026-11-04", "away": "GRA", "home": "SSP", "ar": 4, "hr": 8, "status": "final", "num": 205, "stadium": "José Antonio Huelga", "time": null, "live": null, "outs": null}, {"id": "j206", "date": "2026-11-04", "away": "HOL", "home": "CAV", "ar": 4, "hr": 0, "status": "final", "num": 206, "stadium": "José Ramón Cepero", "time": null, "live": null, "outs": null}, {"id": "j207", "date": "2026-11-04", "away": "SCU", "home": "CMG", "ar": 3, "hr": 2, "status": "final", "num": 207, "stadium": "Cándido González", "time": null, "live": null, "outs": null}, {"id": "j208", "date": "2026-11-04", "away": "GTM", "home": "LTU", "ar": 3, "hr": 9, "status": "final", "num": 208, "stadium": "Julio Antonio Mella", "time": null, "live": null, "outs": null}, {"id": "j209", "date": "2026-11-05", "away": "MAY", "home": "PRI", "ar": null, "hr": null, "status": "prog", "num": 209, "stadium": "Capitán San Luis", "time": "13:30", "live": null, "outs": null}, {"id": "j210", "date": "2026-11-05", "away": "VCL", "home": "IND", "ar": null, "hr": null, "status": "prog", "num": 210, "stadium": "Latinoamericano", "time": "13:30", "live": null, "outs": null}, {"id": "j211", "date": "2026-11-05", "away": "ART", "home": "MTZ", "ar": null, "hr": null, "status": "prog", "num": 211, "stadium": "Victoria de Girón", "time": "13:30", "live": null, "outs": null}, {"id": "j212", "date": "2026-11-05", "away": "IJV", "home": "CFG", "ar": null, "hr": null, "status": "prog", "num": 212, "stadium": "5 de Septiembre", "time": "13:30", "live": null, "outs": null}, {"id": "j213", "date": "2026-11-05", "away": "GRA", "home": "SSP", "ar": null, "hr": null, "status": "prog", "num": 213, "stadium": "José Antonio Huelga", "time": "13:30", "live": null, "outs": null}, {"id": "j214", "date": "2026-11-05", "away": "HOL", "home": "CAV", "ar": null, "hr": null, "status": "prog", "num": 214, "stadium": "José Ramón Cepero", "time": "13:30", "live": null, "outs": null}, {"id": "j215", "date": "2026-11-05", "away": "SCU", "home": "CMG", "ar": null, "hr": null, "status": "prog", "num": 215, "stadium": "Cándido González", "time": "13:30", "live": null, "outs": null}, {"id": "j216", "date": "2026-11-05", "away": "GTM", "home": "LTU", "ar": null, "hr": null, "status": "prog", "num": 216, "stadium": "Julio Antonio Mella", "time": "13:30", "live": null, "outs": null}];
 const UPCOMING = [{"id": "u217", "date": "2026-11-07", "away": "PRI", "home": "MAY", "ar": null, "hr": null, "status": "prog", "num": 217, "stadium": "Nelson Fernández", "time": "13:30"}, {"id": "u218", "date": "2026-11-07", "away": "IND", "home": "VCL", "ar": null, "hr": null, "status": "prog", "num": 218, "stadium": "Augusto César Sandino", "time": "13:30"}, {"id": "u219", "date": "2026-11-07", "away": "MTZ", "home": "ART", "ar": null, "hr": null, "status": "prog", "num": 219, "stadium": "26 de Julio", "time": "13:30"}, {"id": "u220", "date": "2026-11-07", "away": "CFG", "home": "IJV", "ar": null, "hr": null, "status": "prog", "num": 220, "stadium": "Cristóbal Labra", "time": "13:30"}, {"id": "u221", "date": "2026-11-07", "away": "SSP", "home": "GRA", "ar": null, "hr": null, "status": "prog", "num": 221, "stadium": "Mártires de Barbados", "time": "13:30"}, {"id": "u222", "date": "2026-11-07", "away": "CAV", "home": "HOL", "ar": null, "hr": null, "status": "prog", "num": 222, "stadium": "Mayor General Calixto García", "time": "13:30"}, {"id": "u223", "date": "2026-11-07", "away": "CMG", "home": "SCU", "ar": null, "hr": null, "status": "prog", "num": 223, "stadium": "Guillermón Moncada", "time": "13:30"}, {"id": "u224", "date": "2026-11-07", "away": "LTU", "home": "GTM", "ar": null, "hr": null, "status": "prog", "num": 224, "stadium": "Nguyen Van Troi", "time": "13:30"}];
 const STANDINGS = {"occ": [{"t": "PRI", "w": 20, "l": 6, "dif": "-", "pro": ".769", "u10": "(8-2)", "racha": "P-2"}, {"t": "MTZ", "w": 16, "l": 8, "dif": "3.0", "pro": ".667", "u10": "(8-2)", "racha": "G-3"}, {"t": "IND", "w": 14, "l": 10, "dif": "5.0", "pro": ".583", "u10": "(7-3)", "racha": "P-2"}, {"t": "CFG", "w": 14, "l": 12, "dif": "6.0", "pro": ".538", "u10": "(7-3)", "racha": "G-7"}, {"t": "MAY", "w": 13, "l": 12, "dif": "6.5", "pro": ".520", "u10": "(6-4)", "racha": "G-2"}, {"t": "VCL", "w": 10, "l": 13, "dif": "8.5", "pro": ".435", "u10": "(4-6)", "racha": "G-2"}, {"t": "ART", "w": 9, "l": 17, "dif": "11.0", "pro": ".346", "u10": "(1-9)", "racha": "P-4"}, {"t": "IJV", "w": 3, "l": 21, "dif": "16.0", "pro": ".125", "u10": "(0-10)", "racha": "P-10"}], "ori": [{"t": "LTU", "w": 18, "l": 8, "dif": "-", "pro": ".692", "u10": "(9-1)", "racha": "G-7"}, {"t": "SCU", "w": 15, "l": 10, "dif": "2.5", "pro": ".600", "u10": "(6-4)", "racha": "G-1"}, {"t": "HOL", "w": 15, "l": 10, "dif": "2.5", "pro": ".600", "u10": "(8-2)", "racha": "G-1"}, {"t": "CAV", "w": 13, "l": 13, "dif": "5.0", "pro": ".500", "u10": "(5-5)", "racha": "P-1"}, {"t": "GRA", "w": 13, "l": 13, "dif": "5.0", "pro": ".500", "u10": "(4-6)", "racha": "P-2"}, {"t": "SSP", "w": 13, "l": 13, "dif": "5.0", "pro": ".500", "u10": "(4-6)", "racha": "G-2"}, {"t": "CMG", "w": 10, "l": 16, "dif": "8.0", "pro": ".385", "u10": "(4-6)", "racha": "P-1"}, {"t": "GTM", "w": 6, "l": 20, "dif": "12.0", "pro": ".231", "u10": "(1-9)", "racha": "P-4"}]};
@@ -1854,7 +1860,7 @@ function retoProgress(){
   const r = S.retoDia; if(!r) return null;
   if(typeof calcMyPoints==="function") calcMyPoints(); /* asegura GAMES_BY_NUM + puntos persistidos */
   const picks = getPicks();
-  if(r.type==="acierta3"){
+  if(r.type==="acierta3" || r.type==="acierta5"){
     let hits=0;
     Object.keys(picks).forEach(k=>{
       const pk=picks[k]; if(!pk||pk.date!==r.date) return;
@@ -1868,6 +1874,28 @@ function retoProgress(){
     const act=nums.filter(x=>!gameSuspendido(GAMES_BY_NUM[x]));
     const n=act.filter(x=>picks[x]!=null).length;
     return {done: act.length>0 && n===act.length, cur:n, tot:act.length, label:n+"/"+act.length+" pronosticados"+(susp?" · "+susp+" suspendido"+(susp>1?"s":""):"")};
+  }
+  if(r.type==="miequipo"){
+    const u=getUser(); const team=u&&u.team;
+    const nums=(r.nums||[]).filter(x=>{ const g=GAMES_BY_NUM[x]; return g && team && (g.away===team||g.home===team) && !gameSuspendido(g); });
+    if(!team || !nums.length) return {done:false, cur:0, tot:1, label:"Tu equipo no juega hoy"};
+    const pk=picks[nums[0]];
+    if(!pk) return {done:false, cur:0, tot:1, label:"Pronostica el juego de tu equipo"};
+    const s=scorePick(String(nums[0]), pk.side);
+    if(s==null) return {done:false, cur:0, tot:1, label:"Pendiente de resultado"};
+    return {done:s>0, cur:s>0?1:0, tot:1, label:s>0?"\u00a1Acertaste el de tu equipo!":"No acertaste el de tu equipo"};
+  }
+  if(r.type==="perfecto"){
+    let tot=0, hits=0, miss=0, pend=0;
+    Object.keys(picks).forEach(k=>{
+      const pk=picks[k]; if(!pk||pk.date!==r.date) return;
+      tot++; const s=scorePick(k, pk.side);
+      if(s==null) pend++; else if(s>0) hits++; else miss++;
+    });
+    if(tot<4) return {done:false, cur:tot, tot:4, label:tot+"/4 pron\u00f3sticos m\u00ednimos"};
+    if(miss>0) return {done:false, cur:hits, tot:tot, label:"Fallaste uno: el perfecto se escap\u00f3"};
+    if(pend>0) return {done:false, cur:hits, tot:tot, label:hits+"/"+tot+" \u00b7 faltan resultados"};
+    return {done:true, cur:hits, tot:tot, label:"\u00a1D\u00eda perfecto!"};
   }
   if(r.type==="destacado"){
     const pk=picks[r.num];
@@ -2050,7 +2078,10 @@ const LEVELS = [
   {name:"Estrella", min:60},
   {name:"Leyenda", min:100},
   {name:"Mito", min:160},
-  {name:"Inmortal", min:250}
+  {name:"Inmortal", min:250},
+  {name:"Tit\u00e1n", min:400},
+  {name:"Semidi\u00f3s", min:600},
+  {name:"Eterno", min:850}
 ];
 const MEDALS = [
   {id:"first", name:"Primera victoria", desc:"Tu primer acierto", color:"#cd7f32", cur:s=>[Math.min(s.hits,1),1]},
@@ -2065,7 +2096,16 @@ const MEDALS = [
   {id:"perfect", name:"Jornada perfecta", desc:"Acertar todo un día (2+ juegos)", color:"#ffd700", cur:s=>[Math.min(s.perfectDays,1),1]},
   {id:"pleno", name:"Pleno total", desc:"Acertar todos los pronósticos de un día (6+ juegos)", color:"#7dd3fc", cur:s=>[Math.min(s.bestFull,6),6]},
   {id:"remontada", name:"Remontada", desc:"Acertar tras 3 fallos seguidos", color:"#c0c0c0", cur:s=>[s.comeback?1:0,1]},
-  {id:"retador", name:"Reto cumplido", desc:"Completa un reto diario", color:"#ffd700", cur:s=>[Math.min(s.retos||0,1),1]}
+  {id:"retador", name:"Reto cumplido", desc:"Completa un reto diario", color:"#ffd700", cur:s=>[Math.min(s.retos||0,1),1]},
+  {id:"streak15", name:"Racha x15", desc:"15 aciertos seguidos", color:"#7dd3fc", cur:s=>[Math.min(s.maxStreak,15),15]},
+  {id:"streak20", name:"Racha x20", desc:"20 aciertos seguidos", color:"#e879f9", cur:s=>[Math.min(s.maxStreak,20),20]},
+  {id:"hits150", name:"M\u00e1quina de aciertos", desc:"150 aciertos totales", color:"#e879f9", cur:s=>[Math.min(s.hits,150),150]},
+  {id:"hits200", name:"Sobrehumano", desc:"200 aciertos totales", color:"#f472b6", cur:s=>[Math.min(s.hits,200),200]},
+  {id:"perfect3", name:"Triple corona", desc:"3 jornadas perfectas", color:"#ffd700", cur:s=>[Math.min(s.perfectDays,3),3]},
+  {id:"perfect5", name:"Intocable", desc:"5 jornadas perfectas", color:"#e879f9", cur:s=>[Math.min(s.perfectDays,5),5]},
+  {id:"pleno8", name:"Pleno imperial", desc:"Acertar todos los pron\u00f3sticos de un d\u00eda (8+ juegos)", color:"#f472b6", cur:s=>[Math.min(s.bestFull,8),8]},
+  {id:"retos5", name:"Cazador de retos", desc:"Completa 5 retos diarios", color:"#c0c0c0", cur:s=>[Math.min(s.retos||0,5),5]},
+  {id:"retos15", name:"Devoto de los retos", desc:"Completa 15 retos diarios", color:"#ffd700", cur:s=>[Math.min(s.retos||0,15),15]}
 ];
 function medalSVG(color, locked){
   const c = locked ? "#8a93a3" : color;
@@ -2191,7 +2231,7 @@ function calcMedals(){
     const stats={hits:hits, maxStreak:maxStreak, perfectDays:perfectDays, bestFull:bestFull, comeback:comeback, retos:countRetos()};
     const earned={first:hits>=1, streak3:maxStreak>=3, streak5:maxStreak>=5, streak7:maxStreak>=7, streak10:maxStreak>=10,
       hits10:hits>=10, hits25:hits>=25, hits50:hits>=50, hits100:hits>=100,
-      perfect:perfectDays>=1, pleno:bestFull>=6, remontada:comeback, retador:stats.retos>=1};
+      perfect:perfectDays>=1, pleno:bestFull>=6, remontada:comeback, retador:stats.retos>=1, streak15:maxStreak>=15, streak20:maxStreak>=20, hits150:hits>=150, hits200:hits>=200, perfect3:perfectDays>=3, perfect5:perfectDays>=5, pleno8:bestFull>=8, retos5:stats.retos>=5, retos15:stats.retos>=15};
     return {earned:earned, stats:stats};
   }catch(e){ return {earned:earned0, stats:{hits:0,maxStreak:0,perfectDays:0,bestFull:0,comeback:false}}; }
 }
@@ -2723,6 +2763,7 @@ function go(id){
   if(id==="fantasy") renderFantasy();
   if(id==="opiniones") loadOpiniones();
   if(id==="reportes") loadReportes();
+  if(id==="predicciones") loadAyerTicker();
   if(id==="grupos") renderCanales();
   if(id==="calendario") renderCalendario();
   if(id==="miequipo") renderMiEquipo();
@@ -4282,6 +4323,35 @@ async function submitReporte(){
     toast("Reporte enviado. El equipo de desarrollo lo revisará.");
     renderReportes();
   }catch(e){ toast("No se pudo enviar. Revisa tu conexi\u00f3n."); }
+}
+
+/* ============ CINTILLO: MEJORES DE AYER ============
+   ranking.json trae "ayer": {date, top:[{name, team, pts}]} calculado por
+   el servidor con la foto diaria de puntos (solo puntos de predicción).
+   El texto se duplica y se desplaza con CSS para un bucle continuo. */
+function ayerFechaLabel(ds){
+  const meses=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+  const p=String(ds||"").split("-");
+  return p.length===3 ? (+p[2])+" de "+meses[(+p[1])-1] : "";
+}
+function renderAyerTicker(){
+  const wrap=document.getElementById("ayerTick"), tr=document.getElementById("ayerTickTrack");
+  if(!wrap||!tr) return;
+  const ay = (typeof RANK_DATA!=="undefined" && RANK_DATA) ? RANK_DATA.ayer : null;
+  if(!ay || !ay.top || !ay.top.length){ wrap.style.display="none"; return; }
+  const items = ay.top.map((x,i)=>"<b>"+(i+1)+".</b> "+esc(x.name||"")+(x.team?" ("+esc(x.team)+")":"")+" <b style=\"color:var(--gold,#e8b64c)\">+"+x.pts+" pts</b>").join(" &nbsp;\u2726&nbsp; ");
+  const head = "Mejores de la jornada anterior ("+ayerFechaLabel(ay.date)+"): &nbsp;";
+  tr.innerHTML = head + items + " &nbsp;\u2726&nbsp; " + head + items + " &nbsp;\u2726&nbsp; ";
+  wrap.style.display="flex";
+  tr.style.animationDuration = Math.max(18, Math.min(70, Math.round(tr.textContent.length/5))) + "s";
+}
+async function loadAyerTicker(){
+  renderAyerTicker();
+  if(typeof RANK_DATA!=="undefined" && RANK_DATA && Date.now()-RANK_DATA_T<120000) return;
+  for(const u of RANK_URLS){
+    try{ const r=await fetch(u+"?t="+Date.now(),{cache:"no-store"}); if(r.ok){ RANK_DATA=await r.json(); RANK_DATA_T=Date.now(); break; } }catch(e){}
+  }
+  renderAyerTicker();
 }
 
 /* ============ ARRANQUE ============ */
