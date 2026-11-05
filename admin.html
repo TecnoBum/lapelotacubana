@@ -401,6 +401,8 @@ var timerAuto = null;
 /* ---------- pestañas ---------- */
 document.getElementById('tabs').addEventListener('click', function (e) {
   var b = e.target.closest('.tab'); if (!b) return;
+  if (b.dataset.tab === 'opiniones') cargarOpiniones();
+  if (b.dataset.tab === 'publicar') cargarOrden();
   document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('on', t === b); });
   document.querySelectorAll('.tabpage').forEach(function (p) { p.classList.toggle('on', p.id === 'pg-' + b.dataset.tab); });
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -474,7 +476,7 @@ document.getElementById('cfgReset').addEventListener('click', function () {
 function aplicarAuto() {
   if (timerAuto) { clearInterval(timerAuto); timerAuto = null; }
   var s = cfg().auto;
-  if (s > 0) timerAuto = setInterval(function () { cargar(); cargarComunidad(); }, s * 1000);
+  if (s > 0) timerAuto = setInterval(function () { cargar(); cargarComunidad(); cargarOpiniones(); cargarOrden(); }, s * 1000);
 }
 
 /* ---------- utilidades ---------- */
