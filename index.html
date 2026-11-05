@@ -301,6 +301,25 @@ table.st.rank tr.rankdiv td{text-align:center;color:var(--muted);letter-spacing:
 /* Fantasy Equipo (31-oct-2026) */
 #fantModal{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.62);display:none;align-items:center;justify-content:center;padding:20px;}
 #fantModal.show{display:flex;}
+
+/* Opiniones y Debate (5-nov-2026) */
+.opcard{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;background:var(--card2)}
+.ophead{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.opava{width:34px;height:34px;border-radius:50%;background:var(--rojo,#e63329);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex:none}
+.opwho b{display:block;font-size:14px}
+.opwho span{font-size:11.5px;color:var(--mut)}
+.optitle{font-size:16px;font-weight:800;margin:2px 0 4px}
+.optext{font-size:14.5px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+.opactions{margin-top:9px;display:flex;gap:8px;align-items:center}
+.opcbtn{background:transparent;border:1px solid var(--line);color:var(--text);border-radius:99px;padding:7px 13px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.opcomments{margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
+.opcomment{padding:8px 0;border-bottom:1px dashed var(--line)}
+.opcomment:last-child{border-bottom:none}
+.opcomment b{font-size:13.5px}
+.opcomment span{font-size:11.5px;color:var(--mut);margin-left:6px}
+.opcomment p{font-size:14px;line-height:1.5;margin-top:2px;white-space:pre-wrap;word-break:break-word}
+.oppend{border:1px dashed var(--gold,#e8b64c);color:var(--gold,#e8b64c);border-radius:12px;padding:10px 12px;font-size:13.5px;margin-bottom:10px;line-height:1.5}
+textarea.uin{resize:vertical;min-height:88px;font-family:inherit}
 .newtag{margin-left:auto;background:var(--gold);color:#171106;font-size:10px;font-weight:800;letter-spacing:.07em;border-radius:99px;padding:3px 9px;flex:none}
 #fantModal .dlg{background:var(--bg2);border:1px solid var(--line);border-radius:18px;max-width:420px;width:100%;padding:20px;max-height:85vh;overflow-y:auto;animation:pop .22s ease;}
 .fslot{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px dashed var(--line);border-radius:12px;margin-bottom:8px;cursor:pointer;}
@@ -739,6 +758,20 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
     </div>
     <div class="card"><h3><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 0 1-10 0zM7 6H4.5A1.5 1.5 0 0 0 3 7.5C3 9.4 4.6 11 7 11M17 6h2.5A1.5 1.5 0 0 1 21 7.5C21 9.4 19.4 11 17 11"/></svg> Equipos de la comunidad</h3><div class="gmeta" id="fantasyCount" style="margin-bottom:8px"></div>
       <div id="fantasyList"><div class="empty">Cargando equipos…</div></div></div>
+  </section>
+  <section class="page" id="pg-opiniones">
+    <div class="card"><h3>Opiniones y Debate</h3>
+      <div class="gmeta" style="margin-bottom:10px">Publica tu opinión sobre la Serie, un equipo o un jugador, y debate con la comunidad. Todo lo que se publica pasa primero por la revisión del administrador, por eso puede tardar unos minutos en verse.</div>
+      <div id="opMine"></div>
+      <input id="opTitle" class="uin" type="text" maxlength="80" placeholder="Título de tu opinión (opcional)" autocomplete="off">
+      <textarea id="opText" class="uin" maxlength="600" placeholder="Escribe tu opinión..." oninput="document.getElementById('opCount').textContent=this.value.length"></textarea>
+      <div class="gmeta" style="text-align:right;margin-top:-6px"><span id="opCount">0</span>/600</div>
+      <button class="btn" onclick="submitOpinion()">Publicar opinión</button>
+    </div>
+    <div class="card"><h3>Opiniones de la comunidad</h3>
+      <div class="gmeta" id="opListMeta" style="margin-bottom:8px"></div>
+      <div id="opList"><div class="empty">Cargando opiniones\u2026</div></div>
+    </div>
   </section>
   <section class="page" id="pg-grupos">
     <div class="card"><h3>Grupos y canales</h3><div id="canalList"></div></div>
@@ -2521,15 +2554,34 @@ const PAGES = [
   {id:"ranking", label:"Ranking", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M8.5 13L7 22l5-3 5 3-1.5-9"/></svg>'},
   {id:"concurso", label:"Concurso", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7c-1.5 0-4.2-.3-5.2-2C6 3.6 7 2.5 8.3 2.7 10 3 12 7 12 7zm0 0c1.5 0 4.2-.3 5.2-2 .8-1.4-.2-2.5-1.5-2.3C14 3 12 7 12 7z"/></svg>'},
   {id:"fantasy", label:"Fantasy Equipo", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M5.6 5.6c3.2 3.6 3.2 9.2 0 12.8M18.4 5.6c-3.2 3.6-3.2 9.2 0 12.8"/></svg>'},
+  {id:"opiniones", label:"Opiniones y Debate", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>'},
   {id:"grupos", label:"Grupos y canales", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>'},
   {id:"donaciones", label:"Donaciones", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 00-7.8 7.8l1 1L12 21.2l7.8-7.8 1-1a5.5 5.5 0 000-7.8z"/></svg>'}
 ];
 const drawerNav = document.getElementById("drawerNav");
+const _havDay = new Intl.DateTimeFormat("en-CA",{timeZone:"America/Havana",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
 PAGES.forEach(p=>{
   const b = document.createElement("button");
-  b.innerHTML = p.icon+"<span>"+p.label+"</span>"+(p.id==="fantasy" && new Intl.DateTimeFormat("en-CA",{timeZone:"America/Havana",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date()) <= "2026-11-02" ? '<span class="newtag">NUEVO</span>' : ""); b.dataset.pg = p.id; b.onclick = ()=>go(p.id);
+  const _tag = (p.id==="fantasy" && _havDay <= "2026-11-02") || (p.id==="opiniones" && _havDay <= "2026-11-05") ? '<span class="newtag">NUEVO</span>' : "";
+  b.innerHTML = p.icon+"<span>"+p.label+"</span>"+_tag; b.dataset.pg = p.id; b.onclick = ()=>go(p.id);
   drawerNav.appendChild(b);
 });
+/* Orden de secciones: lo define el admin (secciones.json); si falla, queda el orden por defecto */
+function applySectionOrder(order){
+  try{
+    if(!order || !order.length) return;
+    const nav = document.getElementById("drawerNav"); if(!nav) return;
+    const btns = {}; nav.querySelectorAll("[data-pg]").forEach(b=>{ btns[b.dataset.pg]=b; });
+    order.forEach(id=>{ if(btns[id]){ nav.appendChild(btns[id]); delete btns[id]; } });
+    Object.keys(btns).forEach(id=>nav.appendChild(btns[id]));
+  }catch(e){}
+}
+async function loadSectionOrder(){
+  for(const u of ["secciones.json","https://tecnobum.github.io/lapelotacubana/secciones.json"]){
+    try{ const r = await fetch(u+"?t="+Date.now(),{cache:"no-store"}); if(r.ok){ const j = await r.json(); if(j && j.order && j.order.length){ applySectionOrder(j.order); return; } } }catch(e){}
+  }
+}
+loadSectionOrder();
 const menuBtn = document.getElementById("menuBtn"), drawer = document.getElementById("drawer"), scrim = document.getElementById("scrim");
 menuBtn.onclick = ()=>{drawer.classList.add("open"); scrim.classList.add("show");};
 scrim.onclick = ()=>{drawer.classList.remove("open"); scrim.classList.remove("show");};
@@ -2546,6 +2598,7 @@ function go(id){
   if(id==="ranking"){ loadRank(); syncRank(); }
   if(id==="concurso") loadConcurso();
   if(id==="fantasy") renderFantasy();
+  if(id==="opiniones") loadOpiniones();
   if(id==="grupos") renderCanales();
   if(id==="calendario") renderCalendario();
   if(id==="miequipo") renderMiEquipo();
@@ -3684,13 +3737,95 @@ function closeApkModal(){
   document.getElementById("apkModal").classList.remove("show");
   try{ localStorage.setItem("lpc-apk-seen", String((S.apk && S.apk.version) || "")); }catch(e){}
 }
+/* ============ OPINIONES Y DEBATE (5-nov-2026) ============
+   El usuario publica con OPINION| / OPCOMMENT| por el canal del ranking.
+   Todo nace "en revisión": solo se ve lo que el admin aprueba
+   (OP_OK| / OPC_OK| desde el panel; el servidor lo agrega a opiniones.json). */
+const OP_URLS = ["opiniones.json","https://tecnobum.github.io/lapelotacubana/opiniones.json"];
+let OP_DATA = null; const OP_OPEN = {};
+function opMyIds(){ try{ return JSON.parse(localStorage.getItem("lpc-my-opinions")||"[]"); }catch(e){ return []; } }
+function opSaveMy(id){ try{ const a = opMyIds(); if(a.indexOf(id)<0){ a.push(id); localStorage.setItem("lpc-my-opinions", JSON.stringify(a.slice(-30))); } }catch(e){} }
+function opFecha(ts){ try{ return new Date(ts*1000).toLocaleDateString("es",{timeZone:"America/Havana",day:"numeric",month:"short"})+" · "+new Date(ts*1000).toLocaleTimeString("es",{timeZone:"America/Havana",hour:"numeric",minute:"2-digit"}); }catch(e){ return ""; } }
+function opTeamName(t){ try{ return (TEAMS[t]||{name:t}).name || t || ""; }catch(e){ return t||""; } }
+async function loadOpiniones(){
+  renderOpiniones();
+  for(const u of OP_URLS){
+    try{ const r = await fetch(u+"?t="+Date.now(),{cache:"no-store"}); if(r.ok){ OP_DATA = await r.json(); break; } }catch(e){}
+  }
+  renderOpiniones();
+}
+function renderOpiniones(){
+  const list = document.getElementById("opList"); if(!list) return;
+  const mine = document.getElementById("opMine");
+  const approved = (OP_DATA && OP_DATA.opinions) || [];
+  const approvedIds = {}; approved.forEach(o=>{ approvedIds[o.id]=1; });
+  const pendMine = opMyIds().filter(id=>!approvedIds[id]);
+  if(mine) mine.innerHTML = pendMine.length ? '<div class="oppend">Tienes '+pendMine.length+' opini'+(pendMine.length===1?"\u00f3n":"ones")+' en revisi\u00f3n. Cuando el administrador la apruebe se ver\u00e1 aqu\u00ed para toda la comunidad.</div>' : "";
+  const meta = document.getElementById("opListMeta");
+  if(meta) meta.textContent = OP_DATA ? (approved.length ? approved.length+" opiniones publicadas" : "") : "";
+  if(!OP_DATA){ list.innerHTML = '<div class="empty">Cargando opiniones\u2026</div>'; return; }
+  if(!approved.length){ list.innerHTML = '<div class="empty">Todav\u00eda no hay opiniones publicadas. S\u00e9 el primero: escribe la tuya arriba y, cuando el administrador la apruebe, aparecer\u00e1 aqu\u00ed.</div>'; return; }
+  list.innerHTML = approved.map(o=>{
+    const cs = o.comments || [];
+    const open = !!OP_OPEN[o.id];
+    let h = '<div class="opcard"><div class="ophead"><div class="opava">'+esc((o.name||"?").trim().charAt(0).toUpperCase())+'</div><div class="opwho"><b>'+esc(o.name||"")+'</b><span>'+esc(opTeamName(o.team))+(o.team?" \u00b7 ":"")+esc(opFecha(o.ts))+'</span></div></div>';
+    if(o.title) h += '<div class="optitle">'+esc(o.title)+'</div>';
+    h += '<div class="optext">'+esc(o.text||"")+'</div>';
+    h += '<div class="opactions"><button class="opcbtn" onclick="opToggle(\''+o.id+'\')">'+(open?"Ocultar":"Comentar")+' \u00b7 '+cs.length+' comentario'+(cs.length===1?"":"s")+'</button></div>';
+    if(open){
+      h += '<div class="opcomments">';
+      h += cs.length ? cs.map(c=>'<div class="opcomment"><b>'+esc(c.name||"")+'</b><span>'+esc(opFecha(c.ts))+'</span><p>'+esc(c.text||"")+'</p></div>').join("") : '<div class="gmeta">Sin comentarios todav\u00eda. Empieza el debate.</div>';
+      h += '<textarea id="opc-'+o.id+'" class="uin" rows="2" maxlength="300" placeholder="Escribe tu comentario..." style="min-height:56px;margin-top:8px"></textarea>';
+      h += '<button class="btn ghost" onclick="submitOpComment(\''+o.id+'\')">Enviar comentario</button>';
+      h += '<div class="gmeta" style="margin-top:6px">Tu comentario tambi\u00e9n pasa por revisi\u00f3n antes de verse.</div></div>';
+    }
+    return h + '</div>';
+  }).join("");
+}
+function opToggle(id){ OP_OPEN[id] = !OP_OPEN[id]; renderOpiniones(); }
+function opClean(s, n){ return String(s||"").replace(/\|/g," ").replace(/\s+/g," ").trim().slice(0,n); }
+async function opSend(text){
+  const r = await fetch("https://api.telegram.org/bot"+RANKBOT.token+"/sendMessage",{method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({chat_id:RANKBOT.chat, text:text})});
+  return r.ok;
+}
+async function submitOpinion(){
+  if(!accountComplete()){ openUserModal(true); return; }
+  const tEl = document.getElementById("opTitle"), xEl = document.getElementById("opText");
+  const title = opClean(tEl.value, 80), text = String(xEl.value||"").replace(/\|/g," ").trim().slice(0,600);
+  if(text.length < 3){ toast("Escribe tu opini\u00f3n primero"); return; }
+  const u = getUser()||{};
+  const name = opClean(u.name||"An\u00f3nimo", 30), team = String(u.team||"").replace(/[^A-Za-z]/g,"").slice(0,8).toUpperCase();
+  const id = "o"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+  try{
+    const ok = await opSend("OPINION|"+id+"|"+getUid()+"|"+name+"|"+team+"|"+title+"|"+text.replace(/\n+/g," "));
+    if(!ok) throw 0;
+    opSaveMy(id); tEl.value=""; xEl.value=""; document.getElementById("opCount").textContent="0";
+    toast("Opini\u00f3n enviada. Queda en revisi\u00f3n del administrador.");
+    renderOpiniones();
+  }catch(e){ toast("No se pudo enviar. Revisa tu conexi\u00f3n."); }
+}
+async function submitOpComment(oid){
+  if(!accountComplete()){ openUserModal(true); return; }
+  const el = document.getElementById("opc-"+oid); if(!el) return;
+  const text = String(el.value||"").replace(/\|/g," ").trim().slice(0,300);
+  if(text.length < 2){ toast("Escribe tu comentario primero"); return; }
+  const u = getUser()||{};
+  const name = opClean(u.name||"An\u00f3nimo", 30), team = String(u.team||"").replace(/[^A-Za-z]/g,"").slice(0,8).toUpperCase();
+  const cid = "c"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+  try{
+    const ok = await opSend("OPCOMMENT|"+cid+"|"+oid+"|"+getUid()+"|"+name+"|"+team+"|"+text.replace(/\n+/g," "));
+    if(!ok) throw 0;
+    el.value=""; toast("Comentario enviado. Se ver\u00e1 cuando el administrador lo apruebe.");
+  }catch(e){ toast("No se pudo enviar. Revisa tu conexi\u00f3n."); }
+}
+
 /* ============ ARRANQUE ============ */
 document.querySelector('[data-pg="inicio"]').classList.add("active");
 /* Enlaces directos: ?s=ranking abre la app en esa sección (31-oct-2026) */
 try{
   captureRef();
   const _qs = new URLSearchParams(location.search).get("s");
-  const _ok = ["inicio","jornada","posiciones","calendario","lideres","equipos","miequipo","noticias","envivo","predicciones","ranking","concurso","fantasy","grupos"];
+  const _ok = ["inicio","jornada","posiciones","calendario","lideres","equipos","miequipo","noticias","envivo","predicciones","ranking","concurso","fantasy","opiniones","grupos"];
   if(_qs && _ok.indexOf(_qs)>=0 && _qs!=="inicio") setTimeout(()=>go(_qs), 350);
 }catch(e){}
 /* Normalizar estado inicial: "hoy" es la fecha real de Cuba, no la última fecha con datos */

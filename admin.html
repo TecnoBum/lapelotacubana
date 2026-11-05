@@ -122,6 +122,17 @@
   #lock input{width:100%;background:#0b0d12;border:1px solid #2a3040;border-radius:10px;padding:13px;color:#fff;font-size:16px;margin-top:14px;text-align:center}
   #lock input:focus{outline:none;border-color:var(--rojo)}
   .vuelve{display:block;text-align:center;color:var(--mut);font-size:13px;margin-top:14px;text-decoration:none}
+  
+  .opitem{border:1px solid var(--line);border-radius:12px;padding:11px 12px;margin-bottom:9px;background:var(--card2)}
+  .opitem b{color:#fff}
+  .opitem .tx{font-size:14px;line-height:1.55;margin-top:4px;white-space:pre-wrap;word-break:break-word}
+  .opitem .meta{font-size:11.5px;color:var(--mut2);margin-top:3px}
+  .minirow{display:flex;gap:8px;margin-top:9px}
+  .minirow button{margin-top:0;padding:9px;font-size:13.5px}
+  .ordrow{display:flex;align-items:center;gap:8px;padding:9px 2px;border-bottom:1px solid #1d2330;font-size:14.5px}
+  .ordrow:last-child{border-bottom:none}
+  .ordrow .nm{flex:1}
+  .ordrow button{width:auto;margin-top:0;padding:7px 12px;font-size:14px}
   .cmdbox{background:#0b0d12;border:1px solid #2a3040;border-radius:10px;padding:11px 12px;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:#7fd0ff;word-break:break-all;margin-top:8px;line-height:1.6}
 </style>
 </head>
@@ -150,6 +161,7 @@
       <button class="tab on" data-tab="resumen">Resumen</button>
       <button class="tab" data-tab="publicar">Publicar</button>
       <button class="tab" data-tab="comunidad">Comunidad</button>
+      <button class="tab" data-tab="opiniones">Opiniones</button>
       <button class="tab" data-tab="metricas">Métricas</button>
       <button class="tab" data-tab="web">Web y APK</button>
       <button class="tab" data-tab="ajustes">Ajustes</button>
@@ -246,6 +258,17 @@
       <div class="nota">Copia el comando y pégalo en tu <b>canal privado de Telegram</b>. Tiñe toda la aplicación con los colores de la fiesta en unos minutos.</div>
       <div class="cmdbox" id="temaCmd" style="display:none"></div>
     </div>
+    <div class="panel">
+      <h2><span class="ico">↕️</span> Orden de las secciones</h2>
+      <p class="estado" style="font-size:13px" id="estOrden">Orden actual: …</p>
+      <div id="ordenList"></div>
+      <div class="btnrow">
+        <button class="azul" id="btnOrdenCopy">Copiar comando</button>
+        <button class="ghost" id="btnOrdenReset">Restablecer</button>
+      </div>
+      <div class="nota">Sube o baja las secciones con las flechas y copia el comando: pégalo en tu <b>canal privado de Telegram</b> y el menú de la aplicación (gratis y Pro) se reordena solo en unos minutos. «Internacional» solo se ve en la Pro.</div>
+      <div class="cmdbox" id="ordenCmd" style="display:none"></div>
+    </div>
   </div>
 
   <!-- ============ COMUNIDAD ============ -->
@@ -261,6 +284,29 @@
     <div class="panel">
       <h2><span class="ico">🎁</span> Concurso semanal</h2>
       <div id="concursoInfo"><p class="estado">Cargando…</p></div>
+    </div>
+  </div>
+
+  <!-- ============ OPINIONES ============ -->
+  <div class="tabpage" id="pg-opiniones">
+    <div class="panel">
+      <h2><span class="ico">💬</span> Moderación · Opiniones y Debate</h2>
+      <div id="opResumen"><p class="estado">Cargando…</p></div>
+      <div class="btnrow"><button id="btnOpAll">✓ Aprobar todo lo pendiente</button></div>
+      <div class="nota">Cada botón genera el comando de moderación y lo copia: pégalo en tu <b>canal privado de Telegram</b> y se aplica solo en unos minutos. Nada se publica sin tu aprobación y borrar es definitivo en la web.</div>
+      <div class="cmdbox" id="opCmd" style="display:none"></div>
+    </div>
+    <div class="panel">
+      <h2><span class="ico">📝</span> Opiniones en revisión</h2>
+      <div id="opPend"><p class="estado">Cargando…</p></div>
+    </div>
+    <div class="panel">
+      <h2><span class="ico">🗨️</span> Comentarios en revisión</h2>
+      <div id="opcPend"><p class="estado">Cargando…</p></div>
+    </div>
+    <div class="panel">
+      <h2><span class="ico">🌐</span> Opiniones publicadas</h2>
+      <div id="opPub"><p class="estado">Cargando…</p></div>
     </div>
   </div>
 
@@ -343,7 +389,7 @@ var SECCIONES = [
   ['inicio','Inicio'], ['jornada','Jornada'], ['posiciones','Posiciones'],
   ['calendario','Calendario'], ['lideres','Líderes'], ['equipos','Equipos'],
   ['noticias','Noticias'], ['envivo','En Vivo'], ['predicciones','Predicciones'],
-  ['ranking','Ranking'], ['concurso','Concurso'], ['grupos','Grupos y canales'],
+  ['ranking','Ranking'], ['concurso','Concurso'], ['opiniones','Opiniones'], ['grupos','Grupos y canales'],
   ['donaciones','Donaciones']
 ];
 var NOMBRES_CINT = { 0: 'desactivado', 1: 'Jornada de hoy', 2: 'Actualiza la aplicación', 3: 'Canal de WhatsApp' };
@@ -374,7 +420,7 @@ function desbloqueado() { try { return sessionStorage.getItem('lpcAdmin') === '1
 function mostrarPanel() {
   document.getElementById('lock').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  cargar(); aplicarAuto(); estadoPublicar(); estadoBannerTema(); cargarComunidad();
+  cargar(); aplicarAuto(); estadoPublicar(); estadoBannerTema(); cargarComunidad(); cargarOpiniones(); cargarOrden();
 }
 function intentarClave() {
   var inp = document.getElementById('lockInput');
@@ -935,7 +981,91 @@ document.getElementById('btnCSV').addEventListener('click', function () {
 });
 
 /* ---------- arranque ---------- */
-document.getElementById('btn').addEventListener('click', function () { cargar(); cargarComunidad(); estadoPublicar(); estadoBannerTema(); });
+/* ---------- Opiniones y Debate: moderación ---------- */
+function opComando(cmd, msg) {
+  var box = document.getElementById('opCmd');
+  box.style.display = 'block'; box.textContent = cmd;
+  copiarTexto(cmd, msg || ('Comando copiado: ' + cmd + ' — Pégalo en tu canal de Telegram.'));
+}
+function opFecha(ts) {
+  if (!ts) return '';
+  var d = new Date(ts * 1000);
+  return d.toLocaleDateString('es', { timeZone: 'America/Havana', day: 'numeric', month: 'short' }) + ' · ' +
+         d.toLocaleTimeString('es', { timeZone: 'America/Havana', hour: 'numeric', minute: '2-digit' });
+}
+function cargarOpiniones() {
+  leerJSON('./opiniones_admin.json').then(function (a) {
+    var res = document.getElementById('opResumen'), po = document.getElementById('opPend'),
+        pc = document.getElementById('opcPend'), pb = document.getElementById('opPub');
+    if (!a) { res.innerHTML = '<p class="estado">Sin datos todavía (opiniones_admin.json no existe o no cargó).</p>'; po.innerHTML = pc.innerHTML = pb.innerHTML = ''; return; }
+    var c = a.counts || {};
+    res.innerHTML = '<p class="estado">En revisión: <b>' + (c.pending_opinions || 0) + ' opiniones</b> y <b>' + (c.pending_comments || 0) + ' comentarios</b> · Publicadas: <b>' + (c.approved || 0) + '</b> · Actualizado: ' + esc(a.updated || '—') + '</p>';
+    var pend = a.pending_opinions || [];
+    po.innerHTML = pend.length ? pend.map(function (o) {
+      return '<div class="opitem"><b>' + esc(o.title || '(sin título)') + '</b><div class="tx">' + esc(o.text || '') + '</div>' +
+        '<div class="meta">' + esc(o.name || '') + (o.team ? ' · ' + esc(o.team) : '') + ' · ' + opFecha(o.ts) + ' · id ' + esc(o.id) + '</div>' +
+        '<div class="minirow"><button onclick="opComando(\'OP_OK|' + esc(o.id) + '\')">✓ Aprobar</button>' +
+        '<button class="ghost" onclick="opComando(\'OP_DEL|' + esc(o.id) + '\')">🗑 Borrar</button></div></div>';
+    }).join('') : '<p class="estado">No hay opiniones en revisión.</p>';
+    var pcx = a.pending_comments || [];
+    pc.innerHTML = pcx.length ? pcx.map(function (cm) {
+      return '<div class="opitem"><div class="tx">' + esc(cm.text || '') + '</div>' +
+        '<div class="meta">' + esc(cm.name || '') + (cm.team ? ' · ' + esc(cm.team) : '') + ' · ' + opFecha(cm.ts) + ' · sobre la opinión ' + esc(cm.opinion_id) + '</div>' +
+        '<div class="minirow"><button onclick="opComando(\'OPC_OK|' + esc(cm.id) + '\')">✓ Aprobar</button>' +
+        '<button class="ghost" onclick="opComando(\'OPC_DEL|' + esc(cm.id) + '\')">🗑 Borrar</button></div></div>';
+    }).join('') : '<p class="estado">No hay comentarios en revisión.</p>';
+    var pub = a.approved || [];
+    pb.innerHTML = pub.length ? pub.map(function (o) {
+      return '<div class="opitem"><b>' + esc(o.title || '(sin título)') + '</b>' +
+        '<div class="meta">' + esc(o.name || '') + ' · ' + opFecha(o.ts) + ' · ' + (o.comments || 0) + ' comentarios</div>' +
+        '<div class="minirow"><button class="ghost" onclick="opComando(\'OP_DEL|' + esc(o.id) + '\')">🗑 Borrar opinión</button></div></div>';
+    }).join('') : '<p class="estado">Todavía no hay opiniones publicadas.</p>';
+  });
+}
+document.getElementById('btnOpAll').addEventListener('click', function () { opComando('OP_ALL', 'Comando copiado: OP_ALL — aprueba todas las opiniones y comentarios pendientes al pegarlo en tu canal de Telegram.'); });
+
+/* ---------- Orden de las secciones ---------- */
+var ORDEN_LABELS = { inicio: 'Inicio', jornada: 'Jornada', posiciones: 'Posiciones', calendario: 'Calendario', lideres: 'Líderes', equipos: 'Equipos', miequipo: 'Mi equipo', noticias: 'Noticias', envivo: 'En Vivo', internacional: 'Internacional (solo Pro)', predicciones: 'Predicciones', ranking: 'Ranking', concurso: 'Concurso', fantasy: 'Fantasy Equipo', opiniones: 'Opiniones y Debate', grupos: 'Grupos y canales', donaciones: 'Donaciones' };
+var ORDEN_DEFAULT = ['inicio','jornada','posiciones','calendario','lideres','equipos','miequipo','noticias','envivo','internacional','predicciones','ranking','concurso','fantasy','opiniones','grupos','donaciones'];
+var ordenActual = ORDEN_DEFAULT.slice();
+function pintarOrden() {
+  document.getElementById('ordenList').innerHTML = ordenActual.map(function (id, i) {
+    return '<div class="ordrow"><span class="nm">' + (i + 1) + '. ' + esc(ORDEN_LABELS[id] || id) + '</span>' +
+      '<button class="ghost" onclick="moverOrden(' + i + ',-1)"' + (i === 0 ? ' disabled style="opacity:.35"' : '') + '>↑</button>' +
+      '<button class="ghost" onclick="moverOrden(' + i + ',1)"' + (i === ordenActual.length - 1 ? ' disabled style="opacity:.35"' : '') + '>↓</button></div>';
+  }).join('');
+}
+function moverOrden(i, d) {
+  var j = i + d; if (j < 0 || j >= ordenActual.length) return;
+  var t = ordenActual[i]; ordenActual[i] = ordenActual[j]; ordenActual[j] = t; pintarOrden();
+}
+function cargarOrden() {
+  leerJSON('./secciones.json').then(function (s) {
+    if (s && Array.isArray(s.order) && s.order.length >= 3) {
+      ordenActual = s.order.filter(function (x) { return ORDEN_LABELS[x]; });
+      ORDEN_DEFAULT.forEach(function (x) { if (ordenActual.indexOf(x) < 0) ordenActual.push(x); });
+      document.getElementById('estOrden').innerHTML = 'Orden actual: <b>el publicado</b> (' + esc(s.updated || '') + ')';
+    } else {
+      document.getElementById('estOrden').textContent = 'Orden actual: el de por defecto (aún no se ha publicado ningún orden).';
+    }
+    pintarOrden();
+  });
+}
+document.getElementById('btnOrdenCopy').addEventListener('click', function () {
+  var cmd = 'ORDER|' + ordenActual.join(',');
+  var box = document.getElementById('ordenCmd');
+  box.style.display = 'block'; box.textContent = cmd;
+  copiarTexto(cmd, 'Comando copiado: nuevo orden de secciones. Pégalo en tu canal de Telegram.');
+});
+document.getElementById('btnOrdenReset').addEventListener('click', function () {
+  ordenActual = ORDEN_DEFAULT.slice(); pintarOrden();
+  var cmd = 'ORDER|' + ordenActual.join(',');
+  var box = document.getElementById('ordenCmd');
+  box.style.display = 'block'; box.textContent = cmd;
+  copiarTexto(cmd, 'Comando copiado: orden restablecido. Pégalo en tu canal de Telegram.');
+});
+
+document.getElementById('btn').addEventListener('click', function () { cargar(); cargarComunidad(); cargarOpiniones(); cargarOrden(); estadoPublicar(); estadoBannerTema(); });
 pintarCfg();
 if (desbloqueado()) mostrarPanel();
 else document.getElementById('lock').style.display = 'flex';
