@@ -4057,6 +4057,11 @@ function u23Fecha(ds){
   const d=new Date(+p[0],+p[1]-1,+p[2]);
   return dias[d.getDay()]+" "+(+p[2])+" "+meses[(+p[1])-1];
 }
+function u23Hora(t){
+  const m = String(t||"").match(/^(\d{1,2}):(\d{2})$/); if(!m) return t||"";
+  let h = +m[1]; const ap = h >= 12 ? "PM" : "AM"; h = h % 12; if(h === 0) h = 12;
+  return h + ":" + m[2] + " " + ap;
+}
 function u23Match(g, big){
   const cub = g.away==="CUB" || g.home==="CUB";
   let mid, wa=false, wh=false;
@@ -4066,7 +4071,7 @@ function u23Match(g, big){
   } else if(g.status==="live"){
     mid = '<div class="big live">'+(g.ar==null?0:g.ar)+" - "+(g.hr==null?0:g.hr)+'</div><div class="bsub live">\u25cf EN VIVO</div>';
   } else {
-    mid = '<div class="big">'+(g.time||"")+'</div><div class="bsub">'+esc(g.phase||"").toUpperCase()+'</div>';
+    mid = '<div class="big">'+u23Hora(g.time)+'</div><div class="bsub">'+esc(g.phase||"").toUpperCase()+'</div>';
   }
   return '<div class="u23wrap"><div class="u23match'+(cub?" cub":"")+'">'
     + '<div class="side'+(wa?" win":"")+'">'+u23Flag(g.away, big?"lg":"")+'<div class="nm">'+esc(u23Name(g.away))+'</div></div>'
