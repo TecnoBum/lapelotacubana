@@ -390,23 +390,43 @@ table.st.rank tr.rankdiv td{text-align:center;color:var(--muted);letter-spacing:
 .oppend{border:1px dashed var(--gold,#e8b64c);color:var(--gold,#e8b64c);border-radius:12px;padding:10px 12px;font-size:13.5px;margin-bottom:10px;line-height:1.5}
 
 /* Mundial Sub-23 (temporal, nov-2026) */
-.u23game{display:flex;align-items:center;gap:8px;padding:9px 2px;border-bottom:1px solid var(--line)}
-.u23game:last-child{border-bottom:none}
-.u23game .tm{flex:1;font-size:14.5px;min-width:0}
-.u23game .tm.away{text-align:right}
-.u23game .sc{flex:0 0 auto;font-weight:900;font-size:16px;min-width:64px;text-align:center}
-.u23game .sc small{display:block;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.04em}
-.u23game.cub{background:rgba(232,182,76,.08);border-radius:10px;padding-left:8px;padding-right:8px}
-.u23game .live{color:#ff5a4d;font-weight:800}
+.u23hero{background:linear-gradient(135deg,#8c1124 0%,#c01534 52%,#17457e 100%);border:none;color:#fff;overflow:hidden}
+.u23hero h3{color:#fff;font-size:19px;margin-bottom:2px}
+.u23hero .sub{font-size:12.5px;opacity:.92;line-height:1.5}
+.u23chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.u23chip{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.22);color:#fff;border-radius:99px;padding:3px 10px;font-size:11px;font-weight:800;letter-spacing:.05em}
+.u23cubaline{display:flex;align-items:center;gap:12px;background:rgba(0,0,0,.22);border-radius:14px;padding:10px 12px;margin-top:10px}
+.u23cubaline .rec{font-size:20px;font-weight:900;line-height:1}
+.u23cubaline .lbl{font-size:11px;letter-spacing:.06em;opacity:.85;font-weight:700}
+.u23flag{width:34px;height:34px;border-radius:50%;object-fit:cover;flex:none;background:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.28),0 2px 6px rgba(0,0,0,.35)}
+.u23flag.sm{width:22px;height:22px}
+.u23flag.lg{width:54px;height:54px}
+.u23match{display:flex;align-items:center;gap:10px;background:rgba(127,150,190,.07);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.u23match .side{flex:1;display:flex;align-items:center;gap:9px;min-width:0}
+.u23match .side.r{flex-direction:row-reverse;text-align:right}
+.u23match .nm{font-size:14.5px;font-weight:600;line-height:1.25}
+.u23match .side.win .nm{font-weight:900}
+.u23match .mid{flex:0 0 auto;text-align:center;min-width:76px}
+.u23match .mid .big{font-size:19px;font-weight:900;line-height:1.1}
+.u23match .mid .bsub{font-size:10.5px;color:var(--muted);letter-spacing:.05em;font-weight:700;margin-top:2px}
+.u23match .mid .live{color:#ff5a4d}
+.u23match.cub{border-color:rgba(232,182,76,.55);background:linear-gradient(180deg,rgba(232,182,76,.10),rgba(232,182,76,.02))}
+.u23wrap{margin:9px 0}
+.u23st{font-size:11.5px;color:var(--muted);text-align:center;padding:4px 6px 0}
 .u23tab{width:100%;border-collapse:collapse;font-size:13.5px}
 .u23tab th{font-size:11px;letter-spacing:.05em;color:var(--muted);text-align:center;padding:5px 3px;border-bottom:1px solid var(--line)}
 .u23tab th:first-child{text-align:left}
-.u23tab td{padding:7px 3px;border-bottom:1px solid var(--line);text-align:center}
-.u23tab td:first-child{text-align:left;font-weight:700}
+.u23tab td{padding:7px 3px;border-bottom:1px solid var(--line);text-align:center;vertical-align:middle}
+.u23tab td:first-child{text-align:left}
+.u23tab .tcell{display:flex;align-items:center;gap:8px;font-weight:700}
+.u23tab .posn{color:var(--muted);font-weight:800;width:16px;flex:none}
 .u23tab tr.cub td{background:rgba(232,182,76,.10)}
 .u23tab tr.q td:first-child{border-left:3px solid var(--gold,#e8b64c)}
 .u23day{font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--gold,#e8b64c);margin:14px 0 2px;text-transform:uppercase}
 .u23day:first-child{margin-top:0}
+.u23pos{font-size:11.5px;font-weight:800;letter-spacing:.06em;color:var(--gold,#e8b64c);text-transform:uppercase;margin:12px 0 3px}
+.u23pos:first-child{margin-top:0}
+.u23names{font-size:14.5px;line-height:1.65}
 /* Reportes (5-nov-2026) */
 .reptipo{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.05em;border-radius:99px;padding:3px 9px;vertical-align:2px}
 .reptipo.error{background:rgba(230,51,41,.16);color:#ff8a75}
@@ -4391,26 +4411,40 @@ async function loadU23(){
   renderU23();
 }
 function u23Name(c){ return (U23 && U23.teams && U23.teams[c]) || c || ""; }
+function u23Flag(c, cls){
+  const f = U23 && U23.flags && U23.flags[c];
+  return f ? '<img class="u23flag '+(cls||"")+'" src="'+f+'" alt="" loading="lazy">' : "";
+}
 function u23Fecha(ds){
   const dias=["dom","lun","mar","mi\u00e9","jue","vie","s\u00e1b"], meses=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
   const p=String(ds||"").split("-"); if(p.length<3) return ds||"";
   const d=new Date(+p[0],+p[1]-1,+p[2]);
   return dias[d.getDay()]+" "+(+p[2])+" "+meses[(+p[1])-1];
 }
-function u23Row(g, fase){
+function u23Match(g, big){
   const cub = g.away==="CUB" || g.home==="CUB";
-  let mid;
-  if(g.status==="final") mid = '<div class="sc">'+(g.ar==null?"-":g.ar)+" - "+(g.hr==null?"-":g.hr)+'<small>FINAL</small></div>';
-  else if(g.status==="live") mid = '<div class="sc live">'+(g.ar==null?0:g.ar)+" - "+(g.hr==null?0:g.hr)+'<small>EN VIVO</small></div>';
-  else mid = '<div class="sc">'+(g.time||"")+'<small>'+esc(fase||g.phase||"")+'</small></div>';
-  return '<div class="u23game'+(cub?" cub":"")+'"><div class="tm away">'+esc(u23Name(g.away))+'</div>'+mid+'<div class="tm">'+esc(u23Name(g.home))+'</div></div>'
-    + (g.stadium ? '<div class="gmeta" style="text-align:center;margin:-3px 0 4px">'+esc(g.stadium)+'</div>' : "");
+  let mid, wa=false, wh=false;
+  if(g.status==="final"){
+    mid = '<div class="big">'+(g.ar==null?"-":g.ar)+" - "+(g.hr==null?"-":g.hr)+'</div><div class="bsub">FINAL</div>';
+    wa = g.ar>g.hr; wh = g.hr>g.ar;
+  } else if(g.status==="live"){
+    mid = '<div class="big live">'+(g.ar==null?0:g.ar)+" - "+(g.hr==null?0:g.hr)+'</div><div class="bsub live">\u25cf EN VIVO</div>';
+  } else {
+    mid = '<div class="big">'+(g.time||"")+'</div><div class="bsub">'+esc(g.phase||"").toUpperCase()+'</div>';
+  }
+  return '<div class="u23wrap"><div class="u23match'+(cub?" cub":"")+'">'
+    + '<div class="side'+(wa?" win":"")+'">'+u23Flag(g.away, big?"lg":"")+'<div class="nm">'+esc(u23Name(g.away))+'</div></div>'
+    + '<div class="mid">'+mid+'</div>'
+    + '<div class="side r'+(wh?" win":"")+'">'+u23Flag(g.home, big?"lg":"")+'<div class="nm">'+esc(u23Name(g.home))+'</div></div>'
+    + '</div>'
+    + (g.stadium ? '<div class="u23st">'+esc(g.stadium)+'</div>' : "")
+    + '</div>';
 }
 function u23Table(phase, rows){
   if(!rows || !rows.length) return "";
   let h = '<div class="card"><h3>'+esc(phase)+'</h3><table class="u23tab"><tr><th>Equipo</th><th>JG</th><th>JP</th><th>CA</th><th>CE</th><th>PCT</th></tr>';
   rows.forEach((r,i)=>{
-    h += '<tr class="'+(r.team==="CUB"?"cub":"")+((phase.indexOf("Grupo")===0 && i<3)?" q":"")+'"><td>'+esc(u23Name(r.team))+'</td><td>'+r.w+'</td><td>'+r.l+'</td><td>'+r.rs+'</td><td>'+r.ra+'</td><td>'+(r.pct||0).toFixed(3).replace(/^0/,"")+'</td></tr>';
+    h += '<tr class="'+(r.team==="CUB"?"cub":"")+((phase.indexOf("Grupo")===0 && i<3)?" q":"")+'"><td><div class="tcell"><span class="posn">'+(i+1)+'</span>'+u23Flag(r.team,"sm")+'<span>'+esc(u23Name(r.team))+'</span></div></td><td>'+r.w+'</td><td>'+r.l+'</td><td>'+r.rs+'</td><td>'+r.ra+'</td><td>'+(r.pct||0).toFixed(3).replace(/^0/,"")+'</td></tr>';
   });
   h += '</table>' + (phase.indexOf("Grupo")===0 ? '<div class="gmeta" style="margin-top:6px">Los tres primeros avanzan a la Súper Ronda.</div>' : "") + '</div>';
   return h;
@@ -4421,18 +4455,19 @@ function renderU23(){
   const inf = U23.info||{}, games = U23.games||[];
   const cubGames = games.filter(g=>g.away==="CUB"||g.home==="CUB");
   const rec = U23.cuba||{w:0,l:0};
-  let h = '<div class="card"><h3>\u{1F3C6} '+esc(inf.title||"Mundial Sub-23")+'</h3>'
-    + '<div class="gmeta">'+esc(inf.edition||"")+' \u00b7 '+esc(inf.host||"")+' \u00b7 '+esc(inf.dates||"")+'</div>'
-    + '<div class="gmeta" style="margin-top:6px">'+esc(inf.format||"")+'</div>'
-    + '<div class="gmeta" style="margin-top:6px">Cuba va en el <b>Grupo B</b> con r\u00e9cord de <b>'+rec.w+"-"+rec.l+'</b>. Director: '+esc(inf.manager||"")+'.</div>'
-    + (inf.cubaNote ? '<div class="gmeta" style="margin-top:6px">'+esc(inf.cubaNote)+'</div>' : "")
-    + '<div class="gmeta" style="margin-top:6px">'+esc(inf.timeNote||"")+'</div></div>';
+  let h = '<div class="card u23hero"><h3>\u{1F3C6} '+esc(inf.title||"Mundial Sub-23")+'</h3>'
+    + '<div class="sub">'+esc(inf.edition||"")+' \u00b7 '+esc(inf.host||"")+'</div>'
+    + '<div class="u23chips"><span class="u23chip">'+esc(inf.dates||"")+'</span><span class="u23chip">GRUPO B</span><span class="u23chip">12 EQUIPOS</span></div>'
+    + '<div class="sub">'+esc(inf.format||"")+'</div>'
+    + '<div class="u23cubaline">'+u23Flag("CUB","lg")+'<div><div class="rec">Cuba '+rec.w+"-"+rec.l+'</div><div class="lbl">DIRECTOR: '+esc(inf.manager||"").toUpperCase()+'</div></div></div>'
+    + (inf.cubaNote ? '<div class="sub" style="margin-top:10px">'+esc(inf.cubaNote)+'</div>' : "")
+    + '<div class="sub" style="margin-top:6px;opacity:.75">'+esc(inf.timeNote||"")+'</div></div>';
   const nx = cubGames.find(g=>g.status==="live") || cubGames.find(g=>g.status==="prog");
   if(nx){
-    h += '<div class="card"><h3>'+(nx.status==="live" ? "Cuba est\u00e1 jugando" : "Pr\u00f3ximo juego de Cuba")+'</h3>'
-      + '<div class="gmeta" style="margin-bottom:4px">'+u23Fecha(nx.date)+' \u00b7 '+esc(nx.phase||"")+'</div>' + u23Row(nx) + '</div>';
+    h += '<div class="card"><h3>'+(nx.status==="live" ? "Cuba está jugando" : "Próximo juego de Cuba")+'</h3>'
+      + '<div class="gmeta" style="margin-bottom:2px;text-transform:capitalize">'+u23Fecha(nx.date)+' \u00b7 '+esc(nx.phase||"")+'</div>' + u23Match(nx, true) + '</div>';
   }
-  h += '<div class="card"><h3>Cuba: calendario y resultados</h3>' + cubGames.map(g=>u23Row(g)).join("") + '</div>';
+  h += '<div class="card"><h3>Cuba: calendario y resultados</h3>' + cubGames.map(g=>u23Match(g)).join("") + '</div>';
   const st = U23.standings||{};
   h += u23Table("Grupo B", st["Grupo B"]);
   h += u23Table("Grupo A", st["Grupo A"]);
@@ -4442,15 +4477,15 @@ function renderU23(){
   games.forEach(g=>{ (byDay[g.date]=byDay[g.date]||[]).push(g); });
   h += '<div class="card"><h3>Todos los partidos</h3>';
   Object.keys(byDay).sort().forEach(d=>{
-    h += '<div class="u23day">'+u23Fecha(d)+'</div>' + byDay[d].map(g=>u23Row(g)).join("");
+    h += '<div class="u23day">'+u23Fecha(d)+'</div>' + byDay[d].map(g=>u23Match(g)).join("");
   });
   h += '</div>';
   const ros = U23.roster||{};
-  h += '<div class="card"><h3>N\u00f3mina de Cuba</h3>';
+  h += '<div class="card"><h3>Nómina de Cuba</h3>';
   ["Receptores","Jugadores de cuadro","Jardineros","Lanzadores"].forEach(k=>{
-    if(ros[k] && ros[k].length) h += '<div class="gmeta" style="margin-top:8px"><b>'+esc(k)+'</b></div><div style="font-size:14.5px;line-height:1.65">'+ros[k].map(n=>esc(n)).join(" \u00b7 ")+'</div>';
+    if(ros[k] && ros[k].length) h += '<div class="u23pos">'+esc(k)+'</div><div class="u23names">'+ros[k].map(n=>esc(n)).join(" \u00b7 ")+'</div>';
   });
-  h += '<div class="gmeta" style="margin-top:10px">Director: <b>'+esc(ros.manager||inf.manager||"")+'</b>'+(ros.staff ? " \u00b7 "+esc(ros.staff) : "")+'</div></div>';
+  h += '<div class="gmeta" style="margin-top:12px">Director: <b>'+esc(ros.manager||inf.manager||"")+'</b>'+(ros.staff ? " \u00b7 "+esc(ros.staff) : "")+'</div></div>';
   h += '<div class="gmeta" style="text-align:center">Actualizado: '+esc(U23.updated||"")+'</div>';
   box.innerHTML = h;
 }
