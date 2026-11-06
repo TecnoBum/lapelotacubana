@@ -389,24 +389,6 @@ table.st.rank tr.rankdiv td{text-align:center;color:var(--muted);letter-spacing:
 .opcomment p{font-size:14px;line-height:1.5;margin-top:2px;white-space:pre-wrap;word-break:break-word}
 .oppend{border:1px dashed var(--gold,#e8b64c);color:var(--gold,#e8b64c);border-radius:12px;padding:10px 12px;font-size:13.5px;margin-bottom:10px;line-height:1.5}
 
-/* Mundial Sub-23 (temporal, nov-2026) */
-.u23game{display:flex;align-items:center;gap:8px;padding:9px 2px;border-bottom:1px solid var(--line)}
-.u23game:last-child{border-bottom:none}
-.u23game .tm{flex:1;font-size:14.5px;min-width:0}
-.u23game .tm.away{text-align:right}
-.u23game .sc{flex:0 0 auto;font-weight:900;font-size:16px;min-width:64px;text-align:center}
-.u23game .sc small{display:block;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.04em}
-.u23game.cub{background:rgba(232,182,76,.08);border-radius:10px;padding-left:8px;padding-right:8px}
-.u23game .live{color:#ff5a4d;font-weight:800}
-.u23tab{width:100%;border-collapse:collapse;font-size:13.5px}
-.u23tab th{font-size:11px;letter-spacing:.05em;color:var(--muted);text-align:center;padding:5px 3px;border-bottom:1px solid var(--line)}
-.u23tab th:first-child{text-align:left}
-.u23tab td{padding:7px 3px;border-bottom:1px solid var(--line);text-align:center}
-.u23tab td:first-child{text-align:left;font-weight:700}
-.u23tab tr.cub td{background:rgba(232,182,76,.10)}
-.u23tab tr.q td:first-child{border-left:3px solid var(--gold,#e8b64c)}
-.u23day{font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--gold,#e8b64c);margin:14px 0 2px;text-transform:uppercase}
-.u23day:first-child{margin-top:0}
 /* Reportes (5-nov-2026) */
 .reptipo{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.05em;border-radius:99px;padding:3px 9px;vertical-align:2px}
 .reptipo.error{background:rgba(230,51,41,.16);color:#ff8a75}
@@ -906,9 +888,6 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
       <div id="repList"><div class="empty">Cargando reportes\u2026</div></div>
     </div>
   </section>
-  <section class="page" id="pg-mundialu23">
-    <div id="u23Box"><div class="card"><div class="empty">Cargando el Mundial Sub-23\u2026</div></div></div>
-  </section>
   <section class="page" id="pg-grupos">
     <div class="card"><h3>Grupos y canales</h3><div id="canalList"></div></div>
   </section>
@@ -1049,10 +1028,10 @@ const LOGOS = {
 const BASE = "https://www.beisbolcubano.cu/";
 function abs(u){ if(!u) return ""; if(/^https?:/i.test(u)) return u; return BASE+u.replace(/^\//,""); }
 /*__LPC_DATA_START__*/
-const DATA_LABEL = "6 de noviembre de 2026 · 08:21";
-const GAMES = [{"id": "j209", "date": "2026-11-05", "away": "MAY", "home": "PRI", "ar": 1, "hr": 11, "status": "final", "num": 209, "stadium": "Capitán San Luis", "time": null, "live": null, "outs": null}, {"id": "j210", "date": "2026-11-05", "away": "VCL", "home": "IND", "ar": 2, "hr": 9, "status": "final", "num": 210, "stadium": "Latinoamericano", "time": null, "live": null, "outs": null}, {"id": "j211", "date": "2026-11-05", "away": "ART", "home": "MTZ", "ar": 3, "hr": 13, "status": "final", "num": 211, "stadium": "Victoria de Girón", "time": null, "live": null, "outs": null}, {"id": "j212", "date": "2026-11-05", "away": "IJV", "home": "CFG", "ar": 7, "hr": 10, "status": "final", "num": 212, "stadium": "5 de Septiembre", "time": null, "live": null, "outs": null}, {"id": "j213", "date": "2026-11-05", "away": "GRA", "home": "SSP", "ar": 13, "hr": 7, "status": "final", "num": 213, "stadium": "José Antonio Huelga", "time": null, "live": null, "outs": null}, {"id": "j214", "date": "2026-11-05", "away": "HOL", "home": "CAV", "ar": 4, "hr": 1, "status": "final", "num": 214, "stadium": "José Ramón Cepero", "time": null, "live": null, "outs": null}, {"id": "j215", "date": "2026-11-05", "away": "SCU", "home": "CMG", "ar": 7, "hr": 5, "status": "final", "num": 215, "stadium": "Cándido González", "time": null, "live": null, "outs": null}, {"id": "j216", "date": "2026-11-05", "away": "GTM", "home": "LTU", "ar": 3, "hr": 10, "status": "final", "num": 216, "stadium": "Julio Antonio Mella", "time": null, "live": null, "outs": null}, {"id": "j217", "date": "2026-11-07", "away": "PRI", "home": "MAY", "ar": null, "hr": null, "status": "prog", "num": 217, "stadium": "Nelson Fernández", "time": "13:30", "live": null, "outs": null}, {"id": "j218", "date": "2026-11-07", "away": "IND", "home": "VCL", "ar": null, "hr": null, "status": "prog", "num": 218, "stadium": "Augusto César Sandino", "time": "13:30", "live": null, "outs": null}, {"id": "j219", "date": "2026-11-07", "away": "MTZ", "home": "ART", "ar": null, "hr": null, "status": "prog", "num": 219, "stadium": "26 de Julio", "time": "13:30", "live": null, "outs": null}, {"id": "j220", "date": "2026-11-07", "away": "CFG", "home": "IJV", "ar": null, "hr": null, "status": "prog", "num": 220, "stadium": "Cristóbal Labra", "time": "13:30", "live": null, "outs": null}, {"id": "j221", "date": "2026-11-07", "away": "SSP", "home": "GRA", "ar": null, "hr": null, "status": "prog", "num": 221, "stadium": "Mártires de Barbados", "time": "13:30", "live": null, "outs": null}, {"id": "j222", "date": "2026-11-07", "away": "CAV", "home": "HOL", "ar": null, "hr": null, "status": "prog", "num": 222, "stadium": "Mayor General Calixto García", "time": "13:30", "live": null, "outs": null}, {"id": "j223", "date": "2026-11-07", "away": "CMG", "home": "SCU", "ar": null, "hr": null, "status": "prog", "num": 223, "stadium": "Guillermón Moncada", "time": "13:30", "live": null, "outs": null}, {"id": "j224", "date": "2026-11-07", "away": "LTU", "home": "GTM", "ar": null, "hr": null, "status": "prog", "num": 224, "stadium": "Nguyen Van Troi", "time": "13:30", "live": null, "outs": null}];
+const DATA_LABEL = "6 de noviembre de 2026 · 08:09";
+const GAMES = [{"id": "j209", "date": "2026-11-05", "away": "MAY", "home": "PRI", "ar": 1, "hr": 11, "status": "final", "num": 209, "stadium": "Capitán San Luis", "time": null, "live": null, "outs": null}, {"id": "j210", "date": "2026-11-05", "away": "VCL", "home": "IND", "ar": null, "hr": null, "status": "susp", "num": 210, "stadium": "Latinoamericano", "time": null, "live": null, "outs": null}, {"id": "j211", "date": "2026-11-05", "away": "ART", "home": "MTZ", "ar": 3, "hr": 13, "status": "final", "num": 211, "stadium": "Victoria de Girón", "time": null, "live": null, "outs": null}, {"id": "j212", "date": "2026-11-05", "away": "IJV", "home": "CFG", "ar": 7, "hr": 10, "status": "final", "num": 212, "stadium": "5 de Septiembre", "time": null, "live": null, "outs": null}, {"id": "j213", "date": "2026-11-05", "away": "GRA", "home": "SSP", "ar": 13, "hr": 7, "status": "final", "num": 213, "stadium": "José Antonio Huelga", "time": null, "live": null, "outs": null}, {"id": "j214", "date": "2026-11-05", "away": "HOL", "home": "CAV", "ar": 4, "hr": 1, "status": "final", "num": 214, "stadium": "José Ramón Cepero", "time": null, "live": null, "outs": null}, {"id": "j215", "date": "2026-11-05", "away": "SCU", "home": "CMG", "ar": 7, "hr": 5, "status": "final", "num": 215, "stadium": "Cándido González", "time": null, "live": null, "outs": null}, {"id": "j216", "date": "2026-11-05", "away": "GTM", "home": "LTU", "ar": 3, "hr": 10, "status": "final", "num": 216, "stadium": "Julio Antonio Mella", "time": null, "live": null, "outs": null}, {"id": "j217", "date": "2026-11-07", "away": "PRI", "home": "MAY", "ar": null, "hr": null, "status": "prog", "num": 217, "stadium": "Nelson Fernández", "time": "13:30", "live": null, "outs": null}, {"id": "j218", "date": "2026-11-07", "away": "IND", "home": "VCL", "ar": null, "hr": null, "status": "prog", "num": 218, "stadium": "Augusto César Sandino", "time": "13:30", "live": null, "outs": null}, {"id": "j219", "date": "2026-11-07", "away": "MTZ", "home": "ART", "ar": null, "hr": null, "status": "prog", "num": 219, "stadium": "26 de Julio", "time": "13:30", "live": null, "outs": null}, {"id": "j220", "date": "2026-11-07", "away": "CFG", "home": "IJV", "ar": null, "hr": null, "status": "prog", "num": 220, "stadium": "Cristóbal Labra", "time": "13:30", "live": null, "outs": null}, {"id": "j221", "date": "2026-11-07", "away": "SSP", "home": "GRA", "ar": null, "hr": null, "status": "prog", "num": 221, "stadium": "Mártires de Barbados", "time": "13:30", "live": null, "outs": null}, {"id": "j222", "date": "2026-11-07", "away": "CAV", "home": "HOL", "ar": null, "hr": null, "status": "prog", "num": 222, "stadium": "Mayor General Calixto García", "time": "13:30", "live": null, "outs": null}, {"id": "j223", "date": "2026-11-07", "away": "CMG", "home": "SCU", "ar": null, "hr": null, "status": "prog", "num": 223, "stadium": "Guillermón Moncada", "time": "13:30", "live": null, "outs": null}, {"id": "j224", "date": "2026-11-07", "away": "LTU", "home": "GTM", "ar": null, "hr": null, "status": "prog", "num": 224, "stadium": "Nguyen Van Troi", "time": "13:30", "live": null, "outs": null}];
 const UPCOMING = [{"id": "u217", "date": "2026-11-07", "away": "PRI", "home": "MAY", "ar": null, "hr": null, "status": "prog", "num": 217, "stadium": "Nelson Fernández", "time": "13:30"}, {"id": "u218", "date": "2026-11-07", "away": "IND", "home": "VCL", "ar": null, "hr": null, "status": "prog", "num": 218, "stadium": "Augusto César Sandino", "time": "13:30"}, {"id": "u219", "date": "2026-11-07", "away": "MTZ", "home": "ART", "ar": null, "hr": null, "status": "prog", "num": 219, "stadium": "26 de Julio", "time": "13:30"}, {"id": "u220", "date": "2026-11-07", "away": "CFG", "home": "IJV", "ar": null, "hr": null, "status": "prog", "num": 220, "stadium": "Cristóbal Labra", "time": "13:30"}, {"id": "u221", "date": "2026-11-07", "away": "SSP", "home": "GRA", "ar": null, "hr": null, "status": "prog", "num": 221, "stadium": "Mártires de Barbados", "time": "13:30"}, {"id": "u222", "date": "2026-11-07", "away": "CAV", "home": "HOL", "ar": null, "hr": null, "status": "prog", "num": 222, "stadium": "Mayor General Calixto García", "time": "13:30"}, {"id": "u223", "date": "2026-11-07", "away": "CMG", "home": "SCU", "ar": null, "hr": null, "status": "prog", "num": 223, "stadium": "Guillermón Moncada", "time": "13:30"}, {"id": "u224", "date": "2026-11-07", "away": "LTU", "home": "GTM", "ar": null, "hr": null, "status": "prog", "num": 224, "stadium": "Nguyen Van Troi", "time": "13:30"}, {"id": "u225", "date": "2026-11-08", "away": "PRI", "home": "MAY", "ar": null, "hr": null, "status": "prog", "num": 225, "stadium": "Nelson Fernández", "time": "13:30"}, {"id": "u226", "date": "2026-11-08", "away": "IND", "home": "VCL", "ar": null, "hr": null, "status": "prog", "num": 226, "stadium": "Augusto César Sandino", "time": "13:30"}, {"id": "u227", "date": "2026-11-08", "away": "MTZ", "home": "ART", "ar": null, "hr": null, "status": "prog", "num": 227, "stadium": "26 de Julio", "time": "13:30"}, {"id": "u228", "date": "2026-11-08", "away": "CFG", "home": "IJV", "ar": null, "hr": null, "status": "prog", "num": 228, "stadium": "Cristóbal Labra", "time": "13:30"}, {"id": "u229", "date": "2026-11-08", "away": "SSP", "home": "GRA", "ar": null, "hr": null, "status": "prog", "num": 229, "stadium": "Mártires de Barbados", "time": "13:30"}, {"id": "u230", "date": "2026-11-08", "away": "CAV", "home": "HOL", "ar": null, "hr": null, "status": "prog", "num": 230, "stadium": "Mayor General Calixto García", "time": "13:30"}, {"id": "u231", "date": "2026-11-08", "away": "CMG", "home": "SCU", "ar": null, "hr": null, "status": "prog", "num": 231, "stadium": "Guillermón Moncada", "time": "13:30"}, {"id": "u232", "date": "2026-11-08", "away": "LTU", "home": "GTM", "ar": null, "hr": null, "status": "prog", "num": 232, "stadium": "Nguyen Van Troi", "time": "13:30"}];
-const STANDINGS = {"occ": [{"t": "PRI", "w": 21, "l": 6, "dif": "-", "pro": ".778", "u10": "(8-2)", "racha": "G-1"}, {"t": "MTZ", "w": 17, "l": 8, "dif": "3.0", "pro": ".680", "u10": "(8-2)", "racha": "G-4"}, {"t": "IND", "w": 15, "l": 10, "dif": "5.0", "pro": ".600", "u10": "(7-3)", "racha": "G-1"}, {"t": "CFG", "w": 15, "l": 12, "dif": "6.0", "pro": ".556", "u10": "(8-2)", "racha": "G-8"}, {"t": "MAY", "w": 13, "l": 13, "dif": "7.5", "pro": ".500", "u10": "(5-5)", "racha": "P-1"}, {"t": "VCL", "w": 10, "l": 14, "dif": "9.5", "pro": ".417", "u10": "(3-7)", "racha": "P-1"}, {"t": "ART", "w": 9, "l": 18, "dif": "12.0", "pro": ".333", "u10": "(1-9)", "racha": "P-5"}, {"t": "IJV", "w": 3, "l": 22, "dif": "17.0", "pro": ".120", "u10": "(0-10)", "racha": "P-10"}], "ori": [{"t": "LTU", "w": 19, "l": 8, "dif": "-", "pro": ".704", "u10": "(9-1)", "racha": "G-8"}, {"t": "HOL", "w": 16, "l": 10, "dif": "2.5", "pro": ".615", "u10": "(8-2)", "racha": "G-2"}, {"t": "SCU", "w": 16, "l": 10, "dif": "2.5", "pro": ".615", "u10": "(6-4)", "racha": "G-2"}, {"t": "GRA", "w": 14, "l": 13, "dif": "5.0", "pro": ".519", "u10": "(4-6)", "racha": "G-1"}, {"t": "CAV", "w": 13, "l": 14, "dif": "6.0", "pro": ".481", "u10": "(4-6)", "racha": "P-2"}, {"t": "SSP", "w": 13, "l": 14, "dif": "6.0", "pro": ".481", "u10": "(4-6)", "racha": "P-1"}, {"t": "CMG", "w": 10, "l": 17, "dif": "9.0", "pro": ".370", "u10": "(4-6)", "racha": "P-2"}, {"t": "GTM", "w": 6, "l": 21, "dif": "13.0", "pro": ".222", "u10": "(1-9)", "racha": "P-5"}]};
+const STANDINGS = {"occ": [{"t": "PRI", "w": 21, "l": 6, "dif": "-", "pro": ".778", "u10": "(8-2)", "racha": "G-1"}, {"t": "MTZ", "w": 17, "l": 8, "dif": "3.0", "pro": ".680", "u10": "(8-2)", "racha": "G-4"}, {"t": "IND", "w": 14, "l": 10, "dif": "5.5", "pro": ".583", "u10": "(7-3)", "racha": "P-2"}, {"t": "CFG", "w": 15, "l": 12, "dif": "6.0", "pro": ".556", "u10": "(8-2)", "racha": "G-8"}, {"t": "MAY", "w": 13, "l": 13, "dif": "7.5", "pro": ".500", "u10": "(5-5)", "racha": "P-1"}, {"t": "VCL", "w": 10, "l": 13, "dif": "9.0", "pro": ".435", "u10": "(4-6)", "racha": "G-2"}, {"t": "ART", "w": 9, "l": 18, "dif": "12.0", "pro": ".333", "u10": "(1-9)", "racha": "P-5"}, {"t": "IJV", "w": 3, "l": 22, "dif": "17.0", "pro": ".120", "u10": "(0-10)", "racha": "P-10"}], "ori": [{"t": "LTU", "w": 19, "l": 8, "dif": "-", "pro": ".704", "u10": "(9-1)", "racha": "G-8"}, {"t": "HOL", "w": 16, "l": 10, "dif": "2.5", "pro": ".615", "u10": "(8-2)", "racha": "G-2"}, {"t": "SCU", "w": 16, "l": 10, "dif": "2.5", "pro": ".615", "u10": "(6-4)", "racha": "G-2"}, {"t": "GRA", "w": 14, "l": 13, "dif": "5.0", "pro": ".519", "u10": "(4-6)", "racha": "G-1"}, {"t": "CAV", "w": 13, "l": 14, "dif": "6.0", "pro": ".481", "u10": "(4-6)", "racha": "P-2"}, {"t": "SSP", "w": 13, "l": 14, "dif": "6.0", "pro": ".481", "u10": "(4-6)", "racha": "P-1"}, {"t": "CMG", "w": 10, "l": 17, "dif": "9.0", "pro": ".370", "u10": "(4-6)", "racha": "P-2"}, {"t": "GTM", "w": 6, "l": 21, "dif": "13.0", "pro": ".222", "u10": "(1-9)", "racha": "P-5"}]};
 const LEADERS_BAT = [{"cat": "Average de bateo", "name": "D. Laza Spencer", "team": "MAY", "pos": "OF", "val": ".464", "idj": "4799"}, {"cat": "Cuadrangulares", "name": "H. Quintero Chávez", "team": "LTU", "pos": "IF", "val": "12", "idj": "5452"}, {"cat": "Carreras impulsadas", "name": "H. Quintero Chávez", "team": "LTU", "pos": "IF", "val": "36", "idj": "5452"}, {"cat": "Bases robadas", "name": "H. Videt Medina", "team": "MTZ", "pos": "OF", "val": "7", "idj": "9942"}, {"cat": "Bases robadas", "name": "J. Arencibia Echevarría", "team": "PRI", "pos": "IF", "val": "7", "idj": "5099"}];
 const LEADERS_PIT = [{"cat": "Promedio de carreras limpias", "name": "R. Figueredo Crúz", "team": "IND", "pos": "P", "val": "1.44", "idj": "5925"}, {"cat": "Juegos ganados", "name": "G. Álvarez Camejo", "team": "PRI", "pos": "Derecho", "val": "5", "idj": "6029"}, {"cat": "Juegos salvados", "name": "F. Álvarez Díaz", "team": "PRI", "pos": "Derecho", "val": "7", "idj": "6028"}, {"cat": "Juegos salvados", "name": "Y. Duardo Rojas", "team": "SSP", "pos": "Derecho", "val": "7", "idj": "5378"}, {"cat": "Ponches", "name": "N. Crúz Zaldívar", "team": "MTZ", "pos": "Zurdo", "val": "39", "idj": "8160"}];
 const MVP = {"bateo": [], "pitcheo": []};
@@ -2731,7 +2710,6 @@ const PAGES = [
   {id:"miequipo", label:"Mi equipo", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4.5L18.5 22 12 17.5 5.5 22l2-8.5L2 9h7z"/></svg>'},
   {id:"noticias", label:"Noticias", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v12H4zM4 17l-1 4 4-4M20 9h3v9l-3-2"/></svg>'},
   {id:"envivo", label:"En Vivo", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M8.5 8.5a5 5 0 000 7M15.5 8.5a5 5 0 010 7M5.6 5.6a9 9 0 000 12.8M18.4 5.6a9 9 0 010 12.8"/></svg>'},
-  {id:"mundialu23", label:"Mundial Sub-23", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>'},
   {id:"internacional", label:"Internacional", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.9 5.7 3.9 9s-1.4 6.4-3.9 9c-2.5-2.6-3.9-5.7-3.9-9S9.5 5.6 12 3z"/></svg>'},
   {id:"predicciones", label:"Predicciones", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0V4z"/><path d="M7 6H4a1 1 0 00-1 1c0 2.5 2 4 4 4M17 6h3a1 1 0 011 1c0 2.5-2 4-4 4"/></svg>'},
   {id:"ranking", label:"Ranking", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M8.5 13L7 22l5-3 5 3-1.5-9"/></svg>'},
@@ -2746,7 +2724,7 @@ const drawerNav = document.getElementById("drawerNav");
 const _havDay = new Intl.DateTimeFormat("en-CA",{timeZone:"America/Havana",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
 PAGES.forEach(p=>{
   const b = document.createElement("button");
-  const _tag = (p.id==="fantasy" && _havDay <= "2026-11-02") || (p.id==="opiniones" && _havDay <= "2026-11-05") ? '<span class="newtag">NUEVO</span>' : (p.id==="mundialu23" && _havDay <= "2026-11-15" ? '<span class="newtag">TEMPORAL</span>' : "");
+  const _tag = (p.id==="fantasy" && _havDay <= "2026-11-02") || (p.id==="opiniones" && _havDay <= "2026-11-05") ? '<span class="newtag">NUEVO</span>' : "";
   b.innerHTML = p.icon+"<span>"+p.label+"</span>"+_tag; b.dataset.pg = p.id; b.onclick = ()=>go(p.id);
   drawerNav.appendChild(b);
 });
@@ -2786,7 +2764,6 @@ function go(id){
   if(id==="opiniones") loadOpiniones();
   if(id==="reportes") loadReportes();
   if(id==="predicciones") loadAyerTicker();
-  if(id==="mundialu23") loadU23();
   if(Date.now()-lastPollOk > 30000) pollDatos(); /* al entrar a una sección, datos frescos si el último sondeo tiene +30 s */
   if(id==="grupos") renderCanales();
   if(id==="calendario") renderCalendario();
@@ -4378,90 +4355,13 @@ async function loadAyerTicker(){
   renderAyerTicker();
 }
 
-/* ============ MUNDIAL SUB-23 (temporal, nov-2026) ============
-   mundialu23.json lo genera build_u23.py desde la fuente oficial del
-   torneo: calendario completo, marcadores, tablas y nómina de Cuba. */
-const U23_URLS = ["mundialu23.json","https://tecnobum.github.io/lapelotacubana/mundialu23.json"];
-let U23 = null;
-async function loadU23(){
-  renderU23();
-  for(const u of U23_URLS){
-    try{ const r = await fetch(u+"?t="+Date.now(),{cache:"no-store"}); if(r.ok){ U23 = await r.json(); break; } }catch(e){}
-  }
-  renderU23();
-}
-function u23Name(c){ return (U23 && U23.teams && U23.teams[c]) || c || ""; }
-function u23Fecha(ds){
-  const dias=["dom","lun","mar","mi\u00e9","jue","vie","s\u00e1b"], meses=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
-  const p=String(ds||"").split("-"); if(p.length<3) return ds||"";
-  const d=new Date(+p[0],+p[1]-1,+p[2]);
-  return dias[d.getDay()]+" "+(+p[2])+" "+meses[(+p[1])-1];
-}
-function u23Row(g, fase){
-  const cub = g.away==="CUB" || g.home==="CUB";
-  let mid;
-  if(g.status==="final") mid = '<div class="sc">'+(g.ar==null?"-":g.ar)+" - "+(g.hr==null?"-":g.hr)+'<small>FINAL</small></div>';
-  else if(g.status==="live") mid = '<div class="sc live">'+(g.ar==null?0:g.ar)+" - "+(g.hr==null?0:g.hr)+'<small>EN VIVO</small></div>';
-  else mid = '<div class="sc">'+(g.time||"")+'<small>'+esc(fase||g.phase||"")+'</small></div>';
-  return '<div class="u23game'+(cub?" cub":"")+'"><div class="tm away">'+esc(u23Name(g.away))+'</div>'+mid+'<div class="tm">'+esc(u23Name(g.home))+'</div></div>'
-    + (g.stadium ? '<div class="gmeta" style="text-align:center;margin:-3px 0 4px">'+esc(g.stadium)+'</div>' : "");
-}
-function u23Table(phase, rows){
-  if(!rows || !rows.length) return "";
-  let h = '<div class="card"><h3>'+esc(phase)+'</h3><table class="u23tab"><tr><th>Equipo</th><th>JG</th><th>JP</th><th>CA</th><th>CE</th><th>PCT</th></tr>';
-  rows.forEach((r,i)=>{
-    h += '<tr class="'+(r.team==="CUB"?"cub":"")+((phase.indexOf("Grupo")===0 && i<3)?" q":"")+'"><td>'+esc(u23Name(r.team))+'</td><td>'+r.w+'</td><td>'+r.l+'</td><td>'+r.rs+'</td><td>'+r.ra+'</td><td>'+(r.pct||0).toFixed(3).replace(/^0/,"")+'</td></tr>';
-  });
-  h += '</table>' + (phase.indexOf("Grupo")===0 ? '<div class="gmeta" style="margin-top:6px">Los tres primeros avanzan a la Súper Ronda.</div>' : "") + '</div>';
-  return h;
-}
-function renderU23(){
-  const box = document.getElementById("u23Box"); if(!box) return;
-  if(!U23){ box.innerHTML = '<div class="card"><div class="empty">Cargando el Mundial Sub-23\u2026</div></div>'; return; }
-  const inf = U23.info||{}, games = U23.games||[];
-  const cubGames = games.filter(g=>g.away==="CUB"||g.home==="CUB");
-  const rec = U23.cuba||{w:0,l:0};
-  let h = '<div class="card"><h3>\u{1F3C6} '+esc(inf.title||"Mundial Sub-23")+'</h3>'
-    + '<div class="gmeta">'+esc(inf.edition||"")+' \u00b7 '+esc(inf.host||"")+' \u00b7 '+esc(inf.dates||"")+'</div>'
-    + '<div class="gmeta" style="margin-top:6px">'+esc(inf.format||"")+'</div>'
-    + '<div class="gmeta" style="margin-top:6px">Cuba va en el <b>Grupo B</b> con r\u00e9cord de <b>'+rec.w+"-"+rec.l+'</b>. Director: '+esc(inf.manager||"")+'.</div>'
-    + (inf.cubaNote ? '<div class="gmeta" style="margin-top:6px">'+esc(inf.cubaNote)+'</div>' : "")
-    + '<div class="gmeta" style="margin-top:6px">'+esc(inf.timeNote||"")+'</div></div>';
-  const nx = cubGames.find(g=>g.status==="live") || cubGames.find(g=>g.status==="prog");
-  if(nx){
-    h += '<div class="card"><h3>'+(nx.status==="live" ? "Cuba est\u00e1 jugando" : "Pr\u00f3ximo juego de Cuba")+'</h3>'
-      + '<div class="gmeta" style="margin-bottom:4px">'+u23Fecha(nx.date)+' \u00b7 '+esc(nx.phase||"")+'</div>' + u23Row(nx) + '</div>';
-  }
-  h += '<div class="card"><h3>Cuba: calendario y resultados</h3>' + cubGames.map(g=>u23Row(g)).join("") + '</div>';
-  const st = U23.standings||{};
-  h += u23Table("Grupo B", st["Grupo B"]);
-  h += u23Table("Grupo A", st["Grupo A"]);
-  h += u23Table("Súper Ronda", st["Súper Ronda"]);
-  h += u23Table("Ronda de clasificación", st["Ronda de clasificación"]);
-  const byDay = {};
-  games.forEach(g=>{ (byDay[g.date]=byDay[g.date]||[]).push(g); });
-  h += '<div class="card"><h3>Todos los partidos</h3>';
-  Object.keys(byDay).sort().forEach(d=>{
-    h += '<div class="u23day">'+u23Fecha(d)+'</div>' + byDay[d].map(g=>u23Row(g)).join("");
-  });
-  h += '</div>';
-  const ros = U23.roster||{};
-  h += '<div class="card"><h3>N\u00f3mina de Cuba</h3>';
-  ["Receptores","Jugadores de cuadro","Jardineros","Lanzadores"].forEach(k=>{
-    if(ros[k] && ros[k].length) h += '<div class="gmeta" style="margin-top:8px"><b>'+esc(k)+'</b></div><div style="font-size:14.5px;line-height:1.65">'+ros[k].map(n=>esc(n)).join(" \u00b7 ")+'</div>';
-  });
-  h += '<div class="gmeta" style="margin-top:10px">Director: <b>'+esc(ros.manager||inf.manager||"")+'</b>'+(ros.staff ? " \u00b7 "+esc(ros.staff) : "")+'</div></div>';
-  h += '<div class="gmeta" style="text-align:center">Actualizado: '+esc(U23.updated||"")+'</div>';
-  box.innerHTML = h;
-}
-
 /* ============ ARRANQUE ============ */
 document.querySelector('[data-pg="inicio"]').classList.add("active");
 /* Enlaces directos: ?s=ranking abre la app en esa sección (31-oct-2026) */
 try{
   captureRef();
   const _qs = new URLSearchParams(location.search).get("s");
-  const _ok = ["inicio","jornada","posiciones","calendario","lideres","equipos","miequipo","noticias","envivo","mundialu23","predicciones","ranking","concurso","fantasy","opiniones","reportes","grupos"];
+  const _ok = ["inicio","jornada","posiciones","calendario","lideres","equipos","miequipo","noticias","envivo","predicciones","ranking","concurso","fantasy","opiniones","reportes","grupos"];
   if(_qs && _ok.indexOf(_qs)>=0 && _qs!=="inicio") setTimeout(()=>go(_qs), 350);
 }catch(e){}
 /* Normalizar estado inicial: "hoy" es la fecha real de Cuba, no la última fecha con datos */
