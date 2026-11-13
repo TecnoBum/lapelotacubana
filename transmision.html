@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Transmisión En Vivo</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0a0a0c; color: #f2f2f2; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 12px 12px 40px; }
+  header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  h1 { font-size: 20px; font-weight: 800; line-height: 1.2; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; letter-spacing: .08em; padding: 5px 10px; border-radius: 999px; background: #222; color: #ddd; text-transform: uppercase; white-space: nowrap; }
+  .chip.live { background: #c81e1e; color: #fff; }
+  .chip.soon { background: #8a6d00; color: #ffe98a; }
+  .chip.ended { background: #333; color: #aaa; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+  .chip.live .dot { animation: blink 1.2s infinite; }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+
+  .stage { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; }
+  .stage iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .stage .novideo { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: #888; text-align: center; padding: 20px; }
+  .stage .novideo .big { font-size: 22px; font-weight: 800; color: #ccc; }
+
+  /* Marcador */
+  .bug { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,.82); border-radius: 8px; overflow: hidden; font-size: 14px; line-height: 1; box-shadow: 0 2px 10px rgba(0,0,0,.5); }
+  .bug .row { display: flex; align-items: center; gap: 8px; padding: 7px 10px; }
+  .bug .row + .row { border-top: 1px solid rgba(255,255,255,.15); }
+  .bug .team { font-weight: 800; width: 44px; }
+  .bug .runs { font-weight: 800; font-size: 17px; width: 22px; text-align: right; }
+  .bug .meta { display: flex; align-items: center; gap: 10px; padding: 6px 10px; background: rgba(255,255,255,.08); font-size: 12px; font-weight: 700; color: #eee; }
+  .bases { display: inline-flex; gap: 3px; align-items: center; }
+  .base { width: 9px; height: 9px; transform: rotate(45deg); border: 1.5px solid #fff; background: transparent; }
+  .base.on { background: #ffd60a; border-color: #ffd60a; }
+  .outs i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #555; margin-left: 3px; }
+  .outs i.on { background: #ffd60a; }
+
+  .logo { position: absolute; top: 10px; right: 10px; max-width: 72px; max-height: 72px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,.6)); }
+
+  /* Cintillo inferior */
+  .lower { position: absolute; left: 0; right: 0; bottom: 34px; background: linear-gradient(90deg, rgba(180,10,10,.95), rgba(0,0,0,.85)); padding: 10px 14px; }
+  .lower .t { font-size: 17px; font-weight: 800; }
+  .lower .s { font-size: 13px; color: #ffd9d9; margin-top: 2px; }
+
+  /* Ticker */
+  .ticker { position: absolute; left: 0; right: 0; bottom: 0; height: 34px; background: rgba(0,0,0,.9); overflow: hidden; display: flex; align-items: center; }
+  .ticker span { display: inline-block; white-space: nowrap; padding-left: 100%; animation: tick 22s linear infinite; font-size: 13px; font-weight: 700; color: #ffe98a; }
+  @keyframes tick { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+  .ticker.static span { padding-left: 12px; animation: none; }
+
+  /* Tarjeta de pantalla completa */
+  .card { position: absolute; inset: 0; background: rgba(5,5,8,.94); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; padding: 24px; z-index: 5; }
+  .card .t { font-size: 30px; font-weight: 900; letter-spacing: .04em; }
+  .card .s { font-size: 16px; color: #bbb; max-width: 560px; line-height: 1.45; }
+  .card .live-tag { color: #ff5a5a; font-weight: 800; letter-spacing: .15em; font-size: 13px; }
+
+  .meta-line { margin-top: 10px; font-size: 12px; color: #888; display: flex; gap: 14px; flex-wrap: wrap; }
+  .meta-line b { color: #bbb; }
+
+  /* Panel de administración */
+  .admin { margin-top: 22px; border-top: 1px solid #222; padding-top: 18px; }
+  .admin h2 { font-size: 18px; margin-bottom: 4px; }
+  .admin .hint { font-size: 13px; color: #999; line-height: 1.5; margin-bottom: 14px; }
+  .admin .hint code { background: #1c1c1f; padding: 1px 6px; border-radius: 5px; color: #ffd60a; }
+  fieldset { border: 1px solid #26262a; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+  legend { font-size: 13px; font-weight: 800; color: #ffd60a; padding: 0 6px; text-transform: uppercase; letter-spacing: .06em; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  label { display: block; font-size: 12px; color: #aaa; margin-bottom: 4px; font-weight: 700; }
+  input[type=text], input[type=url], input[type=number], select, textarea { width: 100%; background: #16161a; border: 1px solid #333; color: #fff; border-radius: 8px; padding: 9px 10px; font-size: 14px; font-family: inherit; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #ffd60a; }
+  textarea { min-height: 74px; resize: vertical; }
+  .check { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #ddd; padding: 8px 0; }
+  .check input { width: 18px; height: 18px; accent-color: #ffd60a; }
+  .btn { display: inline-block; background: #ffd60a; color: #111; border: 0; border-radius: 10px; padding: 12px 18px; font-size: 15px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 4px; }
+  .btn:active { transform: scale(.98); }
+  .btn.ghost { background: #222; color: #fff; border: 1px solid #444; }
+  .btnrow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .ok { margin-top: 10px; font-size: 13px; color: #7ddf8a; display: none; }
+  .pinbox { background: #16161a; border: 1px solid #333; border-radius: 10px; padding: 14px; text-align: center; }
+  .pinbox input { max-width: 160px; text-align: center; font-size: 20px; letter-spacing: .3em; margin: 8px auto; display: block; }
+  .hidden { display: none !important; }
+  @media (max-width: 560px) {
+    .grid, .grid3, .btnrow { grid-template-columns: 1fr; }
+    .bug { font-size: 12px; }
+    .bug .runs { font-size: 15px; }
+    .card .t { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="vTitle">Transmisión En Vivo</h1>
+    <span class="chip" id="vChip"><span class="dot"></span><span id="vChipTxt">Sin transmisión</span></span>
+  </header>
+
+  <div class="stage" id="stage">
+    <div class="novideo" id="noVideo"><div class="big">Sin video</div><div>El administrador aún no ha puesto el enlace de la transmisión.</div></div>
+    <iframe id="yt" class="hidden" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+    <div class="bug hidden" id="bug">
+      <div class="row"><span class="team" id="bugAway">VIS</span><span class="runs" id="bugAR">0</span></div>
+      <div class="row"><span class="team" id="bugHome">LOC</span><span class="runs" id="bugHR">0</span></div>
+      <div class="meta">
+        <span id="bugInn">1MA ALTA</span>
+        <span class="outs" id="bugOuts">OUTS <i></i><i></i></span>
+        <span id="bugCount">B0 S0</span>
+        <span class="bases"><span class="base" id="b1"></span><span class="base" id="b2"></span><span class="base" id="b3"></span></span>
+      </div>
+    </div>
+
+    <img class="logo hidden" id="vLogo" alt="">
+
+    <div class="lower hidden" id="lower"><div class="t" id="lowerT"></div><div class="s" id="lowerS"></div></div>
+    <div class="ticker hidden" id="ticker"><span id="tickerTxt"></span></div>
+
+    <div class="card hidden" id="card"><div class="live-tag" id="cardTag">TRANSMISIÓN EN VIVO</div><div class="t" id="cardT"></div><div class="s" id="cardS"></div></div>
+  </div>
+
+  <div class="meta-line">
+    <span>Actualizado: <b id="vUpdated">—</b></span>
+    <span>La página se actualiza sola cada 10 segundos.</span>
+  </div>
+
+  <!-- ============ PANEL DE ADMINISTRACIÓN ============ -->
+  <div class="admin hidden" id="admin">
+    <h2>Panel de administración</h2>
+    <p class="hint">Los cambios que hagas aquí se ven primero en la vista previa de arriba. Para que los usuarios los vean, genera el comando, cópialo y pégalo en tu canal privado de Telegram. En unos 2 minutos la transmisión se actualiza para todos los que tengan el enlace. El enlace para los usuarios nunca cambia.</p>
+
+    <div class="pinbox" id="pinBox">
+      <b>Escribe el PIN del panel</b>
+      <input type="text" id="pinInput" inputmode="numeric" maxlength="8" placeholder="••••">
+      <button class="btn" id="pinBtn" type="button">Entrar al panel</button>
+      <div style="font-size:12px;color:#888;margin-top:8px">PIN inicial: 1234. Puedes cambiarlo abajo.</div>
+    </div>
+
+    <div id="panelBody" class="hidden">
+      <fieldset><legend>Video</legend>
+        <label>Enlace de YouTube (video o en vivo)</label>
+        <input type="url" id="fYoutube" placeholder="https://www.youtube.com/watch?v=... o https://youtu.be/...">
+        <label style="margin-top:10px">Título de la transmisión</label>
+        <input type="text" id="fTitle" maxlength="80" placeholder="Ej.: Industriales vs Santiago de Cuba">
+        <label style="margin-top:10px">Estado</label>
+        <select id="fStatus">
+          <option value="live">EN VIVO</option>
+          <option value="soon">EN BREVE</option>
+          <option value="ended">FINALIZADO</option>
+          <option value="off">SIN TRANSMISIÓN</option>
+        </select>
+      </fieldset>
+
+      <fieldset><legend>Marcador</legend>
+        <div class="grid">
+          <div><label>Visitante (abreviatura)</label><input type="text" id="fAway" maxlength="12" placeholder="IND"></div>
+          <div><label>Local (abreviatura)</label><input type="text" id="fHome" maxlength="12" placeholder="SCU"></div>
+          <div><label>Carreras visitante</label><input type="number" id="fAR" min="0" max="99" value="0"></div>
+          <div><label>Carreras local</label><input type="number" id="fHR" min="0" max="99" value="0"></div>
+        </div>
+        <div class="grid3" style="margin-top:10px">
+          <div><label>Inning</label><input type="number" id="fInn" min="1" max="15" value="1"></div>
+          <div><label>Parte</label><select id="fHalf"><option value="alta">Alta</option><option value="baja">Baja</option></select></div>
+          <div><label>Outs</label><select id="fOuts"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></div>
+          <div><label>Bolas</label><select id="fBalls"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
+          <div><label>Strikes</label><select id="fStrikes"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></div>
+          <div><label>Bases ocupadas</label>
+            <div style="display:flex;gap:14px;padding-top:8px">
+              <label class="check" style="padding:0"><input type="checkbox" id="fB1"> 1B</label>
+              <label class="check" style="padding:0"><input type="checkbox" id="fB2"> 2B</label>
+              <label class="check" style="padding:0"><input type="checkbox" id="fB3"> 3B</label>
+            </div>
+          </div>
+        </div>
+        <label class="check"><input type="checkbox" id="fShowBug" checked> Mostrar el marcador sobre el video</label>
+      </fieldset>
+
+      <fieldset><legend>Cintillo inferior</legend>
+        <label>Título del cintillo</label><input type="text" id="fBannerT" maxlength="60" placeholder="Ej.: ¡Jonrón de Industriales!">
+        <label style="margin-top:10px">Subtítulo</label><input type="text" id="fBannerS" maxlength="120" placeholder="Texto corto debajo del título">
+        <label class="check"><input type="checkbox" id="fBannerShow"> Mostrar cintillo</label>
+      </fieldset>
+
+      <fieldset><legend>Ticker y logo</legend>
+        <label>Texto del ticker (cinta que se mueve abajo)</label><input type="text" id="fTicker" maxlength="200" placeholder="Ej.: Próximo juego: mañana 1:00 PM en el Latinoamericano">
+        <label style="margin-top:10px">Logo o imagen superpuesta (enlace de imagen)</label><input type="url" id="fLogo" placeholder="https://.../logo.png (opcional)">
+      </fieldset>
+
+      <fieldset><legend>Tarjeta de pantalla completa</legend>
+        <label>Título grande</label><input type="text" id="fCardT" maxlength="80" placeholder="Ej.: EN BREVE">
+        <label style="margin-top:10px">Texto</label><input type="text" id="fCardS" maxlength="160" placeholder="Ej.: La transmisión comienza a las 7:00 PM">
+        <label class="check"><input type="checkbox" id="fCardShow"> Mostrar tarjeta (cubre el video)</label>
+      </fieldset>
+
+      <fieldset><legend>Publicar</legend>
+        <button class="btn" id="genBtn" type="button">Generar comando para Telegram</button>
+        <label style="margin-top:12px">Comando (cópialo y pégalo en tu canal privado de Telegram)</label>
+        <textarea id="cmdOut" readonly placeholder="Pulsa el botón de arriba para generar el comando"></textarea>
+        <div class="btnrow">
+          <button class="btn ghost" id="copyCmd" type="button">Copiar comando</button>
+          <button class="btn ghost" id="copyLink" type="button">Copiar enlace para usuarios</button>
+        </div>
+        <div class="ok" id="okMsg">Copiado.</div>
+        <p class="hint" style="margin-top:12px">Si un video de YouTube no se ve dentro de la página, es porque ese canal tiene desactivada la inserción en otras webs. Prueba con otro enlace del mismo en vivo.</p>
+      </fieldset>
+
+      <fieldset><legend>Seguridad</legend>
+        <label>Nuevo PIN del panel</label>
+        <input type="text" id="fNewPin" inputmode="numeric" maxlength="8" placeholder="4 a 8 dígitos">
+        <button class="btn ghost" id="pinChangeBtn" type="button">Cambiar PIN</button>
+      </fieldset>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var DEFAULTS = {
+    youtube: "", title: "Transmisión En Vivo", status: "off",
+    away: "VIS", home: "LOC", ar: 0, hr: 0, inn: 1, half: "alta",
+    outs: 0, balls: 0, strikes: 0, bases: [false, false, false], showBug: true,
+    banner: { show: false, title: "", sub: "" },
+    ticker: "", logo: "",
+    card: { show: false, title: "EN BREVE", sub: "" },
+    updated: ""
+  };
+  var VIEWER_URL = location.origin + location.pathname;
+  var isAdmin = /[?&]admin=1/.test(location.search);
+  var $ = function (id) { return document.getElementById(id); };
+  var published = null;   // último estado publicado (transmision.json)
+  var previewState = null; // estado del formulario (modo admin)
+
+  function ytId(raw) {
+    if (!raw) return "";
+    raw = String(raw).trim();
+    var m = raw.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
+    if (m) return m[1];
+    if (/^[A-Za-z0-9_-]{11}$/.test(raw)) return raw;
+    return "";
+  }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function num(v, d, lo, hi) { v = parseInt(v, 10); if (isNaN(v)) return d; return Math.max(lo, Math.min(hi, v)); }
+
+  function render(st) {
+    $("vTitle").textContent = st.title || "Transmisión En Vivo";
+    var chip = $("vChip"), txt = $("vChipTxt");
+    chip.className = "chip";
+    if (st.status === "live") { chip.classList.add("live"); txt.textContent = "En vivo"; }
+    else if (st.status === "soon") { chip.classList.add("soon"); txt.textContent = "En breve"; }
+    else if (st.status === "ended") { chip.classList.add("ended"); txt.textContent = "Finalizado"; }
+    else { txt.textContent = "Sin transmisión"; }
+
+    var id = ytId(st.youtube);
+    var frame = $("yt"), nov = $("noVideo");
+    if (id) {
+      var src = "https://www.youtube-nocookie.com/embed/" + id + "?autoplay=1&mute=1&rel=0&playsinline=1";
+      if (frame.getAttribute("data-id") !== id) { frame.src = src; frame.setAttribute("data-id", id); }
+      frame.classList.remove("hidden"); nov.classList.add("hidden");
+    } else {
+      frame.classList.add("hidden"); frame.removeAttribute("src"); frame.removeAttribute("data-id");
+      nov.classList.remove("hidden");
+    }
+
+    var showBug = st.showBug !== false && (st.status === "live" || st.status === "ended");
+    $("bug").classList.toggle("hidden", !showBug);
+    if (showBug) {
+      $("bugAway").textContent = st.away || "VIS";
+      $("bugHome").textContent = st.home || "LOC";
+      $("bugAR").textContent = st.ar; $("bugHR").textContent = st.hr;
+      $("bugInn").textContent = st.inn + "MA " + (st.half === "baja" ? "BAJA" : "ALTA");
+      var dots = $("bugOuts").querySelectorAll("i");
+      dots[0].className = st.outs >= 1 ? "on" : ""; dots[1].className = st.outs >= 2 ? "on" : "";
+      $("bugCount").textContent = "B" + st.balls + " S" + st.strikes;
+      $("b1").className = "base" + (st.bases && st.bases[0] ? " on" : "");
+      $("b2").className = "base" + (st.bases && st.bases[1] ? " on" : "");
+      $("b3").className = "base" + (st.bases && st.bases[2] ? " on" : "");
+    }
+
+    var logo = $("vLogo");
+    if (st.logo) { logo.src = st.logo; logo.classList.remove("hidden"); } else { logo.classList.add("hidden"); logo.removeAttribute("src"); }
+
+    var lower = $("lower");
+    if (st.banner && st.banner.show && st.banner.title) {
+      $("lowerT").textContent = st.banner.title; $("lowerS").textContent = st.banner.sub || "";
+      lower.classList.remove("hidden");
+    } else lower.classList.add("hidden");
+
+    var tick = $("ticker");
+    if (st.ticker) {
+      $("tickerTxt").textContent = st.ticker;
+      tick.classList.remove("hidden");
+      tick.classList.toggle("static", st.ticker.length < 60);
+    } else tick.classList.add("hidden");
+
+    var card = $("card");
+    if (st.card && st.card.show) {
+      $("cardT").textContent = st.card.title || "";
+      $("cardS").textContent = st.card.sub || "";
+      $("cardTag").textContent = st.status === "live" ? "TRANSMISIÓN EN VIVO" : "TRANSMISIÓN EN VIVO";
+      card.classList.remove("hidden");
+    } else card.classList.add("hidden");
+
+    $("vUpdated").textContent = st.updated || "—";
+  }
+
+  function fetchState() {
+    fetch("transmision.json?_=" + Date.now(), { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.json(); })
+      .then(function (j) { published = Object.assign({}, DEFAULTS, j); if (!isAdmin) render(published); else fillForm(published); })
+      .catch(function () { if (!published && !isAdmin) render(DEFAULTS); });
+  }
+
+  /* ---------- Admin ---------- */
+  function readForm() {
+    return {
+      youtube: $("fYoutube").value.trim(),
+      title: $("fTitle").value.trim() || "Transmisión En Vivo",
+      status: $("fStatus").value,
+      away: ($("fAway").value.trim() || "VIS").toUpperCase(),
+      home: ($("fHome").value.trim() || "LOC").toUpperCase(),
+      ar: num($("fAR").value, 0, 0, 99), hr: num($("fHR").value, 0, 0, 99),
+      inn: num($("fInn").value, 1, 1, 15), half: $("fHalf").value,
+      outs: num($("fOuts").value, 0, 0, 2),
+      balls: num($("fBalls").value, 0, 0, 3), strikes: num($("fStrikes").value, 0, 0, 2),
+      bases: [$("fB1").checked, $("fB2").checked, $("fB3").checked],
+      showBug: $("fShowBug").checked,
+      banner: { show: $("fBannerShow").checked, title: $("fBannerT").value.trim(), sub: $("fBannerS").value.trim() },
+      ticker: $("fTicker").value.trim(),
+      logo: $("fLogo").value.trim(),
+      card: { show: $("fCardShow").checked, title: $("fCardT").value.trim(), sub: $("fCardS").value.trim() }
+    };
+  }
+  function fillForm(st) {
+    $("fYoutube").value = st.youtube || "";
+    $("fTitle").value = st.title || "";
+    $("fStatus").value = st.status || "off";
+    $("fAway").value = st.away || ""; $("fHome").value = st.home || "";
+    $("fAR").value = st.ar; $("fHR").value = st.hr;
+    $("fInn").value = st.inn; $("fHalf").value = st.half || "alta";
+    $("fOuts").value = st.outs; $("fBalls").value = st.balls; $("fStrikes").value = st.strikes;
+    $("fB1").checked = !!(st.bases && st.bases[0]);
+    $("fB2").checked = !!(st.bases && st.bases[1]);
+    $("fB3").checked = !!(st.bases && st.bases[2]);
+    $("fShowBug").checked = st.showBug !== false;
+    $("fBannerT").value = (st.banner && st.banner.title) || "";
+    $("fBannerS").value = (st.banner && st.banner.sub) || "";
+    $("fBannerShow").checked = !!(st.banner && st.banner.show);
+    $("fTicker").value = st.ticker || "";
+    $("fLogo").value = st.logo || "";
+    $("fCardT").value = (st.card && st.card.title) || "";
+    $("fCardS").value = (st.card && st.card.sub) || "";
+    $("fCardShow").checked = !!(st.card && st.card.show);
+    previewState = readForm(); render(previewState);
+  }
+  function bindPreview() {
+    var ids = ["fYoutube", "fTitle", "fStatus", "fAway", "fHome", "fAR", "fHR", "fInn", "fHalf", "fOuts", "fBalls", "fStrikes", "fB1", "fB2", "fB3", "fShowBug", "fBannerT", "fBannerS", "fBannerShow", "fTicker", "fLogo", "fCardT", "fCardS", "fCardShow"];
+    ids.forEach(function (id) {
+      $(id).addEventListener("input", function () { previewState = readForm(); render(previewState); });
+      $(id).addEventListener("change", function () { previewState = readForm(); render(previewState); });
+    });
+  }
+  function copyText(t, done) {
+    function ok() { var m = $("okMsg"); m.style.display = "block"; setTimeout(function () { m.style.display = "none"; }, 2500); if (done) done(); }
+    if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(t).then(ok, function () { fallback(); }); }
+    else fallback();
+    function fallback() {
+      var ta = document.createElement("textarea"); ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); ok(); } catch (e) { $("cmdOut").value = t; $("cmdOut").focus(); $("cmdOut").select(); }
+      document.body.removeChild(ta);
+    }
+  }
+
+  if (isAdmin) {
+    $("admin").classList.remove("hidden");
+    var savedPin = localStorage.getItem("tv-pin") || "1234";
+    $("pinBtn").addEventListener("click", function () {
+      var v = $("pinInput").value.trim();
+      if (v === savedPin) {
+        $("pinBox").classList.add("hidden");
+        $("panelBody").classList.remove("hidden");
+        bindPreview();
+        if (published) fillForm(published); else { previewState = readForm(); render(previewState); }
+      } else { alert("PIN incorrecto."); $("pinInput").value = ""; $("pinInput").focus(); }
+    });
+    $("pinInput").addEventListener("keydown", function (e) { if (e.key === "Enter") $("pinBtn").click(); });
+    $("pinChangeBtn").addEventListener("click", function () {
+      var v = $("fNewPin").value.trim();
+      if (!/^\d{4,8}$/.test(v)) { alert("El PIN debe tener de 4 a 8 dígitos."); return; }
+      localStorage.setItem("tv-pin", v); savedPin = v; $("fNewPin").value = "";
+      alert("PIN cambiado. Guárdalo bien: si lo olvidas tendrás que borrar los datos del navegador para entrar.");
+    });
+    $("genBtn").addEventListener("click", function () {
+      var st = readForm();
+      $("cmdOut").value = "TV|" + JSON.stringify(st);
+    });
+    $("copyCmd").addEventListener("click", function () {
+      if (!$("cmdOut").value) $("genBtn").click();
+      copyText($("cmdOut").value);
+    });
+    $("copyLink").addEventListener("click", function () { copyText(VIEWER_URL); });
+  }
+
+  fetchState();
+  setInterval(function () { if (!isAdmin) fetchState(); }, 10000);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden && !isAdmin) fetchState(); });
+})();
+</script>
+</body>
+</html>
