@@ -370,6 +370,27 @@ table.st.rank tr.rankdiv td{text-align:center;color:var(--muted);letter-spacing:
 .repseg button.on{border-color:var(--rojo,#e63329);background:rgba(230,51,41,.14)}
 textarea.uin{resize:vertical;min-height:88px;font-family:inherit}
 .newtag{margin-left:auto;background:var(--gold);color:#171106;font-size:10px;font-weight:800;letter-spacing:.07em;border-radius:99px;padding:3px 9px;flex:none}
+/* Muro rediseño (20-nov-2026) */
+.mcomposer-top{display:flex;gap:10px;align-items:flex-start}
+.mavatar{flex:none;width:38px;height:38px;border-radius:50%;background:var(--gold);color:#171106;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:13px;letter-spacing:.02em}
+.mcomposer-in{flex:1;min-height:64px;resize:vertical}
+.mcomposer-bot{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.mcomposer-bot .btn{width:auto;margin-top:0;flex:none}
+.mpost{padding:12px 2px;border-bottom:1px solid rgba(42,53,71,.4);animation:fade .25s ease}
+.mpost:last-child{border-bottom:none}
+.mpost-head{display:flex;gap:10px;align-items:center}
+.mpost-who{flex:1;min-width:0}
+.mpost-who b{display:block;font-size:14px;line-height:1.3}
+.mpost-who small{display:block;color:var(--muted);font-size:11px;margin-top:1px}
+.mteambadge{flex:none;font-size:10px;font-weight:800;padding:3px 8px;border-radius:99px;background:var(--card2);border:1px solid var(--line);letter-spacing:.05em}
+.mpost-text{font-size:14px;line-height:1.55;margin:8px 0 0 48px;white-space:pre-wrap;word-break:break-word}
+.mpost-act{margin:10px 0 0 48px;display:flex;gap:8px;align-items:center}
+.mlike{flex:none;width:auto;padding:7px 12px;font-size:13px;margin-top:0}
+.mpending{opacity:.92}
+.mpending .mpost-text{color:var(--muted)}
+.mpubtag{flex:none;font-size:10px;font-weight:800;color:var(--gold);letter-spacing:.06em}
+.mspin{flex:none;width:16px;height:16px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--gold);animation:mspin .8s linear infinite}
+@keyframes mspin{to{transform:rotate(360deg)}}
 #fantModal .dlg{background:var(--bg2);border:1px solid var(--line);border-radius:18px;max-width:420px;width:100%;padding:20px;max-height:85vh;overflow-y:auto;animation:pop .22s ease;}
 .fslot{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px dashed var(--line);border-radius:12px;margin-bottom:8px;cursor:pointer;}
 .fslot.full{border-style:solid;background:var(--card2);}
@@ -843,15 +864,15 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
     </div>
   </section>
   <section class="page" id="pg-muro">
-    <div class="card"><h3>Muro</h3>
+    <div class="card mcomposer"><h3>Muro</h3>
       <div class="gmeta" style="margin-bottom:10px">Publica lo que quieras sobre la Serie: opiniones, celebraciones, fotos de tu equipo. Se publica al instante, sin revisión. El administrador puede eliminar contenido.</div>
-      <textarea id="muroText" class="uin" maxlength="280" placeholder="Escribe algo para la comunidad..." oninput="document.getElementById('muroCount').textContent=this.value.length"></textarea>
-      <div class="gmeta" style="text-align:right;margin-top:-6px"><span id="muroCount">0</span>/280</div>
-      <button class="btn" onclick="submitMuro()">Publicar en el Muro</button>
+      <div class="mcomposer-top"><span class="mavatar" id="muroAvatar">?</span><textarea id="muroText" class="uin mcomposer-in" maxlength="280" placeholder="¿Qué está pasando en la Serie?..." oninput="document.getElementById('muroCount').textContent=this.value.length"></textarea></div>
+      <div class="mcomposer-bot"><div class="gmeta"><span id="muroCount">0</span>/280</div><button class="btn" id="muroBtn" onclick="submitMuro()">Publicar en el Muro</button></div>
+      <div class="gmeta" id="muroNotice" style="display:none;margin-top:8px"></div>
     </div>
     <div class="card"><h3>Publicaciones</h3>
       <div class="gmeta" id="muroMeta" style="margin-bottom:8px"></div>
-      <div id="muroList"><div class="empty">Cargando el Muro…</div></div>
+      <div id="muroList"><div class="skel" style="height:72px"></div><div class="skel" style="height:72px"></div><div class="skel" style="height:72px"></div></div>
       <button class="btn ghost" id="muroMore" style="display:none" onclick="muroNextPage()">Ver más</button>
     </div>
   </section>
@@ -2699,6 +2720,7 @@ function calToday(){
 /* ============ NAVEGACIÓN ============ */
 const PAGES = [
   {id:"inicio", label:"Inicio", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10l9-7 9 7v10a1 1 0 01-1 1h-5v-6h-6v6H4a1 1 0 01-1-1z"/></svg>'},
+  {id:"muro", label:"Muro", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>'},
   {id:"jornada", label:"Jornada", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 9h18"/></svg>'},
   {id:"posiciones", label:"Posiciones", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg>'},
   {id:"calendario", label:"Calendario", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>'},
@@ -2713,17 +2735,20 @@ const PAGES = [
   {id:"concurso", label:"Concurso", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7c-1.5 0-4.2-.3-5.2-2C6 3.6 7 2.5 8.3 2.7 10 3 12 7 12 7zm0 0c1.5 0 4.2-.3 5.2-2 .8-1.4-.2-2.5-1.5-2.3C14 3 12 7 12 7z"/></svg>'},
   {id:"fantasy", label:"Fantasy Equipo", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M5.6 5.6c3.2 3.6 3.2 9.2 0 12.8M18.4 5.6c-3.2 3.6-3.2 9.2 0 12.8"/></svg>'},
   {id:"opiniones", label:"Opiniones y Debate", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>'},
-  {id:"muro", label:"Muro", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>'},
   {id:"reportes", label:"Reportes", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V4"/><path d="M4 4h13l-2.5 4L17 12H4"/></svg>'},
   {id:"grupos", label:"Grupos y canales", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>'},
   {id:"donaciones", label:"Donaciones", icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 00-7.8 7.8l1 1L12 21.2l7.8-7.8 1-1a5.5 5.5 0 000-7.8z"/></svg>'}
 ];
 const drawerNav = document.getElementById("drawerNav");
+/* Opiniones fuera del menú visible (20-nov-2026): el botón existe pero oculto;
+   un ORDER| que la incluya la vuelve a mostrar (applySectionOrder). */
+const HIDDEN_MENU = ["opiniones"];
 const _havDay = new Intl.DateTimeFormat("en-CA",{timeZone:"America/Havana",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
 PAGES.forEach(p=>{
   const b = document.createElement("button");
-  const _tag = (p.id==="fantasy" && _havDay <= "2026-11-02") || (p.id==="opiniones" && _havDay <= "2026-11-05") ? '<span class="newtag">NUEVO</span>' : (p.id==="mundialu23" && _havDay <= "2026-11-15" ? '<span class="newtag">TEMPORAL</span>' : "");
+  const _tag = (p.id==="fantasy" && _havDay <= "2026-11-02") || (p.id==="opiniones" && _havDay <= "2026-11-05") || (p.id==="muro" && muroNewTag()) ? '<span class="newtag">NUEVO</span>' : (p.id==="mundialu23" && _havDay <= "2026-11-15" ? '<span class="newtag">TEMPORAL</span>' : "");
   b.innerHTML = p.icon+"<span>"+p.label+"</span>"+_tag; b.dataset.pg = p.id; b.onclick = ()=>go(p.id);
+  if(HIDDEN_MENU.indexOf(p.id)>=0) b.style.display = "none";
   drawerNav.appendChild(b);
 });
 /* Orden de secciones: lo define el admin (secciones.json); si falla, queda el orden por defecto */
@@ -2732,8 +2757,8 @@ function applySectionOrder(order){
     if(!order || !order.length) return;
     const nav = document.getElementById("drawerNav"); if(!nav) return;
     const btns = {}; nav.querySelectorAll("[data-pg]").forEach(b=>{ btns[b.dataset.pg]=b; });
-    order.forEach(id=>{ if(btns[id]){ nav.appendChild(btns[id]); delete btns[id]; } });
-    Object.keys(btns).forEach(id=>nav.appendChild(btns[id]));
+    order.forEach(id=>{ if(btns[id]){ nav.appendChild(btns[id]); if(HIDDEN_MENU.indexOf(id)>=0) btns[id].style.display=""; delete btns[id]; } });
+    Object.keys(btns).forEach(id=>{ if(HIDDEN_MENU.indexOf(id)<0) nav.appendChild(btns[id]); });
   }catch(e){}
 }
 async function loadSectionOrder(){
@@ -4734,6 +4759,49 @@ function dismissRemind(num){
   }catch(e){}
   renderReminders();
 }
+/* ---- Muro: fecha de Cuba UTC-4 fija + insignia NUEVO (20-nov-2026) ---- */
+function cubaDateStr(){ return new Date(Date.now()-4*3600*1000).toISOString().slice(0,10); }
+function muroNewTag(){ return cubaDateStr() <= "2026-11-30"; }
+function muroInitials(name){ const p = String(name||"").trim().split(/\s+/).filter(Boolean); if(!p.length) return "?"; return (p[0][0]+(p[1]?p[1][0]:"")).toUpperCase(); }
+function muroAvatar(name){ return '<span class="mavatar">'+esc(muroInitials(name))+'</span>'; }
+function relTime(ts){ const s = Math.max(0, Math.floor(Date.now()/1000)-(ts||0)); if(s<60) return "ahora mismo"; const m = Math.floor(s/60); if(m<60) return "hace "+m+" min"; const h = Math.floor(m/60); if(h<24) return "hace "+h+" h"; const d = Math.floor(h/24); if(d===1) return "ayer"; return "hace "+d+" días"; }
+/* ---- Muro: publicación pendiente (20-nov-2026) ----
+   Al publicar, el post queda como tarjeta pendiente (placeholder visible,
+   nunca como post falso) y el compositor se bloquea hasta que el post
+   aparezca en muro.json (~2 min). El pendiente sobrevive en localStorage. */
+const MURO_PENDING_KEY = "lpc-muro-pending";
+const MURO_PENDING_TIMEOUT = 180000;
+let MURO_CONFIRM_TIMER = null;
+function getMuroPending(){ try{ return JSON.parse(localStorage.getItem(MURO_PENDING_KEY)||"[]"); }catch(e){ return []; } }
+function saveMuroPending(a){ try{ localStorage.setItem(MURO_PENDING_KEY, JSON.stringify(a)); }catch(e){} }
+function setMuroComposer(dis){
+  const t = document.getElementById("muroText"), b = document.getElementById("muroBtn");
+  if(t) t.disabled = !!dis;
+  if(b){ b.disabled = !!dis; b.textContent = dis ? "Publicando…" : "Publicar en el Muro"; }
+}
+function muroNotice(msg){
+  const nt = document.getElementById("muroNotice"); if(!nt) return;
+  if(msg){ nt.textContent = msg; nt.style.display = ""; } else { nt.textContent = ""; nt.style.display = "none"; }
+}
+function muroCheckPending(){
+  const pend = getMuroPending(); if(!pend.length){ setMuroComposer(false); return false; }
+  const ids = ((MURO_DATA && MURO_DATA.posts)||[]).map(p=>p.id);
+  let rest = pend.filter(p=>ids.indexOf(p.id)<0);
+  let changed = rest.length!==pend.length;
+  const now = Date.now(); let timedOut = false;
+  rest.forEach(p=>{ if(!p.warned && now-(p.t0||now) > MURO_PENDING_TIMEOUT){ p.warned = true; timedOut = true; changed = true; } });
+  if(changed) saveMuroPending(rest);
+  if(!rest.length){ muroConfirmStop(); setMuroComposer(false); muroNotice(""); if(changed) toast("Tu publicación ya está visible en el Muro"); }
+  else if(timedOut){ muroConfirmStop(); setMuroComposer(false); muroNotice("Todavía no se confirmó, revisa en un momento"); toast("Todavía no se confirmó, revisa en un momento"); }
+  else if(rest.some(p=>!p.warned)){ setMuroComposer(true); }
+  else setMuroComposer(false);
+  return changed;
+}
+function muroConfirmStop(){ if(MURO_CONFIRM_TIMER){ clearInterval(MURO_CONFIRM_TIMER); MURO_CONFIRM_TIMER = null; } }
+function muroConfirmStart(){
+  muroConfirmStop();
+  MURO_CONFIRM_TIMER = setInterval(async ()=>{ await loadMuro(true); if(muroCheckPending()) renderMuro(); }, 20000);
+}
 /* ---- 16. Muro ---- */
 function myLikes(){
   try{ return JSON.parse(localStorage.getItem("lpc-my-likes")||"[]"); }catch(e){ return []; }
@@ -4752,6 +4820,7 @@ async function likeMuro(id){
 async function submitMuro(){
   if(!accountComplete()){ openUserModal(true); toast("Pon tu nombre y tu equipo para publicar"); return; }
   const inp = document.getElementById("muroText"); if(!inp) return;
+  if(inp.disabled) return;
   const text = (inp.value||"").trim();
   if(!text){ toast("Escribe algo para publicar"); return; }
   const t = habanaParts().dstr;
@@ -4761,29 +4830,47 @@ async function submitMuro(){
   const u = getUser()||{};
   const id = "m"+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36);
   const ok = await nvSend("MURO|"+id+"|"+getUid()+"|"+String(u.name||"").replace(/\|/g," ").slice(0,30)+"|"+String(u.team||"").replace(/[^A-Za-z]/g,"").slice(0,8).toUpperCase()+"|"+text.replace(/\|/g," ").slice(0,280));
-  if(ok){
-    try{ const d = JSON.parse(localStorage.getItem("lpc-muro-day")||"{}"); d[t]=(d[t]||0)+1; localStorage.setItem("lpc-muro-day", JSON.stringify(d)); }catch(e){}
-    inp.value = "";
-    const cntEl = document.getElementById("muroCount"); if(cntEl) cntEl.textContent = "0";
-    MURO_DATA = null; await loadMuro(true); MURO_PAGE = 0; renderMuro();
-    toast("Publicado en el Muro");
-  } else toast("No se pudo publicar. Revisa tu conexión.");
+  if(!ok){ toast("No se pudo publicar. Revisa tu conexión."); return; }
+  try{ const d = JSON.parse(localStorage.getItem("lpc-muro-day")||"{}"); d[t]=(d[t]||0)+1; localStorage.setItem("lpc-muro-day", JSON.stringify(d)); }catch(e){}
+  inp.value = "";
+  const cntEl = document.getElementById("muroCount"); if(cntEl) cntEl.textContent = "0";
+  const pend = getMuroPending();
+  pend.unshift({id:id, text:text, name:u.name||"", team:u.team||"", ts:Math.floor(Date.now()/1000), t0:Date.now()});
+  saveMuroPending(pend);
+  muroNotice("");
+  setMuroComposer(true);
+  MURO_PAGE = 0; renderMuro();
+  toast("Publicando en el Muro…");
+  muroConfirmStart();
 }
 function renderMuro(){
   const el = document.getElementById("muroList"); if(!el) return;
-  const posts = (MURO_DATA && MURO_DATA.posts) || [];
+  const av = document.getElementById("muroAvatar");
+  if(av){ const u = getUser()||{}; av.textContent = muroInitials(u.name); }
+  muroCheckPending();
+  if(!MURO_DATA){
+    el.innerHTML = '<div class="skel" style="height:72px"></div><div class="skel" style="height:72px"></div><div class="skel" style="height:72px"></div>';
+    const meta = document.getElementById("muroMeta"); if(meta) meta.textContent = "";
+    if(getMuroPending().length) muroConfirmStart();
+    return;
+  }
+  const posts = MURO_DATA.posts || [];
   const per = 20, total = posts.length;
   const page = Math.min(MURO_PAGE, Math.max(0, Math.ceil(total/per)-1));
   const slice = posts.slice(page*per, page*per+per);
   const liked = myLikes(); const me = getUid();
-  el.innerHTML = slice.map(p=>{
-    const time = new Date(p.ts*1000).toLocaleString("es-ES",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
-    return '<div class="prow"><div class="teams"><b>'+esc(p.name)+'</b><small>'+esc((TEAMS[p.team]||{name:p.team}).name)+' · '+time+(p.uid===me?' · Tú':'')+'</small><span>'+esc(p.text)+'</span></div><button class="btn ghost" style="flex:none;width:auto;padding:6px 10px" '+(liked.indexOf(p.id)>=0?'disabled':' onclick="likeMuro(\''+esc(p.id)+'\')"')+'>♥ '+(p.likes||0)+'</button></div>';
-  }).join("") || '<div class="empty">Aún no hay publicaciones. ¡Sé el primero!</div>';
+  const pend = getMuroPending();
+  const pendHtml = pend.map(p=>'<div class="mpost mpending"><div class="mpost-head">'+muroAvatar(p.name)+'<div class="mpost-who"><b>'+esc(p.name)+'</b><small>'+esc((TEAMS[p.team]||{name:p.team}).name)+' · Publicando…</small></div><span class="mspin"></span></div><div class="mpost-text">'+esc(p.text)+'</div><div class="mpost-act"><span class="mpubtag">PUBLICANDO…</span><span class="skel" style="width:120px;height:10px;margin:0"></span></div></div>').join("");
+  const listHtml = slice.map(p=>{
+    const teamName = (TEAMS[p.team]||{name:p.team}).name;
+    return '<div class="mpost"><div class="mpost-head">'+muroAvatar(p.name)+'<div class="mpost-who"><b>'+esc(p.name)+'</b><small>'+esc(teamName)+' · '+relTime(p.ts)+(p.uid===me?' · Tú':'')+'</small></div><span class="mteambadge">'+esc(p.team||"")+'</span></div><div class="mpost-text">'+esc(p.text)+'</div><div class="mpost-act"><button class="btn ghost mlike" '+(liked.indexOf(p.id)>=0?'disabled':' onclick="likeMuro(\''+esc(p.id)+'\')"')+'>Me gusta · '+(p.likes||0)+'</button></div></div>';
+  }).join("");
+  el.innerHTML = (pendHtml + listHtml) || '<div class="empty">Aún no hay publicaciones. ¡Sé el primero!</div>';
   const meta = document.getElementById("muroMeta");
   if(meta) meta.textContent = total ? total+" publicaciones" : "";
   const more = document.getElementById("muroMore");
   if(more) more.style.display = (page+1)*per < total ? "" : "none";
+  if(pend.length) muroConfirmStart();
 }
 function muroNextPage(){ MURO_PAGE++; renderMuro(); }
 

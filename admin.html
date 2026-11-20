@@ -1101,7 +1101,7 @@ function cargarMuro() {
 
 /* ---------- Orden de las secciones ---------- */
 var ORDEN_LABELS = { inicio: 'Inicio', jornada: 'Jornada', posiciones: 'Posiciones', calendario: 'Calendario', lideres: 'Líderes', equipos: 'Equipos', miequipo: 'Mi equipo', noticias: 'Noticias', envivo: 'En Vivo', internacional: 'Internacional (solo Pro)', predicciones: 'Predicciones', ranking: 'Ranking', concurso: 'Concurso', fantasy: 'Fantasy Equipo', opiniones: 'Opiniones y Debate', muro: 'Muro', reportes: 'Reportes', grupos: 'Grupos y canales', donaciones: 'Donaciones' };
-var ORDEN_DEFAULT = ['inicio','jornada','posiciones','calendario','lideres','equipos','miequipo','noticias','envivo','internacional','predicciones','ranking','concurso','fantasy','opiniones','muro','reportes','grupos','donaciones'];
+var ORDEN_DEFAULT = ['inicio','muro','jornada','posiciones','calendario','lideres','equipos','miequipo','noticias','envivo','internacional','predicciones','ranking','concurso','fantasy','reportes','grupos','donaciones'];
 var ordenActual = ORDEN_DEFAULT.slice();
 function pintarOrden() {
   document.getElementById('ordenList').innerHTML = ordenActual.map(function (id, i) {
