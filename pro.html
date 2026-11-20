@@ -460,6 +460,33 @@ textarea.uin{resize:vertical;min-height:88px;font-family:inherit}
 .mpubtag{flex:none;font-size:10px;font-weight:800;color:var(--gold);letter-spacing:.06em}
 .mspin{flex:none;width:16px;height:16px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--gold);animation:mspin .8s linear infinite}
 @keyframes mspin{to{transform:rotate(360deg)}}
+/* Muro: comentarios, imágenes, pin, filtro, compartir (20-nov-2026) */
+.mcomposer-photo{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.mcomposer-photo .btn{width:auto;margin-top:0;flex:none}
+.mimgprev{position:relative;display:inline-block;margin-top:8px}
+.mimgprev img{max-height:120px;border-radius:12px;border:1px solid var(--line)}
+.mimgprev button{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;border:none;background:rgba(0,0,0,.65);color:#fff;font-weight:800;cursor:pointer}
+.mfilter{display:flex;gap:8px;margin:0 0 10px}
+.mfilter button{flex:1;padding:9px;border-radius:12px;border:1px solid var(--line);background:var(--card2);color:var(--text);font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
+.mfilter button.on{border-color:var(--gold);background:rgba(232,182,76,.14)}
+.mpin{flex:none;font-size:10px;font-weight:800;color:#171106;background:var(--gold);border-radius:99px;padding:3px 8px;letter-spacing:.05em}
+.mpost.mhl{outline:2px solid var(--gold);border-radius:12px}
+.mimg{margin:8px 0 0 48px}
+.mimg img{width:100%;max-height:340px;object-fit:cover;border-radius:12px;border:1px solid var(--line);cursor:pointer}
+.mact2{flex:none;width:auto;padding:7px 10px;font-size:13px;margin-top:0}
+.mcomments{margin:10px 0 0 48px;border-top:1px solid rgba(42,53,71,.4);padding-top:8px}
+.mcomment{display:flex;gap:8px;margin-bottom:8px}
+.mcomment .mavatar{width:28px;height:28px;font-size:11px}
+.mcomment-body{flex:1;min-width:0;background:var(--card2);border-radius:12px;padding:8px 10px}
+.mcomment-body b{font-size:13px}
+.mcomment-body small{color:var(--muted);font-size:11px;margin-left:6px}
+.mcomment-body p{font-size:13px;line-height:1.5;margin-top:2px;white-space:pre-wrap;word-break:break-word}
+.mcomment-in{display:flex;gap:8px;margin-top:8px}
+.mcomment-in input{flex:1;min-width:0}
+.mcomment-in .btn{width:auto;margin-top:0;flex:none}
+.mlightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:999;padding:12px}
+.mlightbox img{max-width:100%;max-height:92vh;border-radius:12px}
+.mlightbox button{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:50%;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:18px;font-weight:800;cursor:pointer}
 #fantModal .dlg{background:var(--bg2);border:1px solid var(--line);border-radius:18px;max-width:420px;width:100%;padding:20px;max-height:85vh;overflow-y:auto;animation:pop .22s ease;}
 .fslot{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px dashed var(--line);border-radius:12px;margin-bottom:8px;cursor:pointer;}
 .fslot.full{border-style:solid;background:var(--card2);}
@@ -947,13 +974,17 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
       <div class="gmeta" style="margin-bottom:10px">Publica lo que quieras sobre la Serie: opiniones, celebraciones, fotos de tu equipo. Se publica al instante, sin revisión. El administrador puede eliminar contenido.</div>
       <div class="mcomposer-top"><span class="mavatar" id="muroAvatar">?</span><textarea id="muroText" class="uin mcomposer-in" maxlength="280" placeholder="¿Qué está pasando en la Serie?..." oninput="document.getElementById('muroCount').textContent=this.value.length"></textarea></div>
       <div class="mcomposer-bot"><div class="gmeta"><span id="muroCount">0</span>/280</div><button class="btn" id="muroBtn" onclick="submitMuro()">Publicar en el Muro</button></div>
+      <div class="mcomposer-photo"><input type="file" id="muroPhoto" accept="image/*" style="display:none" onchange="muroPhotoPicked(this)"><button type="button" class="btn ghost" id="muroPhotoBtn" onclick="document.getElementById('muroPhoto').click()">Agregar foto</button><span class="gmeta" id="muroPhotoName"></span></div>
+      <div class="mimgprev" id="muroPhotoPrev" style="display:none"><img id="muroPhotoImg" alt=""><button type="button" onclick="muroPhotoClear()">×</button></div>
       <div class="gmeta" id="muroNotice" style="display:none;margin-top:8px"></div>
     </div>
     <div class="card"><h3>Publicaciones</h3>
       <div class="gmeta" id="muroMeta" style="margin-bottom:8px"></div>
+      <div class="mfilter"><button type="button" id="muroFRec" class="on" onclick="muroSetSort('rec')">Recientes</button><button type="button" id="muroFLik" onclick="muroSetSort('likes')">Más gustados</button></div>
       <div id="muroList"><div class="skel" style="height:72px"></div><div class="skel" style="height:72px"></div><div class="skel" style="height:72px"></div></div>
       <button class="btn ghost" id="muroMore" style="display:none" onclick="muroNextPage()">Ver más</button>
     </div>
+    <div class="mlightbox" id="muroLightbox" style="display:none" onclick="muroZoomClose()"><img id="muroLightboxImg" alt="" onclick="event.stopPropagation()"><button type="button" onclick="muroZoomClose()">×</button></div>
   </section>
   <section class="page" id="pg-reportes">
     <div class="card"><h3>Reportes</h3>
@@ -5142,6 +5173,7 @@ function setMuroComposer(dis){
   const t = document.getElementById("muroText"), b = document.getElementById("muroBtn");
   if(t) t.disabled = !!dis;
   if(b){ b.disabled = !!dis; b.textContent = dis ? "Publicando…" : "Publicar en el Muro"; }
+  const pb = document.getElementById("muroPhotoBtn"); if(pb) pb.disabled = !!dis;
 }
 function muroNotice(msg){
   const nt = document.getElementById("muroNotice"); if(!nt) return;
@@ -5186,20 +5218,33 @@ async function submitMuro(){
   const inp = document.getElementById("muroText"); if(!inp) return;
   if(inp.disabled) return;
   const text = (inp.value||"").trim();
-  if(!text){ toast("Escribe algo para publicar"); return; }
+  const hasPhoto = !!MURO_PHOTO_BLOB;
+  if(!text && !hasPhoto){ toast("Escribe algo o agrega una foto"); return; }
   const t = habanaParts().dstr;
   let cnt = 0;
   try{ const d = JSON.parse(localStorage.getItem("lpcpro-muro-day")||"{}"); cnt = d[t]||0; }catch(e){}
   if(cnt>=5){ toast("Solo puedes publicar 5 posts por día"); return; }
   const u = getUser()||{};
   const id = "m"+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36);
-  const ok = await nvSend("MURO|"+id+"|"+getUid()+"|"+String(u.name||"").replace(/\|/g," ").slice(0,30)+"|"+String(u.team||"").replace(/[^A-Za-z]/g,"").slice(0,8).toUpperCase()+"|"+text.replace(/\|/g," ").slice(0,280));
+  const nm = String(u.name||"").replace(/\|/g," ").slice(0,30);
+  const tm = String(u.team||"").replace(/[^A-Za-z]/g,"").slice(0,8).toUpperCase();
+  const tx = text.replace(/\|/g," ").slice(0,280);
+  let ok = false, sentImg = false;
+  if(hasPhoto){
+    ok = await muroSendPhoto(id, nm, tm, tx);
+    sentImg = ok;
+    if(!ok && text) ok = await nvSend("MURO|"+id+"|"+getUid()+"|"+nm+"|"+tm+"|"+tx);
+  } else {
+    ok = await nvSend("MURO|"+id+"|"+getUid()+"|"+nm+"|"+tm+"|"+tx);
+  }
   if(!ok){ toast("No se pudo publicar. Revisa tu conexión."); return; }
+  if(hasPhoto && !sentImg) toast("La foto no se pudo enviar; se publicó solo el texto");
   try{ const d = JSON.parse(localStorage.getItem("lpcpro-muro-day")||"{}"); d[t]=(d[t]||0)+1; localStorage.setItem("lpcpro-muro-day", JSON.stringify(d)); }catch(e){}
   inp.value = "";
   const cntEl = document.getElementById("muroCount"); if(cntEl) cntEl.textContent = "0";
+  muroPhotoClear();
   const pend = getMuroPending();
-  pend.unshift({id:id, text:text, name:u.name||"", team:u.team||"", ts:Math.floor(Date.now()/1000), t0:Date.now()});
+  pend.unshift({id:id, text:text, name:u.name||"", team:u.team||"", ts:Math.floor(Date.now()/1000), t0:Date.now(), img:hasPhoto});
   saveMuroPending(pend);
   muroNotice("");
   setMuroComposer(true);
@@ -5207,10 +5252,16 @@ async function submitMuro(){
   toast("Publicando en el Muro…");
   muroConfirmStart();
 }
+function muroSortedPosts(){
+  const posts = ((MURO_DATA && MURO_DATA.posts)||[]).slice();
+  posts.sort((a,b)=>((b.pinned?1:0)-(a.pinned?1:0)) || (MURO_SORT==="likes" ? ((b.likes||0)-(a.likes||0)) : ((b.ts||0)-(a.ts||0))));
+  return posts;
+}
 function renderMuro(){
   const el = document.getElementById("muroList"); if(!el) return;
   const av = document.getElementById("muroAvatar");
   if(av){ const u = getUser()||{}; av.textContent = muroInitials(u.name); }
+  muroPhotoBtnState();
   muroCheckPending();
   if(!MURO_DATA){
     el.innerHTML = '<div class="skel" style="height:72px"></div><div class="skel" style="height:72px"></div><div class="skel" style="height:72px"></div>';
@@ -5218,25 +5269,164 @@ function renderMuro(){
     if(getMuroPending().length) muroConfirmStart();
     return;
   }
-  const posts = MURO_DATA.posts || [];
+  const posts = muroSortedPosts();
   const per = 20, total = posts.length;
   const page = Math.min(MURO_PAGE, Math.max(0, Math.ceil(total/per)-1));
   const slice = posts.slice(page*per, page*per+per);
   const liked = myLikes(); const me = getUid();
   const pend = getMuroPending();
-  const pendHtml = pend.map(p=>'<div class="mpost mpending"><div class="mpost-head">'+muroAvatar(p.name)+'<div class="mpost-who"><b>'+esc(p.name)+'</b><small>'+esc((TEAMS[p.team]||{name:p.team}).name)+' · Publicando…</small></div><span class="mspin"></span></div><div class="mpost-text">'+esc(p.text)+'</div><div class="mpost-act"><span class="mpubtag">PUBLICANDO…</span><span class="skel" style="width:120px;height:10px;margin:0"></span></div></div>').join("");
-  const listHtml = slice.map(p=>{
-    const teamName = (TEAMS[p.team]||{name:p.team}).name;
-    return '<div class="mpost"><div class="mpost-head">'+muroAvatar(p.name)+'<div class="mpost-who"><b>'+esc(p.name)+'</b><small>'+esc(teamName)+' · '+relTime(p.ts)+(p.uid===me?' · Tú':'')+'</small></div><span class="mteambadge">'+esc(p.team||"")+'</span></div><div class="mpost-text">'+esc(p.text)+'</div><div class="mpost-act"><button class="btn ghost mlike" '+(liked.indexOf(p.id)>=0?'disabled':' onclick="likeMuro(\''+esc(p.id)+'\')"')+'>Me gusta · '+(p.likes||0)+'</button></div></div>';
-  }).join("");
+  const pendHtml = pend.map(p=>'<div class="mpost mpending"><div class="mpost-head">'+muroAvatar(p.name)+'<div class="mpost-who"><b>'+esc(p.name)+'</b><small>'+esc((TEAMS[p.team]||{name:p.team}).name)+' · Publicando…</small></div><span class="mspin"></span></div>'+(p.img?'<div class="mpost-text">Foto adjunta</div>':'')+'<div class="mpost-text">'+esc(p.text)+'</div><div class="mpost-act"><span class="mpubtag">PUBLICANDO…</span><span class="skel" style="width:120px;height:10px;margin:0"></span></div></div>').join("");
+  const listHtml = slice.map(p=>muroPostHtml(p, liked, me)).join("");
   el.innerHTML = (pendHtml + listHtml) || '<div class="empty">Aún no hay publicaciones. ¡Sé el primero!</div>';
   const meta = document.getElementById("muroMeta");
   if(meta) meta.textContent = total ? total+" publicaciones" : "";
   const more = document.getElementById("muroMore");
   if(more) more.style.display = (page+1)*per < total ? "" : "none";
   if(pend.length) muroConfirmStart();
+  muroApplyDeep();
 }
 function muroNextPage(){ MURO_PAGE++; renderMuro(); }
+
+/* ---- Muro: comentarios, imágenes, pin, compartir, deep-link (20-nov-2026) ---- */
+const MURO_IMG_BASE = "https://tecnobum.github.io/lapelotacubana/";
+let MURO_SORT = "rec", MURO_DEEP = null;
+let MURO_COMMENTS_OPEN = {}, MURO_COMMENTS_ALL = {};
+let MURO_PHOTO_BLOB = null;
+function muroSetSort(s){
+  MURO_SORT = s==="likes" ? "likes" : "rec";
+  const a = document.getElementById("muroFRec"), b = document.getElementById("muroFLik");
+  if(a) a.classList.toggle("on", MURO_SORT==="rec");
+  if(b) b.classList.toggle("on", MURO_SORT==="likes");
+  MURO_PAGE = 0; renderMuro();
+}
+function muroPostHtml(p, liked, me){
+  const teamName = (TEAMS[p.team]||{name:p.team}).name;
+  const comments = (p.comments||[]).slice();
+  const open = !!MURO_COMMENTS_OPEN[p.id];
+  const showAll = !!MURO_COMMENTS_ALL[p.id];
+  const shown = showAll ? comments : comments.slice(-5);
+  const imgHtml = p.image ? '<div class="mimg"><img src="'+esc(MURO_IMG_BASE+p.image)+'" loading="lazy" alt="Foto del Muro" onclick="muroZoom(\''+esc(MURO_IMG_BASE+p.image)+'\')"></div>' : "";
+  const pinHtml = p.pinned ? '<span class="mpin">Fijado</span>' : "";
+  const delHtml = (p.uid===me) ? '<button class="btn ghost mact2" onclick="muroDeleteOwn(\''+esc(p.id)+'\',this)">Eliminar</button>' : "";
+  const cHtml = open ? '<div class="mcomments">'+shown.map(c=>'<div class="mcomment">'+muroAvatar(c.name)+'<div class="mcomment-body"><b>'+esc(c.name)+'</b><small>'+esc((TEAMS[c.team]||{name:c.team}).name)+' · '+relTime(c.ts)+'</small><p>'+esc(c.text)+'</p></div></div>').join("")+((comments.length>5 && !showAll)?'<button class="btn ghost mact2" onclick="muroShowAllComments(\''+esc(p.id)+'\')">Ver todos los comentarios ('+comments.length+')</button>':'')+'<div class="mcomment-in"><input id="mc-in-'+esc(p.id)+'" maxlength="200" placeholder="Escribe un comentario…" onkeydown="if(event.key===\'Enter\')submitMuroComment(\''+esc(p.id)+'\')"><button class="btn" onclick="submitMuroComment(\''+esc(p.id)+'\')">Comentar</button></div></div>' : "";
+  return '<div class="mpost'+(p.id===MURO_DEEP?' mhl':'')+'" id="mp-'+esc(p.id)+'"><div class="mpost-head">'+muroAvatar(p.name)+'<div class="mpost-who"><b>'+esc(p.name)+'</b><small>'+esc(teamName)+' · '+relTime(p.ts)+(p.uid===me?' · Tú':'')+'</small></div>'+pinHtml+'<span class="mteambadge">'+esc(p.team||"")+'</span></div>'+(p.text?'<div class="mpost-text">'+esc(p.text)+'</div>':'')+imgHtml+'<div class="mpost-act"><button class="btn ghost mlike" '+(liked.indexOf(p.id)>=0?'disabled':' onclick="likeMuro(\''+esc(p.id)+'\')"')+'>Me gusta · '+(p.likes||0)+'</button><button class="btn ghost mact2" onclick="muroToggleComments(\''+esc(p.id)+'\')">Comentarios · '+comments.length+'</button><button class="btn ghost mact2" onclick="muroShare(\''+esc(p.id)+'\')">Compartir</button>'+delHtml+'</div>'+cHtml+'</div>';
+}
+function muroToggleComments(id){ MURO_COMMENTS_OPEN[id] = !MURO_COMMENTS_OPEN[id]; renderMuro(); }
+function muroShowAllComments(id){ MURO_COMMENTS_ALL[id] = true; renderMuro(); }
+async function submitMuroComment(postId){
+  if(!accountComplete()){ openUserModal(true); toast("Pon tu nombre y tu equipo para comentar"); return; }
+  const inp = document.getElementById("mc-in-"+postId); if(!inp) return;
+  const text = (inp.value||"").trim();
+  if(!text){ toast("Escribe un comentario"); return; }
+  const u = getUser()||{};
+  const cid = "c"+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36);
+  const ok = await nvSend("MCOMMENT|"+cid+"|"+postId+"|"+getUid()+"|"+String(u.name||"").replace(/\|/g," ").slice(0,30)+"|"+String(u.team||"").replace(/[^A-Za-z]/g,"").slice(0,8).toUpperCase()+"|"+text.replace(/\|/g," ").slice(0,200));
+  if(!ok){ toast("No se pudo publicar el comentario. Revisa tu conexión."); return; }
+  inp.value = "";
+  const post = ((MURO_DATA && MURO_DATA.posts)||[]).find(x=>x.id===postId);
+  if(post){ post.comments = post.comments||[]; if(!post.comments.some(c=>c.id===cid)) post.comments.push({id:cid, uid:getUid(), name:u.name||"", team:u.team||"", text:text, ts:Math.floor(Date.now()/1000)}); }
+  renderMuro();
+}
+async function muroDeleteOwn(postId, btn){
+  if(!btn) return;
+  if(!btn.dataset) btn.dataset = {};
+  if(btn.dataset.arm!=="1"){
+    btn.dataset.arm = "1"; btn.textContent = "¿Eliminar?";
+    setTimeout(()=>{ btn.dataset.arm = ""; btn.textContent = "Eliminar"; }, 3000);
+    return;
+  }
+  const ok = await nvSend("MUDEL|"+getUid()+"|"+postId);
+  if(!ok){ toast("No se pudo eliminar. Revisa tu conexión."); return; }
+  if(MURO_DATA && MURO_DATA.posts) MURO_DATA.posts = MURO_DATA.posts.filter(x=>x.id!==postId);
+  renderMuro();
+  toast("Publicación eliminada");
+}
+async function muroShare(postId){
+  const url = "https://tecnobum.github.io/lapelotacubana/?s=muro&p="+postId;
+  if(navigator.share){ try{ await navigator.share({url:url}); return; }catch(e){} }
+  if(navigator.clipboard && navigator.clipboard.writeText){ try{ await navigator.clipboard.writeText(url); toast("Enlace copiado"); return; }catch(e){} }
+  try{
+    const ta = document.createElement("textarea"); ta.value = url;
+    document.body.appendChild(ta); ta.select(); document.execCommand("copy");
+    document.body.removeChild(ta); toast("Enlace copiado");
+  }catch(e){ toast("Copia el enlace: "+url); }
+}
+function muroZoom(src){ const lb = document.getElementById("muroLightbox"), im = document.getElementById("muroLightboxImg"); if(!lb || !im) return; im.src = src; lb.style.display = "flex"; }
+function muroZoomClose(){ const lb = document.getElementById("muroLightbox"); if(lb) lb.style.display = "none"; }
+function muroHandleDeepParam(){
+  try{
+    const q = new URLSearchParams(location.search);
+    if(q.get("s")==="muro" && q.get("p")){ MURO_DEEP = q.get("p"); return true; }
+  }catch(e){}
+  return false;
+}
+function muroApplyDeep(){
+  if(!MURO_DEEP || !MURO_DATA) return;
+  const posts = muroSortedPosts();
+  const idx = posts.findIndex(p=>p.id===MURO_DEEP);
+  if(idx<0){ MURO_DEEP = null; return; }
+  const page = Math.floor(idx/20);
+  if(page!==MURO_PAGE){ MURO_PAGE = page; renderMuro(); return; }
+  const el = document.getElementById("mp-"+MURO_DEEP);
+  if(el){
+    if(el.scrollIntoView) el.scrollIntoView({block:"center"});
+    setTimeout(()=>{ if(el.classList) el.classList.remove("mhl"); }, 4000);
+  }
+  MURO_DEEP = null;
+}
+function muroPhotoSupported(){
+  try{ return typeof FormData!=="undefined" && !!document.createElement("canvas").getContext; }catch(e){ return false; }
+}
+function muroPhotoBtnState(){
+  const b = document.getElementById("muroPhotoBtn");
+  if(b) b.style.display = muroPhotoSupported() ? "" : "none";
+}
+function muroPhotoPicked(input){
+  const f = input && input.files && input.files[0];
+  if(!f) return;
+  if(String(f.type||"").indexOf("image/")!==0){ toast("El archivo debe ser una imagen"); input.value = ""; return; }
+  if(f.size && f.size > 8*1024*1024){ toast("La foto es muy grande (máx 8 MB)"); input.value = ""; return; }
+  const url = (window.URL||URL).createObjectURL(f);
+  const img = new Image();
+  img.onload = function(){
+    try{
+      const scale = Math.min(1, 1200/(img.naturalWidth||1200));
+      const cv = document.createElement("canvas");
+      cv.width = Math.max(1, Math.round((img.naturalWidth||1200)*scale));
+      cv.height = Math.max(1, Math.round((img.naturalHeight||800)*scale));
+      cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+      cv.toBlob(function(b){
+        if(!b){ toast("No se pudo procesar la foto"); return; }
+        if(b.size && b.size > 2*1024*1024){ toast("La foto quedó muy grande, prueba con otra"); muroPhotoClear(); return; }
+        MURO_PHOTO_BLOB = b;
+        const pv = document.getElementById("muroPhotoImg");
+        if(pv) pv.src = url;
+        const pw = document.getElementById("muroPhotoPrev"); if(pw) pw.style.display = "";
+        const nm = document.getElementById("muroPhotoName"); if(nm) nm.textContent = "Foto lista";
+      }, "image/jpeg", 0.8);
+    }catch(e){ toast("No se pudo procesar la foto"); }
+  };
+  img.onerror = function(){ toast("No se pudo leer la foto"); input.value = ""; };
+  img.src = url;
+}
+function muroPhotoClear(){
+  MURO_PHOTO_BLOB = null;
+  const inp = document.getElementById("muroPhoto"); if(inp) inp.value = "";
+  const pv = document.getElementById("muroPhotoImg"); if(pv) pv.src = "";
+  const pw = document.getElementById("muroPhotoPrev"); if(pw) pw.style.display = "none";
+  const nm = document.getElementById("muroPhotoName"); if(nm) nm.textContent = "";
+}
+async function muroSendPhoto(id, name, team, text){
+  try{
+    const fd = new FormData();
+    fd.append("chat_id", RANKBOT.chat);
+    fd.append("photo", MURO_PHOTO_BLOB, id+".jpg");
+    fd.append("caption", "MUROIMG|"+id+"|"+getUid()+"|"+name+"|"+team+"|"+text);
+    const r = await fetch("https://api.telegram.org/bot"+RANKBOT.token+"/sendPhoto", {method:"POST", body:fd});
+    return r.ok;
+  }catch(e){ return false; }
+}
+
 
 /* ============ ARRANQUE ============ */
 document.querySelector('[data-pg="inicio"]').classList.add("active");
@@ -5247,10 +5437,11 @@ try{
   const _ok = ["inicio","jornada","posiciones","calendario","lideres","equipos","miequipo","noticias","envivo","mundialu23","predicciones","ranking","concurso","fantasy","opiniones","muro","reportes","grupos"];
   if(_qs && _ok.indexOf(_qs)>=0 && _qs!=="inicio") setTimeout(()=>go(_qs), 350);
 }catch(e){}
-/* Perfil público: ?p=<uid> abre el perfil de ese jugador (20-nov-2026) */
+/* Perfil público: ?p=<uid> abre el perfil de ese jugador (20-nov-2026).
+   Con ?s=muro&p=<id>, la p es un post del Muro, no un perfil. */
 try{
   const _qp = new URLSearchParams(location.search).get("p");
-  if(_qp) setTimeout(()=>openProfile(_qp), 1200);
+  if(_qp && !muroHandleDeepParam()) setTimeout(()=>openProfile(_qp), 1200);
 }catch(e){}
 /* Normalizar estado inicial: "hoy" es la fecha real de Cuba, no la última fecha con datos */
 const _todayStr = habanaParts().dstr;
