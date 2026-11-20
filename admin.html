@@ -162,6 +162,7 @@
       <button class="tab" data-tab="publicar">Publicar</button>
       <button class="tab" data-tab="comunidad">Comunidad</button>
       <button class="tab" data-tab="opiniones">Opiniones</button>
+      <button class="tab" data-tab="muro">Muro</button>
       <button class="tab" data-tab="reportes">Reportes</button>
       <button class="tab" data-tab="metricas">Métricas</button>
       <button class="tab" data-tab="web">Web y APK</button>
@@ -311,6 +312,24 @@
     </div>
   </div>
 
+  <!-- ============ MURO ============ -->
+  <div class="tabpage" id="pg-muro">
+    <div class="panel">
+      <h2><span class="ico">🧱</span> Muro · Publicaciones</h2>
+      <div id="muroResumen"><p class="estado">Cargando…</p></div>
+      <div class="nota">El Muro se publica al instante, sin revisión. Solo puedes <b>borrar</b> contenido: cada botón genera el comando y lo copia; pégalo en tu <b>canal privado de Telegram</b> y se aplica solo en unos minutos. Borrar es definitivo.</div>
+      <div class="cmdbox" id="muroCmd" style="display:none"></div>
+    </div>
+    <div class="panel">
+      <h2><span class="ico">📋</span> Publicaciones recientes</h2>
+      <div id="muroList"><p class="estado">Cargando…</p></div>
+    </div>
+    <div class="panel">
+      <h2><span class="ico">💬</span> Chat en vivo por juego</h2>
+      <div id="chatList"><p class="estado">Cargando…</p></div>
+    </div>
+  </div>
+
   <!-- ============ REPORTES ============ -->
   <div class="tabpage" id="pg-reportes">
     <div class="panel">
@@ -421,6 +440,7 @@ var timerAuto = null;
 document.getElementById('tabs').addEventListener('click', function (e) {
   var b = e.target.closest('.tab'); if (!b) return;
   if (b.dataset.tab === 'opiniones') cargarOpiniones();
+  if (b.dataset.tab === 'muro') cargarMuro();
   if (b.dataset.tab === 'reportes') cargarReportes();
   if (b.dataset.tab === 'publicar') cargarOrden();
   document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('on', t === b); });
@@ -442,7 +462,7 @@ function desbloqueado() { try { return sessionStorage.getItem('lpcAdmin') === '1
 function mostrarPanel() {
   document.getElementById('lock').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  cargar(); aplicarAuto(); estadoPublicar(); estadoBannerTema(); cargarComunidad(); cargarOpiniones(); cargarOrden(); cargarReportes();
+  cargar(); aplicarAuto(); estadoPublicar(); estadoBannerTema(); cargarComunidad(); cargarOpiniones(); cargarMuro(); cargarOrden(); cargarReportes();
 }
 function intentarClave() {
   var inp = document.getElementById('lockInput');
@@ -496,7 +516,7 @@ document.getElementById('cfgReset').addEventListener('click', function () {
 function aplicarAuto() {
   if (timerAuto) { clearInterval(timerAuto); timerAuto = null; }
   var s = cfg().auto;
-  if (s > 0) timerAuto = setInterval(function () { cargar(); cargarComunidad(); cargarOpiniones(); cargarOrden(); cargarReportes(); }, s * 1000);
+  if (s > 0) timerAuto = setInterval(function () { cargar(); cargarComunidad(); cargarOpiniones(); cargarMuro(); cargarOrden(); cargarReportes(); }, s * 1000);
 }
 
 /* ---------- utilidades ---------- */
@@ -1046,9 +1066,42 @@ function cargarOpiniones() {
 }
 document.getElementById('btnOpAll').addEventListener('click', function () { opComando('OP_ALL', 'Comando copiado: OP_ALL — aprueba todas las opiniones y comentarios pendientes al pegarlo en tu canal de Telegram.'); });
 
+/* ---------- Muro y chat en vivo (20-nov-2026) ---------- */
+function muroComando(cmd, msg) {
+  var box = document.getElementById('muroCmd');
+  box.style.display = 'block'; box.textContent = cmd;
+  copiarTexto(cmd, msg || ('Comando copiado: ' + cmd + ' — Pégalo en tu canal de Telegram.'));
+}
+function cargarMuro() {
+  leerJSON('./muro_admin.json').then(function (a) {
+    var res = document.getElementById('muroResumen'), ml = document.getElementById('muroList');
+    if (!a) { res.innerHTML = '<p class="estado">Sin datos todavía (muro_admin.json no existe o no cargó).</p>'; ml.innerHTML = ''; return; }
+    var posts = a.posts || [];
+    res.innerHTML = '<p class="estado">Publicaciones: <b>' + posts.length + '</b> · Actualizado: ' + esc(a.updated || '—') + '</p>';
+    ml.innerHTML = posts.length ? posts.slice(0, 50).map(function (p) {
+      return '<div class="opitem"><div class="tx">' + esc(p.text || '') + '</div>' +
+        '<div class="meta">' + esc(p.name || '') + (p.team ? ' · ' + esc(p.team) : '') + ' · ' + opFecha(p.ts) + ' · ♥ ' + (p.likes || 0) + ' · id ' + esc(p.id) + '</div>' +
+        '<div class="minirow"><button class="ghost" onclick="muroComando(\'MURO_DEL|' + esc(p.id) + '\')">🗑 Borrar</button></div></div>';
+    }).join('') : '<p class="estado">Aún no hay publicaciones en el Muro.</p>';
+  });
+  leerJSON('./chat.json').then(function (c) {
+    var cl = document.getElementById('chatList');
+    if (!c) { cl.innerHTML = '<p class="estado">Sin datos todavía (chat.json no existe o no cargó).</p>'; return; }
+    var all = [];
+    Object.keys(c).forEach(function (g) { (c[g] || []).forEach(function (m) { all.push({g: g, m: m}); }); });
+    all.sort(function (a, b) { return (b.m.ts || 0) - (a.m.ts || 0); });
+    cl.innerHTML = all.length ? all.slice(0, 50).map(function (x) {
+      var m = x.m;
+      return '<div class="opitem"><div class="tx">' + esc(m.text || '') + '</div>' +
+        '<div class="meta">Juego ' + esc(x.g) + ' · ' + esc(m.name || '') + (m.team ? ' · ' + esc(m.team) : '') + ' · ' + opFecha(m.ts) + ' · id ' + esc(m.id) + '</div>' +
+        '<div class="minirow"><button class="ghost" onclick="muroComando(\'CHAT_DEL|' + esc(m.id) + '\')">🗑 Borrar</button></div></div>';
+    }).join('') : '<p class="estado">No hay mensajes de chat.</p>';
+  });
+}
+
 /* ---------- Orden de las secciones ---------- */
-var ORDEN_LABELS = { inicio: 'Inicio', jornada: 'Jornada', posiciones: 'Posiciones', calendario: 'Calendario', lideres: 'Líderes', equipos: 'Equipos', miequipo: 'Mi equipo', noticias: 'Noticias', envivo: 'En Vivo', internacional: 'Internacional (solo Pro)', predicciones: 'Predicciones', ranking: 'Ranking', concurso: 'Concurso', fantasy: 'Fantasy Equipo', opiniones: 'Opiniones y Debate', reportes: 'Reportes', grupos: 'Grupos y canales', donaciones: 'Donaciones' };
-var ORDEN_DEFAULT = ['inicio','jornada','posiciones','calendario','lideres','equipos','miequipo','noticias','envivo','internacional','predicciones','ranking','concurso','fantasy','opiniones','reportes','grupos','donaciones'];
+var ORDEN_LABELS = { inicio: 'Inicio', jornada: 'Jornada', posiciones: 'Posiciones', calendario: 'Calendario', lideres: 'Líderes', equipos: 'Equipos', miequipo: 'Mi equipo', noticias: 'Noticias', envivo: 'En Vivo', internacional: 'Internacional (solo Pro)', predicciones: 'Predicciones', ranking: 'Ranking', concurso: 'Concurso', fantasy: 'Fantasy Equipo', opiniones: 'Opiniones y Debate', muro: 'Muro', reportes: 'Reportes', grupos: 'Grupos y canales', donaciones: 'Donaciones' };
+var ORDEN_DEFAULT = ['inicio','jornada','posiciones','calendario','lideres','equipos','miequipo','noticias','envivo','internacional','predicciones','ranking','concurso','fantasy','opiniones','muro','reportes','grupos','donaciones'];
 var ordenActual = ORDEN_DEFAULT.slice();
 function pintarOrden() {
   document.getElementById('ordenList').innerHTML = ordenActual.map(function (id, i) {
