@@ -711,6 +711,9 @@ table.bs td.tot{font-weight:800; color:var(--gold);}
 #playerModal{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.62);display:none;align-items:center;justify-content:center;padding:20px;}
 #playerModal.show{display:flex;}
 #playerModal .dlg{background:var(--bg2);border:1px solid var(--line);border-radius:18px;max-width:420px;width:100%;padding:20px;max-height:85vh;overflow-y:auto;animation:pop .22s ease;}
+#profileModal{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.62);display:none;align-items:center;justify-content:center;padding:20px;}
+#profileModal.show{display:flex;}
+#profileModal .dlg{background:var(--bg2);border:1px solid var(--line);border-radius:18px;max-width:420px;width:100%;padding:20px;max-height:85vh;overflow-y:auto;animation:pop .22s ease;}
 #playerModal .dlg h4{margin:14px 0 6px;font-size:14px;}
 .phead{display:flex;gap:12px;align-items:center;margin-bottom:6px;}
 .pclose{flex:none;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--card2);color:var(--text);font-size:15px;cursor:pointer;padding:0;}
@@ -1255,7 +1258,47 @@ function parseStatTable(doc, suffix){
   });
   return out;
 }
+/* Línea por inning desde la página BoxScore: el marcador vive en DIVS
+   (.f-left = innings + carreras por inning, .topBarSiglasScore = siglas,
+   div.p-0 = C/H/E), NO en una tabla. La versión anterior buscaba tablas
+   con "final|sellado" y NINGUNA tabla de la página real lo contiene
+   (verificado 27-nov-2026 en BoxScore?idJuego=317: 0 tablas con "final"):
+   siempre devolvía null y la línea en vivo salía solo con C/H/E, sin
+   innings. Espejo del parser del servidor (fetch_boxscores.py
+   parse_line_score). Acepta Final, Sellado, Terminado y En Curso. */
 function parseLineScore(doc){
+  const statusRe = /^(Final|Sellado|Terminado|En Curso)$/i;
+  const spans = [...doc.querySelectorAll("span")];
+  for(const sp of spans){
+    if(!statusRe.test((sp.textContent||"").trim())) continue;
+    let wrap = sp.parentElement;
+    for(let depth=0; depth<8 && wrap; depth++){
+      const fl = [...wrap.querySelectorAll(".f-left")].map(e=>(e.textContent||"").trim());
+      const innings = [];
+      for(const v of fl){ if(/^\d+$/.test(v) && +v===innings.length+1) innings.push(+v); else break; }
+      if(innings.length>=1){
+        const n = innings.length;
+        const cells = fl.slice(n, n+2*n);
+        if(cells.length>=2*n){
+          const num = s=>/^-?\d+$/.test(s)?parseInt(s,10):null;
+          const runsA = cells.slice(0,n).map(num), runsH = cells.slice(n,2*n).map(num);
+          if(runsA.some(v=>v!=null) || runsH.some(v=>v!=null)){
+            const sigs = [...wrap.querySelectorAll(".topBarSiglasScore")].map(e=>(e.textContent||"").trim());
+            const nums = [...wrap.querySelectorAll("div.p-0")].map(e=>(e.textContent||"").trim()).filter(c=>/^\d+$/.test(c)).map(Number);
+            if(sigs.length>=2 && nums.length>=6){
+              return {innings:innings,
+                away:{label:sigs[0], runs:runsA, c:String(nums[0]), h:String(nums[1]), e:String(nums[2])},
+                home:{label:sigs[1], runs:runsH, c:String(nums[3]), h:String(nums[4]), e:String(nums[5])}};
+            }
+          }
+        }
+      }
+      wrap = wrap.parentElement;
+    }
+  }
+  return parseLineScoreTable(doc);
+}
+function parseLineScoreTable(doc){
   const tables = [...doc.querySelectorAll("table")];
   for(const t of tables){
     if(!/final|sellado/i.test(t.textContent||"")) continue;
@@ -1483,7 +1526,7 @@ function gameCard(g){
   const click = num!=null ? ' onclick="toggleGame(\''+g.id+'\')" style="cursor:pointer"' : '';
   const ta = TEAMS[g.away]||{name:g.away,mote:"",color:"#5D6D7E"}, th = TEAMS[g.home]||{name:g.home,mote:"",color:"#5D6D7E"};
   const hasScore = g.ar!=null && g.hr!=null;
-  const scoreHtml = susp ? (hasScore ? '<div class="vsc">'+g.ar+" - "+g.hr+'</div>' : '<div class="vsc prog">VS</div>')
+  const scoreHtml = susp ? (hasScore && (g.ar+g.hr)>0 ? '<div class="vsc">'+g.ar+" - "+g.hr+'</div>' : '<div class="vsc prog">VS</div>')
     : (g.status==="final"||enCurso) && hasScore ? '<div class="vsc">'+g.ar+" - "+g.hr+'</div>'
     : '<div class="vsc prog">'+(g.time||"VS")+'</div>';
   const liveInfo = enCurso && (g.live||g.outs)
@@ -1505,6 +1548,26 @@ function prevDateGames(games, t){
   const d = past.map(g=>g.date).sort().pop();
   return past.filter(g=>g.date===d);
 }
+/* G1-2026-11-27: helpers de Jornada/Posiciones (F6/F7/F8) */
+function groupGamesByDate(list){
+  const byD = {};
+  (list||[]).forEach(g=>{ (byD[g.date]=byD[g.date]||[]).push(g); });
+  return Object.keys(byD).sort().map(d=>'<div class="gmeta" style="margin:12px 0 4px">'+fmtDate(d)+'</div>'+byD[d].map(gameCard).join("")).join("");
+}
+function gamesEmptyHTML(all, filtered, defHtml){
+  if((filtered||[]).length) return "";
+  if(ONLY_MINE && myTeamCode() && (all||[]).length) return '<div class="empty">Sin juegos de tu equipo en esta lista.</div>';
+  return defHtml;
+}
+function teamLast5(code){
+  const res = [];
+  Object.keys(S.cal||{}).sort().reverse().forEach(d=>{ (S.cal[d]||[]).forEach(g=>{ if(g.status==="final" && g.ar!=null && g.hr!=null && (g.away===code || g.home===code)) res.push(g); }); });
+  const last5 = res.slice(0,5);
+  if(!last5.length) return "—";
+  const w = last5.filter(g=>(g.away===code ? g.ar>g.hr : g.hr>g.ar)).length;
+  const l = last5.filter(g=>(g.away===code ? g.ar<g.hr : g.hr<g.ar)).length;
+  return w+"-"+l;
+}
 /* ============ RENDER ============ */
 let leadersTab = "bat";
 function renderAll(){
@@ -1515,25 +1578,28 @@ function renderAll(){
   document.getElementById("hRuns").textContent = runs;
   const homeList = today.length ? today : S.upcoming;
   document.getElementById("homeGamesTitle").textContent = today.length ? "Juegos de hoy" : "Próximos juegos";
-  document.getElementById("homeGames").innerHTML = homeList.map(gameCard).join("") || restDayCard();
+  document.getElementById("homeGames").innerHTML = today.length ? homeList.map(gameCard).join("") : (groupGamesByDate(homeList) || restDayCard());
   const n = S.news[0];
   document.getElementById("homeNews").innerHTML = n ? newsInner(n) : '<div class="empty">Sin titulares.</div>';
   document.getElementById("dataStamp").textContent = "Datos: " + S.dateLabel;
   document.getElementById("jornadaTitle").textContent = "Jornada de hoy · " + S.dateLabel.split("·")[0].trim();
-  document.getElementById("gamesToday").innerHTML = mineFilter(today).map(gameCard).join("") || restDayCard();
+  const _gt = mineFilter(today);
+  document.getElementById("gamesToday").innerHTML = _gt.map(gameCard).join("") || gamesEmptyHTML(today, _gt, restDayCard());
+  const _gn = mineFilter(S.upcoming);
   const _upByD = {};
-  mineFilter(S.upcoming).forEach(g=>{ (_upByD[g.date]=_upByD[g.date]||[]).push(g); });
-  document.getElementById("gamesNext").innerHTML = Object.keys(_upByD).sort().map(d=>'<div class="gmeta" style="margin:12px 0 4px">'+fmtDate(d)+'</div>'+_upByD[d].map(gameCard).join("")).join("") || '<div class="empty">Sin próximos juegos publicados.</div>';
-  document.getElementById("gamesPrev").innerHTML = mineFilter(S.prev).map(gameCard).join("") || '<div class="empty">Sin datos.</div>';
+  _gn.forEach(g=>{ (_upByD[g.date]=_upByD[g.date]||[]).push(g); });
+  document.getElementById("gamesNext").innerHTML = Object.keys(_upByD).sort().map(d=>'<div class="gmeta" style="margin:12px 0 4px">'+fmtDate(d)+'</div>'+_upByD[d].map(gameCard).join("")).join("") || gamesEmptyHTML(S.upcoming, _gn, '<div class="empty">Sin próximos juegos publicados.</div>');
+  const _gp = mineFilter(S.prev);
+  document.getElementById("gamesPrev").innerHTML = _gp.map(gameCard).join("") || gamesEmptyHTML(S.prev, _gp, '<div class="empty">Sin datos.</div>');
   const _up0 = S.upcoming[0], _pv0 = S.prev[0];
   document.getElementById("gamesNextTitle").textContent = "Próximos juegos";
   document.getElementById("gamesPrevTitle").textContent = _pv0 ? "Fecha anterior · "+fmtDate(_pv0.date) : "Fecha anterior";
   const table = rows => {
     if(!rows.length) return '<div class="empty">Sin datos.</div>';
-    let h = '<tr><th>Equipo</th><th>JG</th><th>JP</th><th>PRO</th><th>DIF</th><th>U10</th><th>Racha</th></tr>';
+    let h = '<tr><th>Equipo</th><th>JG</th><th>JP</th><th>PRO</th><th>DIF</th><th>U10</th><th>U5</th><th>Racha</th></tr>';
     rows.forEach((r,i)=>{
       const t = TEAMS[r.t] || {name:r.t, mote:"", ini:r.t};
-      h += '<tr class="'+(i===0?'lead':'')+'"><td><div class="teamcell">'+logoBadge(r.t)+'<span>'+t.name+'<br><small style="color:var(--muted)">'+t.mote+'</small></span></div></td><td>'+r.w+'</td><td>'+r.l+'</td><td>'+(r.pro||"—")+'</td><td>'+(i===0?'—':(r.dif||"—"))+'</td><td>'+((r.u10||"").replace(/[()]/g,"")||"—")+'</td><td>'+(r.racha||"—")+'</td></tr>';
+      h += '<tr class="'+(i===0?'lead':'')+'"><td><div class="teamcell">'+logoBadge(r.t)+'<span>'+t.name+'<br><small style="color:var(--muted)">'+t.mote+'</small></span></div></td><td>'+r.w+'</td><td>'+r.l+'</td><td>'+(r.pro||"—")+'</td><td>'+(i===0?'—':(r.dif||"—"))+'</td><td>'+((r.u10||"").replace(/[()]/g,"")||"—")+'</td><td>'+teamLast5(r.t)+'</td><td>'+(r.racha||"—")+'</td></tr>';
     });
     return h;
   };
@@ -1692,7 +1758,7 @@ function normName(s){
 /* Nombres de jugadores: la fuente los trae "APELLIDOS Nombre(s)"; en la app se muestran "Nombre(s) Apellidos" */
 function titleSur(w, first){
   const lw = w.toLowerCase();
-  if(!first && (lw==="de" || lw==="del")) return lw;
+  if(!first && (lw==="de" || lw==="del" || lw==="la" || lw==="las" || lw==="los")) return lw;
   return w.charAt(0).toUpperCase() + lw.slice(1);
 }
 function fmtName(n){
@@ -1703,7 +1769,7 @@ function fmtName(n){
   let i = 0;
   while(i < parts.length && /[A-ZÁÉÍÓÚÑ]/.test(parts[i]) && parts[i] === parts[i].toUpperCase()) i++;
   if(i === 0 || i === parts.length) return n;
-  const sur = parts.slice(0, i).map((w, j)=>titleSur(w, j===0));
+  const sur = parts.slice(0, i).map(w=>titleSur(w, false)); /* G1 F5: los apellidos van tras el nombre, nunca son primera palabra: 'de la' queda en minúscula */
   return parts.slice(i).join(" ") + " " + sur.join(" ");
 }
 function fmtDec(txt){
@@ -1860,7 +1926,7 @@ async function openPlayer(name, lead){
     if(lead && lead.val!=null) h += '<div class="pstats">'+pstat(lead.val, lead.cat||"")+'</div>';
   } else {
     const b = p.bat||{}, pi = p.pit||{};
-    if((b.g||0)>0){
+    if((b.vb||0)>0){
       h += '<h4>Bateo · temporada</h4><div class="pstats">'
         + pstat(fmtAve(b.ave),"AVE") + pstat(fmtAve(b.slg),"SLG") + pstat(b.vb,"VB")
         + pstat(b.h,"H") + pstat(b.hr,"HR") + pstat(b.ci,"CI") + pstat(b.c,"C")
@@ -1872,7 +1938,8 @@ async function openPlayer(name, lead){
         + pstat(pi.jg,"JG") + pstat(pi.jp,"JP") + pstat(pi.so,"SO") + pstat(pi.bb,"BB")
         + pstat(pi.cl,"CL") + pstat(pi.h,"H") + '</div>';
     }
-    if(p.last5 && p.last5.length){
+    if((b.vb||0)===0 && (pi.g||0)===0){ h += '<div class="empty">Sin estadísticas registradas esta temporada.</div>'; }
+    if((b.vb||0)>0 && p.last5 && p.last5.length && p.last5.reduce((s,g)=>s+(g.vb||0),0)>0){
       h += '<h4>Últimos 5 juegos</h4>' + p.last5.map(g=>{
         const vs = TEAMS[g.vs] ? TEAMS[g.vs].name : g.vs;
         return '<div class="h2hrow"><span>'+fmtDate(g.d)+' · vs '+esc(vs)+' ('+(g.loc==="H"?"casa":"visita")+')</span><b>'+g.h+'H · '+g.hr+'HR · '+g.ci+'CI · '+g.vb+'VB</b></div>';
@@ -2197,13 +2264,19 @@ function setPick(num, side){
   requestAnimationFrame(()=>{ ["pickList","pickNext"].forEach(cid=>{ const car=document.querySelector("#"+cid+" .pickgames"); if(car&&sc[cid]) car.scrollLeft=sc[cid]; }); });
 }
 /* Cierre de pronósticos: 1:00 PM hora de Cuba el día del juego */
+/* Hora oficial de Cuba = UTC-4 fijo hasta el 7-nov-2027 (nota MINEM/MTSS 24-oct-2026).
+   NO usar Intl timeZone:"America/Havana": la tzdata vieja del telefono/VM aplica
+   UTC-5 desde el 1-nov-2026 y retrasa 1 h el cierre, el "hoy" y la cuenta regresiva.
+   cubaDate(ms) devuelve un Date desplazado para que sus getters UTC lean la hora de Cuba. */
+const CUBA_OFFSET_MS = -4*3600*1000;
+function cubaDate(ms){ return new Date((ms==null?Date.now():ms) + CUBA_OFFSET_MS); }
+function cubaDstr(ms){ const d=cubaDate(ms), p=x=>String(x).padStart(2,"0"); return d.getUTCFullYear()+"-"+p(d.getUTCMonth()+1)+"-"+p(d.getUTCDate()); }
 function habanaParts(){
   try{
-    const m = new Intl.DateTimeFormat("en-CA",{timeZone:"America/Havana",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).format(new Date()).match(/(\d+)-(\d+)-(\d+)[, ]+(\d+):(\d+)/);
-    if(!m) throw new Error("habanaParts sin match");
-    return {dstr:m[1]+"-"+m[2]+"-"+m[3], now:new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5])};
+    const d = cubaDate(), p = x=>String(x).padStart(2,"0");
+    return {dstr:d.getUTCFullYear()+"-"+p(d.getUTCMonth()+1)+"-"+p(d.getUTCDate()), now:new Date(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate(),d.getUTCHours(),d.getUTCMinutes())};
   }catch(e){
-    /* U15: fallback UTC-4 calculado a mano si Intl falla o el formato cambia */
+    /* U15: fallback UTC-4 calculado a mano si algo falla */
     const n = new Date(Date.now()-4*3600*1000);
     const p = x=>String(x).padStart(2,"0");
     return {dstr:n.getUTCFullYear()+"-"+p(n.getUTCMonth()+1)+"-"+p(n.getUTCDate()), now:new Date(n.getUTCFullYear(),n.getUTCMonth(),n.getUTCDate(),n.getUTCHours(),n.getUTCMinutes())};
@@ -2461,8 +2534,9 @@ function saveUser(){
   try{ localStorage.removeItem("lpc-user-skipped"); }catch(e){}
   document.getElementById("userModal").classList.remove("show");
   renderUserChip();
-  if(isNew){ try{ localStorage.setItem(MISSION_KEY,"1"); }catch(e){} go("predicciones"); toast("🎯 Tu misión: haz tu primer pronóstico"); }
+  if(isNew){ try{ localStorage.setItem(MISSION_KEY,"1"); }catch(e){} const _ds = window.__deepSection; window.__deepSection=null; let _qs2=null; try{ _qs2=new URLSearchParams(location.search).get("s"); }catch(e){} const _ok2=["inicio","jornada","posiciones","calendario","lideres","equipos","miequipo","noticias","envivo","mundialu23","predicciones","ranking","concurso","fantasy","opiniones","muro","reportes","grupos"]; go(_ds||(_qs2&&_ok2.indexOf(_qs2)>=0&&_qs2!=="inicio"?_qs2:null)||"predicciones"); toast("🎯 Tu misión: haz tu primer pronóstico"); }
   else toast("Cuenta guardada");
+  const _dp = window.__deepProfile; window.__deepProfile=null; if(_dp) setTimeout(()=>openProfile(_dp), 600);
 }
 function renderUserChip(){
   const el = document.getElementById("uChip"); if(!el) return;
@@ -2608,8 +2682,13 @@ function copyCardNum(){
     navigator.clipboard.writeText(num).then(done).catch(fallback);
   } else fallback();
 }
+/* El conteo de entradas (waCheck) se hace UNA vez por carga: el reintento
+   mientras otro modal esta abierto no debe volver a contar (antes sumaba
+   2 entradas por visita y el modal salia en la 2.ª entrada, no en la 3.ª). */
+let _waDecided = false, _waShow = false;
 function maybeShowWaModal(){
-  if(!waCheck()) return;
+  if(!_waDecided){ _waDecided = true; _waShow = waCheck(); }
+  if(!_waShow) return;
   if(document.querySelector("#userModal.show, #apkModal.show")){ setTimeout(maybeShowWaModal, 1500); return; }
   document.getElementById("waModal").classList.add("show");
 }
@@ -2780,7 +2859,7 @@ const drawerNav = document.getElementById("drawerNav");
 /* Opiniones fuera del menú visible (20-nov-2026): el botón existe pero oculto;
    un ORDER| que la incluya la vuelve a mostrar (applySectionOrder). */
 const HIDDEN_MENU = ["opiniones"];
-const _havDay = new Intl.DateTimeFormat("en-CA",{timeZone:"America/Havana",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+const _havDay = cubaDstr();
 PAGES.forEach(p=>{
   const b = document.createElement("button");
   const _tag = (p.id==="fantasy" && _havDay <= "2026-11-02") || (p.id==="opiniones" && _havDay <= "2026-11-05") || (p.id==="muro" && muroNewTag()) ? '<span class="newtag">NUEVO</span>' : (p.id==="mundialu23" && _havDay <= "2026-11-15" ? '<span class="newtag">TEMPORAL</span>' : "");
@@ -2919,9 +2998,10 @@ async function openTeam(code){
     h += '<div class="pstats">'+pstat(st.w+"-"+st.l,"JG-JP")+pstat(st.pro||"—","PRO")+pstat((st.u10||"").replace(/[()]/g,"")||"—","U10")+'</div>'
       + '<div class="gmeta" style="margin-top:6px">Racha actual: <b>'+esc(st.racha||"—")+'</b> · Diferencia: '+(zi===0?'—':esc(st.dif||"—"))+'</div>';
   }
-  const fins = (S.prev||[]).concat(S.today||[]).filter(g=>(g.away===code||g.home===code) && g.status==="final");
+  const fins = [];
+  Object.keys(S.cal||{}).sort().reverse().forEach(d=>{ (S.cal[d]||[]).forEach(g=>{ if((g.away===code||g.home===code) && g.status==="final" && !fins.some(x=>String(x.id)===String(g.id))) fins.push(Object.assign({date:d}, g)); }); });
   if(fins.length){
-    h += '<h4>Últimos resultados</h4>' + fins.slice(-5).reverse().map(g=>{
+    h += '<h4>Últimos resultados</h4>' + fins.slice(0,5).map(g=>{
       const mine = g.away===code ? g.ar : g.hr, theirs = g.away===code ? g.hr : g.ar;
       const rival = g.away===code ? g.home : g.away;
       const res = mine===theirs ? "E" : mine>theirs ? "G" : "P";
@@ -2942,11 +3022,12 @@ async function openTeam(code){
   const rEl = document.getElementById("teamRoster"); if(!rEl) return;
   if(!j || !j.players){ rEl.innerHTML = '<div class="empty">Plantilla no disponible ahora mismo.</div>'; return; }
   const ps = Object.values(j.players).filter(p=>p.team===code);
-  const bats = ps.filter(p=>(p.bat||{}).g>0).sort((a,b)=>(b.bat.vb||0)-(a.bat.vb||0)).slice(0,12);
-  const pits = ps.filter(p=>(p.pit||{}).g>0).sort((a,b)=>(parseFloat(b.pit.inn_f||0)||0)-(parseFloat(a.pit.inn_f||0)||0)).slice(0,8);
-  const row = p=>'<div class="lead-card" style="margin-bottom:8px">'+playerFoto(p, null)+'<div class="info"><b onclick="closeTeam();openPlayer(\''+esc(p.name).replace(/\'/g,"\\'")+'\')">'+esc(fmtName(p.name))+'</b><span>'
-    + ((p.bat||{}).g>0 ? 'AVE '+fmtAve(p.bat.ave)+' · '+p.bat.hr+' HR · '+p.bat.ci+' CI' : (p.pit||{}).g>0 ? 'PCL '+fmtPcl(p.pit.pcl)+' · '+p.pit.so+' SO · '+p.pit.jg+' JG' : '')+'</span></div></div>';
-  rEl.innerHTML = (bats.length||pits.length) ? bats.map(row).join("") + pits.map(row).join("") : '<div class="empty">Sin plantilla registrada.</div>';
+  const bats = ps.filter(p=>((p.bat||{}).vb||0)>0).sort((a,b)=>(b.bat.vb||0)-(a.bat.vb||0));
+  const pits = ps.filter(p=>((p.pit||{}).g||0)>0).sort((a,b)=>(parseFloat(b.pit.inn_f||0)||0)-(parseFloat(a.pit.inn_f||0)||0));
+  const rest = ps.filter(p=>((p.bat||{}).vb||0)===0 && ((p.pit||{}).g||0)===0);
+  const row = (p, kind)=>'<div class="lead-card" style="margin-bottom:8px">'+playerFoto(p, null)+'<div class="info"><b onclick="closeTeam();openPlayer(\''+esc(p.name).replace(/\'/g,"\\'")+'\')">'+esc(fmtName(p.name))+'</b><span>'
+    + (kind==="pit" ? (p.pos?esc(p.pos)+" · ":"")+'PCL '+fmtPcl(p.pit.pcl)+' · '+p.pit.so+' SO · '+p.pit.jg+' JG' : kind==="bat" ? (p.pos?esc(p.pos)+" · ":"")+'AVE '+fmtAve(p.bat.ave)+' · '+p.bat.hr+' HR · '+p.bat.ci+' CI' : (p.pos?esc(p.pos)+" · ":"")+'Sin estadísticas registradas')+'</span></div></div>';
+  rEl.innerHTML = (ps.length) ? (bats.length ? '<div class="gmeta" style="margin:12px 0 6px">Bateadores · '+bats.length+'</div>' + bats.map(p=>row(p,"bat")).join("") : "") + (pits.length ? '<div class="gmeta" style="margin:12px 0 6px">Lanzadores · '+pits.length+'</div>' + pits.map(p=>row(p,"pit")).join("") : "") + (rest.length ? '<div class="gmeta" style="margin:12px 0 6px">Resto de la plantilla · '+rest.length+'</div>' + rest.map(p=>row(p,"rest")).join("") : "") : '<div class="empty">Sin plantilla registrada.</div>';
 }
 async function renderJugSearch(){
   const inp = document.getElementById("jugSearch"); const box = document.getElementById("jugSearchRes");
@@ -3104,7 +3185,7 @@ function leavePena(){
 function invitePena(){
   const code = getPena(); if(!code) return;
   let name = "mi peña"; try{ name = localStorage.getItem(PENANAME_KEY) || name; }catch(e){}
-  const txt = "👥 Únete a mi peña «"+name+"» en La Pelota Cubana ⚾\nCódigo: "+code+"\nEntra en Ranking → Mi peña y escribe el código.\n📲 Descarga la app: https://apklis.cu/application/la.pelota.cubana.hoy";
+  const txt = "Únete a mi peña «"+name+"» en La Pelota Cubana\nCódigo: "+code+"\nEntra en Ranking, Mi peña, y escribe el código.\nDescarga la app: https://apklis.cu/application/la.pelota.cubana.hoy";
   window.open("https://wa.me/?text="+encodeURIComponent(txt), "_blank");
 }
 
@@ -3405,7 +3486,7 @@ async function publishFantasy(){
   if(!tname){ toast('Ponle un nombre a tu equipo'); return; }
   if(fantFilled() < 10){ toast('Completa las 10 posiciones para publicar'); return; }
   const cost = fantCost();
-  if(cost > FANT_BUDGET){ toast('Te pasas del presupuesto: ' + cost + ' / ' + FANT_BUDGET + ' monedas'); return; }
+  if(cost > FANT_BUDGET){ toast('Te pasas del presupuesto: ' + cost + ' / ' + FANT_BUDGET + ' monedas' + (FANT_EDIT ? ' \u00b7 los precios subieron desde que publicaste este equipo' : '')); return; }
   const u = getUser() || {};
   const csv = fantKeysOrdered().join(',');
   try{ localStorage.setItem(FPUB_KEY, JSON.stringify({team: tname, players: fantKeysOrdered(), cost, ts: Date.now()})); }catch(e){}
@@ -3430,8 +3511,10 @@ function fantTeamCard(t, pos, isMine, myVote){
   const P = JUGADORES ? JUGADORES.players : {};
   const voted = myVote && myVote === t.id;
   const badges = ['C','1B','2B','3B','SS',null,null,null,'BD','P'];
+  let todayCost = 0, allKnown = true;
   const rows = (t.players||[]).map((key, i) => {
     const p = P[key]; const slot = FANT_ORDER[i];
+    if(p) todayCost += fantSlotPrice(slot, p); else allKnown = false;
     const badge = badges[i] || (p && p.pos ? p.pos : 'OF');
     return '<div class="fprow"><span class="posbadge">'+esc(badge)+'</span>'+(p?playerFoto(p, null):'')
       + '<span style="flex:1;min-width:0"><b>'+esc(p ? fmtName(p.name) : key)+'</b> <small style="color:var(--muted)">'+esc(p ? (TEAMS[p.team]||{name:p.team}).name : '')+'</small><br>'
@@ -3440,7 +3523,7 @@ function fantTeamCard(t, pos, isMine, myVote){
   }).join('');
   return '<div class="fteam'+(pos===0 && t.votes>0 ? ' top':'')+'">'
     + '<div style="display:flex;align-items:center;gap:8px"><b style="font-size:16px;flex:1;min-width:0">'+(pos===0 && t.votes>0 ? FICON.crown+' ':'')+esc(t.team)+'</b>'
-    + '<span class="price">'+FICON.coin+' '+t.cost+'</span><span class="price" style="background:rgba(232,96,76,.15);color:#ff8a75;border-color:rgba(232,96,76,.4)">'+FICON.heart+' '+t.votes+'</span></div>'
+    + '<span class="price">'+FICON.coin+' '+((allKnown && (t.players||[]).length===10) ? todayCost : (t.cost!=null ? t.cost : todayCost))+'</span><span class="price" style="background:rgba(232,96,76,.15);color:#ff8a75;border-color:rgba(232,96,76,.4)">'+FICON.heart+' '+t.votes+'</span></div>'
     + '<div class="gmeta" style="margin:2px 0 8px">por '+esc(t.by)+(isMine ? ' · <b style="color:var(--gold)">TU EQUIPO</b>' : '')+'</div>'
     + rows
     + (isMine ? '' : '<button class="btn ghost" style="width:100%;margin-top:8px" onclick="voteFantasy(\''+t.id+'\')">'+(voted ? '✓ Tu voto es para este equipo' : FICON.heart+' Votar por este equipo')+'</button>')
@@ -3643,18 +3726,12 @@ function renderConcurso(){
 let cCountTimer = null;
 function stopCuenta(){ if(cCountTimer){ clearInterval(cCountTimer); cCountTimer=null; } } /* U16 */
 function habanaWall(ms){
-  const o = {};
-  new Intl.DateTimeFormat('en-CA',{timeZone:'America/Havana',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).formatToParts(new Date(ms)).forEach(p=>{ o[p.type]=p.value; });
-  const wd = new Date(ms).toLocaleDateString('en-US',{timeZone:'America/Havana',weekday:'short'});
-  return {y:+o.year, mo:+o.month, d:+o.day, h:(+o.hour)%24, mi:+o.minute, wd:wd};
+  const d = cubaDate(ms), WD = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  return {y:d.getUTCFullYear(), mo:d.getUTCMonth()+1, d:d.getUTCDate(), h:d.getUTCHours(), mi:d.getUTCMinutes(), wd:WD[d.getUTCDay()]};
 }
 function habanaAEpoch(y,mo,d,h,mi){
-  let guess = Date.UTC(y, mo-1, d, h, mi);
-  for(let k=0;k<3;k++){
-    const w = habanaWall(guess);
-    guess += (Date.UTC(y,mo-1,d,h,mi) - Date.UTC(w.y,w.mo-1,w.d,w.h,w.mi));
-  }
-  return guess;
+  /* Hora de Cuba (UTC-4 fijo) -> epoch: la hora mural y:m:d h:mi es UTC y:m:d h:mi+4h. */
+  return Date.UTC(y, mo-1, d, h, mi) - CUBA_OFFSET_MS;
 }
 function proximoResultado(){
   const w = habanaWall(Date.now());
@@ -3886,7 +3963,7 @@ let refreshing = false;
 /* Consulta en vivo: datos.json liviano publicado junto a la app (~12 KB).
    Actualiza las tarjetas en su lugar sin reabrir la app. */
 const DATOS_URLS = ["datos.json", "https://tecnobum.github.io/lapelotacubana/datos.json"];
-let pollBusy = false, lastPollOk = 0;
+let pollBusy = false, lastPollOk = 0, pollFails = 0, pollFailToasted = false;
 async function pollDatos(){
   if(pollBusy || document.hidden) return; pollBusy = true;
   try{
@@ -3929,6 +4006,10 @@ async function pollDatos(){
       if(MURO_DATA) loadMuro(true).then(()=>renderMuro());
       lastPollOk = Date.now();
       if(typeof syncRank==="function") syncRank();
+      pollFails = 0; pollFailToasted = false;
+    } else {
+      pollFails++;
+      if(pollFails>=2 && !pollFailToasted){ pollFailToasted=true; toast("Sin conexión: no se pudieron actualizar los datos. Se muestran los últimos disponibles."); }
     }
   }catch(e){}
   pollBusy = false;
@@ -3958,6 +4039,7 @@ async function refreshLive(silent){
       }
     }
   }catch(e){}
+  if(!ok && !silent) toast("No se pudo actualizar en vivo. Revisa tu conexión.");
   if(btn){ btn.disabled = false; btn.textContent = "Actualizar en vivo"; }
   refreshing = false;
   return ok;
@@ -3985,9 +4067,10 @@ function closeApkModal(){
    (OP_OK| / OPC_OK| desde el panel; el servidor lo agrega a opiniones.json). */
 const OP_URLS = ["opiniones.json","https://tecnobum.github.io/lapelotacubana/opiniones.json"];
 let OP_DATA = null; const OP_OPEN = {};
+let OP_BUSY=false, OPC_BUSY=false;
 function opMyIds(){ try{ return JSON.parse(localStorage.getItem("lpc-my-opinions")||"[]"); }catch(e){ return []; } }
 function opSaveMy(id){ try{ const a = opMyIds(); if(a.indexOf(id)<0){ a.push(id); localStorage.setItem("lpc-my-opinions", JSON.stringify(a.slice(-30))); } }catch(e){} }
-function opFecha(ts){ try{ return new Date(ts*1000).toLocaleDateString("es",{timeZone:"America/Havana",day:"numeric",month:"short"})+" · "+new Date(ts*1000).toLocaleTimeString("es",{timeZone:"America/Havana",hour:"numeric",minute:"2-digit"}); }catch(e){ return ""; } }
+function opFecha(ts){ try{ const d=cubaDate(ts*1000), ME=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"], p=x=>String(x).padStart(2,"0"); return d.getUTCDate()+" "+ME[d.getUTCMonth()]+" · "+d.getUTCHours()+":"+p(d.getUTCMinutes()); }catch(e){ return ""; } }
 function opTeamName(t){ try{ return (TEAMS[t]||{name:t}).name || t || ""; }catch(e){ return t||""; } }
 async function loadOpiniones(){
   renderOpiniones();
@@ -4035,6 +4118,7 @@ async function submitOpinion(){
   const tEl = document.getElementById("opTitle"), xEl = document.getElementById("opText");
   const title = opClean(tEl.value, 80), text = String(xEl.value||"").replace(/\|/g," ").trim().slice(0,600);
   if(text.length < 3){ toast("Escribe tu opini\u00f3n primero"); return; }
+  if(OP_BUSY) return; OP_BUSY = true;
   const u = getUser()||{};
   const name = opClean(u.name||"An\u00f3nimo", 30), team = String(u.team||"").replace(/[^A-Za-z]/g,"").slice(0,8).toUpperCase();
   const id = "o"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
@@ -4044,13 +4128,14 @@ async function submitOpinion(){
     opSaveMy(id); tEl.value=""; xEl.value=""; document.getElementById("opCount").textContent="0";
     toast("Opini\u00f3n enviada. Queda en revisi\u00f3n del administrador.");
     renderOpiniones();
-  }catch(e){ toast("No se pudo enviar. Revisa tu conexi\u00f3n."); }
+  }catch(e){ toast("No se pudo enviar. Revisa tu conexi\u00f3n."); }finally{ OP_BUSY = false; }
 }
 async function submitOpComment(oid){
   if(!accountComplete()){ openUserModal(true); return; }
   const el = document.getElementById("opc-"+oid); if(!el) return;
   const text = String(el.value||"").replace(/\|/g," ").trim().slice(0,300);
   if(text.length < 2){ toast("Escribe tu comentario primero"); return; }
+  if(OPC_BUSY) return; OPC_BUSY = true;
   const u = getUser()||{};
   const name = opClean(u.name||"An\u00f3nimo", 30), team = String(u.team||"").replace(/[^A-Za-z]/g,"").slice(0,8).toUpperCase();
   const cid = "c"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
@@ -4058,7 +4143,7 @@ async function submitOpComment(oid){
     const ok = await opSend("OPCOMMENT|"+cid+"|"+oid+"|"+getUid()+"|"+name+"|"+team+"|"+text.replace(/\n+/g," "));
     if(!ok) throw 0;
     el.value=""; toast("Comentario enviado. Se ver\u00e1 cuando el administrador lo apruebe.");
-  }catch(e){ toast("No se pudo enviar. Revisa tu conexi\u00f3n."); }
+  }catch(e){ toast("No se pudo enviar. Revisa tu conexi\u00f3n."); }finally{ OPC_BUSY = false; }
 }
 
 /* ============ REPORTES (5-nov-2026) ============
@@ -4068,6 +4153,7 @@ async function submitOpComment(oid){
    se ve aquí junto al reporte. */
 const REP_URLS = ["reportes.json","https://tecnobum.github.io/lapelotacubana/reportes.json"];
 let REP_DATA = null; let REP_TIPO = "error";
+let REP_BUSY=false;
 function repSetTipo(t){
   REP_TIPO = t;
   const e = document.getElementById("repTipoError"), s = document.getElementById("repTipoSug");
@@ -4078,7 +4164,7 @@ function repSetTipo(t){
 }
 function repMyIds(){ try{ return JSON.parse(localStorage.getItem("lpc-my-reports")||"[]"); }catch(e){ return []; } }
 function repSaveMy(id){ try{ const a = repMyIds(); if(a.indexOf(id)<0){ a.push(id); localStorage.setItem("lpc-my-reports", JSON.stringify(a.slice(-30))); } }catch(e){} }
-function repFecha(ts){ try{ return new Date(ts*1000).toLocaleDateString("es",{timeZone:"America/Havana",day:"numeric",month:"short"}); }catch(e){ return ""; } }
+function repFecha(ts){ try{ const d=cubaDate(ts*1000), ME=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"]; return d.getUTCDate()+" "+ME[d.getUTCMonth()]; }catch(e){ return ""; } }
 async function loadReportes(){
   renderReportes();
   for(const u of REP_URLS){
@@ -4117,6 +4203,7 @@ async function submitReporte(){
   const xEl = document.getElementById("repText");
   const text = String(xEl.value||"").replace(/\|/g," ").trim().slice(0,800);
   if(text.length < 5){ toast("Describe un poco más el reporte"); return; }
+  if(REP_BUSY) return; REP_BUSY = true;
   const u = getUser()||{};
   const name = opClean(u.name||"An\u00f3nimo", 30), team = String(u.team||"").replace(/[^A-Za-z]/g,"").slice(0,8).toUpperCase();
   const id = "r"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
@@ -4126,7 +4213,7 @@ async function submitReporte(){
     repSaveMy(id); xEl.value=""; document.getElementById("repCount").textContent="0";
     toast("Reporte enviado. El equipo de desarrollo lo revisará.");
     renderReportes();
-  }catch(e){ toast("No se pudo enviar. Revisa tu conexi\u00f3n."); }
+  }catch(e){ toast("No se pudo enviar. Revisa tu conexi\u00f3n."); }finally{ REP_BUSY = false; }
 }
 
 /* ============ CINTILLO: MEJORES DE AYER ============
@@ -4265,7 +4352,7 @@ async function nvSend(text){
     return r.ok;
   }catch(e){ return false; }
 }
-function fmtHora(ts){ try{ return new Date(ts*1000).toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"}); }catch(e){ return ""; } }
+function fmtHora(ts){ try{ const d=cubaDate(ts*1000), p=x=>String(x).padStart(2,"0"); return p(d.getUTCHours())+":"+p(d.getUTCMinutes()); }catch(e){ return ""; } }
 const DUEL_URLS = ["duelos.json","https://tecnobum.github.io/lapelotacubana/duelos.json"];
 const ENC_URLS = ["encuesta.json","https://tecnobum.github.io/lapelotacubana/encuesta.json"];
 const CHAT_URLS = ["chat.json","https://tecnobum.github.io/lapelotacubana/chat.json"];
@@ -4640,7 +4727,7 @@ async function sendChat(gid, num){
   const now = Date.now();
   const last = +(localStorage.getItem("lpc-chat-last")||"0");
   if(now-last < 60000){ toast("Espera un minuto entre mensajes"); return; }
-  const t = habanaParts().dstr;
+  const t = cubaDateStr();
   const dayKey = "lpc-chat-day";
   let cnt = 0;
   try{ const d = JSON.parse(localStorage.getItem(dayKey)||"{}"); cnt = d[t]||0; }catch(e){}
@@ -4862,7 +4949,7 @@ async function submitMuro(){
   const text = (inp.value||"").trim();
   const hasPhoto = !!MURO_PHOTO_BLOB;
   if(!text && !hasPhoto){ toast("Escribe algo o agrega una foto"); return; }
-  const t = habanaParts().dstr;
+  const t = cubaDateStr();
   let cnt = 0;
   try{ const d = JSON.parse(localStorage.getItem("lpc-muro-day")||"{}"); cnt = d[t]||0; }catch(e){}
   if(cnt>=5){ toast("Solo puedes publicar 5 posts por día"); return; }
@@ -4908,7 +4995,7 @@ function renderMuro(){
   if(!MURO_DATA){
     el.innerHTML = '<div class="skel" style="height:72px"></div><div class="skel" style="height:72px"></div><div class="skel" style="height:72px"></div>';
     const meta = document.getElementById("muroMeta"); if(meta) meta.textContent = "";
-    if(getMuroPending().length) muroConfirmStart();
+    if(getMuroPending().some(p=>!p.warned)) muroConfirmStart();
     return;
   }
   const posts = muroSortedPosts();
@@ -4924,7 +5011,7 @@ function renderMuro(){
   if(meta) meta.textContent = total ? total+" publicaciones" : "";
   const more = document.getElementById("muroMore");
   if(more) more.style.display = (page+1)*per < total ? "" : "none";
-  if(pend.length) muroConfirmStart();
+  if(pend.some(p=>!p.warned)) muroConfirmStart();
   muroApplyDeep();
 }
 function muroNextPage(){ MURO_PAGE++; renderMuro(); }
@@ -5077,13 +5164,13 @@ try{
   captureRef();
   const _qs = new URLSearchParams(location.search).get("s");
   const _ok = ["inicio","jornada","posiciones","calendario","lideres","equipos","miequipo","noticias","envivo","mundialu23","predicciones","ranking","concurso","fantasy","opiniones","muro","reportes","grupos"];
-  if(_qs && _ok.indexOf(_qs)>=0 && _qs!=="inicio") setTimeout(()=>go(_qs), 350);
+  if(_qs && _ok.indexOf(_qs)>=0){ window.__deepSection=_qs; if(_qs!=="inicio") setTimeout(()=>go(_qs), 350); }
 }catch(e){}
 /* Perfil público: ?p=<uid> abre el perfil de ese jugador (20-nov-2026).
    Con ?s=muro&p=<id>, la p es un post del Muro, no un perfil. */
 try{
   const _qp = new URLSearchParams(location.search).get("p");
-  if(_qp && !muroHandleDeepParam()) setTimeout(()=>openProfile(_qp), 1200);
+  if(_qp && !muroHandleDeepParam()){ if(accountComplete()) setTimeout(()=>openProfile(_qp), 1200); else window.__deepProfile=_qp; }
 }catch(e){}
 /* Normalizar estado inicial: "hoy" es la fecha real de Cuba, no la última fecha con datos */
 const _todayStr = habanaParts().dstr;
@@ -5195,7 +5282,7 @@ document.addEventListener("contextmenu", e=>{
   if(sessionStorage.getItem('lpcVisita'))return;
   sessionStorage.setItem('lpcVisita','1');
   var ns='tecnobum-lapelotacubana';
-  var hoy=new Date().toLocaleDateString('en-CA',{timeZone:'America/Havana'});
+  var hoy=cubaDstr();
   fetch('https://abacus.jasoncameron.dev/hit/'+ns+'/visitas-total',{mode:'no-cors',keepalive:true}).catch(function(){});
   fetch('https://abacus.jasoncameron.dev/hit/'+ns+'/visitas-'+hoy,{mode:'no-cors',keepalive:true}).catch(function(){});
 }catch(e){}})();
@@ -5281,7 +5368,7 @@ document.addEventListener("contextmenu", e=>{
    El panel publica con contadores del dia; gana el valor mayor; 0 = apagado. */
 (function(){
   var NS='tecnobum-lapelotacubana', API='https://abacus.jasoncameron.dev/get/'+NS+'/';
-  function hoyStr(){ return new Date().toLocaleDateString('en-CA',{timeZone:'America/Havana'}); }
+  function hoyStr(){ return cubaDstr(); }
   function leer(k){ return fetch(API+k).then(function(r){ return r.ok?r.json():{value:0}; }).then(function(j){ return (j&&typeof j.value==='number')?j.value:0; }).catch(function(){ return 0; }); }
   function elegir(pref){
     return Promise.all([0,1,2,3].map(function(v){ return leer(pref+'-'+hoyStr()+'-v'+v); })).then(function(vals){
@@ -5342,9 +5429,9 @@ document.addEventListener("contextmenu", e=>{
       M.push({t:'📊 Ya están los '+fin.length+' resultados con su boxscore completo: línea, bateo y pitcheo', d:irJ});
     }
     try{ var lb=(typeof LEADERS_BAT!=='undefined'&&LEADERS_BAT&&LEADERS_BAT[0])?LEADERS_BAT[0]:null;
-      if(lb) M.push({t:'🏏 '+lb.name+' ('+lb.team+') manda en el bateo con '+lb.val+' en '+lb.cat, d:function(){ if(typeof go==='function') go('lideres'); }});
+      if(lb) M.push({t:'🏏 '+fmtName(lb.name)+' ('+lb.team+') manda en el bateo con '+lb.val+' en '+lb.cat, d:function(){ if(typeof go==='function') go('lideres'); }});
       var lp=(typeof LEADERS_PIT!=='undefined'&&LEADERS_PIT&&LEADERS_PIT[0])?LEADERS_PIT[0]:null;
-      if(lp) M.push({t:'⚡ Desde la lomita el que manda es '+lp.name+' ('+lp.team+'): '+lp.val+' en '+lp.cat, d:function(){ if(typeof go==='function') go('lideres'); }});
+      if(lp) M.push({t:'⚡ Desde la lomita el que manda es '+fmtName(lp.name)+' ('+lp.team+'): '+lp.val+' en '+lp.cat, d:function(){ if(typeof go==='function') go('lideres'); }});
     }catch(e){}
     try{ var oc=(typeof STANDINGS!=='undefined'&&STANDINGS&&STANDINGS.occ&&STANDINGS.occ[0])?STANDINGS.occ[0]:null;
       if(oc) M.push({t:'📈 '+oc.t+' lidera su grupo con '+oc.w+' ganados y '+oc.l+' perdidos. Mira la tabla completa', d:function(){ if(typeof go==='function') go('posiciones'); }});

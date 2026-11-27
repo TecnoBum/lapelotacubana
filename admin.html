@@ -267,6 +267,7 @@
       <div class="btnrow">
         <button class="azul" id="btnOrdenCopy">Copiar comando</button>
         <button class="ghost" id="btnOrdenReset">Restablecer</button>
+        <button class="ghost" id="btnOrdenOpiniones">＋ Mostrar Opiniones y Debate</button>
       </div>
       <div class="nota">Sube o baja las secciones con las flechas y copia el comando: pégalo en tu <b>canal privado de Telegram</b> y el menú de la aplicación (gratis y Pro) se reordena solo en unos minutos. «Internacional» solo se ve en la Pro.</div>
       <div class="cmdbox" id="ordenCmd" style="display:none"></div>
@@ -317,7 +318,7 @@
     <div class="panel">
       <h2><span class="ico">🧱</span> Muro · Publicaciones</h2>
       <div id="muroResumen"><p class="estado">Cargando…</p></div>
-      <div class="nota">El Muro se publica al instante, sin revisión. Solo puedes <b>borrar</b> contenido: cada botón genera el comando y lo copia; pégalo en tu <b>canal privado de Telegram</b> y se aplica solo en unos minutos. Borrar es definitivo.</div>
+      <div class="nota">El Muro se publica al instante, sin revisión. Solo puedes <b>borrar</b> y <b>fijar</b> contenido (un solo post fijado a la vez): cada botón genera el comando y lo copia; pégalo en tu <b>canal privado de Telegram</b> y se aplica solo en unos minutos. Borrar es definitivo.</div>
       <div class="cmdbox" id="muroCmd" style="display:none"></div>
     </div>
     <div class="panel">
@@ -1080,8 +1081,8 @@ function cargarMuro() {
     res.innerHTML = '<p class="estado">Publicaciones: <b>' + posts.length + '</b> · Actualizado: ' + esc(a.updated || '—') + '</p>';
     ml.innerHTML = posts.length ? posts.slice(0, 50).map(function (p) {
       return '<div class="opitem"><div class="tx">' + esc(p.text || '') + '</div>' +
-        '<div class="meta">' + esc(p.name || '') + (p.team ? ' · ' + esc(p.team) : '') + ' · ' + opFecha(p.ts) + ' · ♥ ' + (p.likes || 0) + ' · id ' + esc(p.id) + '</div>' +
-        '<div class="minirow"><button class="ghost" onclick="muroComando(\'MURO_DEL|' + esc(p.id) + '\')">🗑 Borrar</button></div></div>';
+        '<div class="meta">' + esc(p.name || '') + (p.team ? ' · ' + esc(p.team) : '') + ' · ' + opFecha(p.ts) + ' · ♥ ' + (p.likes || 0) + (p.pinned ? ' · 📌 Fijado' : '') + ' · id ' + esc(p.id) + '</div>' +
+        '<div class="minirow"><button class="ghost" onclick="muroComando(\'MURO_PIN|' + esc(p.id) + '\')">📌 Fijar</button>' + (p.pinned ? '<button class="ghost" onclick="muroComando(\'MURO_UNPIN|' + esc(p.id) + '\')">Quitar fijado</button>' : '') + '<button class="ghost" onclick="muroComando(\'MURO_DEL|' + esc(p.id) + '\')">🗑 Borrar</button></div></div>';
     }).join('') : '<p class="estado">Aún no hay publicaciones en el Muro.</p>';
   });
   leerJSON('./chat.json').then(function (c) {
@@ -1104,6 +1105,8 @@ var ORDEN_LABELS = { inicio: 'Inicio', jornada: 'Jornada', posiciones: 'Posicion
 var ORDEN_DEFAULT = ['inicio','muro','jornada','posiciones','calendario','lideres','equipos','miequipo','noticias','envivo','internacional','predicciones','ranking','concurso','fantasy','reportes','grupos','donaciones'];
 var ordenActual = ORDEN_DEFAULT.slice();
 function pintarOrden() {
+  var _bOp = document.getElementById('btnOrdenOpiniones');
+  if (_bOp) _bOp.textContent = ordenActual.indexOf('opiniones') >= 0 ? '－ Quitar Opiniones y Debate' : '＋ Mostrar Opiniones y Debate';
   document.getElementById('ordenList').innerHTML = ordenActual.map(function (id, i) {
     return '<div class="ordrow"><span class="nm">' + (i + 1) + '. ' + esc(ORDEN_LABELS[id] || id) + '</span>' +
       '<button class="ghost" onclick="moverOrden(' + i + ',-1)"' + (i === 0 ? ' disabled style="opacity:.35"' : '') + '>↑</button>' +
@@ -1132,6 +1135,13 @@ document.getElementById('btnOrdenCopy').addEventListener('click', function () {
   box.style.display = 'block'; box.textContent = cmd;
   copiarTexto(cmd, 'Comando copiado: nuevo orden de secciones. Pégalo en tu canal de Telegram.');
 });
+function toggleOrdenOpiniones() {
+  var i = ordenActual.indexOf('opiniones');
+  if (i >= 0) { ordenActual.splice(i, 1); }
+  else { var f = ordenActual.indexOf('fantasy'); ordenActual.splice(f >= 0 ? f + 1 : ordenActual.length, 0, 'opiniones'); }
+  pintarOrden();
+}
+document.getElementById('btnOrdenOpiniones').addEventListener('click', toggleOrdenOpiniones);
 document.getElementById('btnOrdenReset').addEventListener('click', function () {
   ordenActual = ORDEN_DEFAULT.slice(); pintarOrden();
   var cmd = 'ORDER|' + ordenActual.join(',');
